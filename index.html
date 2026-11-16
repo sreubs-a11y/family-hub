@@ -582,7 +582,9 @@ const byLine=x=>`${x.priv?LOCK+'Private · ':''}<span class="by ${x.by}">${x.by=
 const filterChips=(priv=true)=>`<div class="chips" role="group" aria-label="Filter by who added it">${[['all','Everyone'],['mine','Added by me'],['theirs','Added by '+PEOPLE[OTHER()]]].concat(priv?[['private','Private']]:[]).map(([v,l])=>`<button class="chip ${S.filter===v?'on':''}" data-act="filter" data-v="${v}">${l}</button>`).join('')}</div>`;
 const spanDay=(e,d)=>{const n=spanOf(e);if(!n)return e;let k=0;while(k<n&&!startsOn(e,d-k))k++;return k===0?{...e,mday:[1,n+1]}:{...e,time:'',mday:[k+1,n+1],lastEnd:k===n?e.end:''}};
 const dayEvents=(d,f)=>events.filter(e=>!e.dupOf&&occurs(e,d)&&visible(e)&&(!f||passFilter(e))).map(e=>spanDay(e,d)).concat(bdayEvents(d)).sort((a,b)=>a.time.localeCompare(b.time));
-const dupsOf=e=>events.filter(x=>x.dupOf===e.id);
+// the same duplicate pulled more than once is shown once
+const dupsOf=e=>{const seen={};return events.filter(x=>x.dupOf===e.id).filter(x=>{const k=x.src+'|'+x.title+'|'+x.time;return seen[k]?false:(seen[k]=1)})};
+const showDups=()=>{try{return localStorage.getItem('fh-dups')==='1'}catch(e){return !!S.dups}};
 const isoOf=d=>d?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`:'';
 const fmtTime=t=>{if(!t)return'All day';let[h,m]=t.split(':').map(Number);const ap=h>=12?'pm':'am';h=h%12||12;return h+(m?':'+String(m).padStart(2,'0'):'')+ap};
 function toast(msg){document.querySelectorAll('.toast').forEach(t=>t.remove());const t=document.createElement('div');t.className='toast';t.setAttribute('role','status');t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),1800)}
@@ -591,7 +593,7 @@ const dotsFor=d=>{const t=[...new Set(dayEvents(d,true).map(e=>e.type==='appoint
 // ---------- views ----------
 function eventRow(e,d){
   if(e.bday)return `<button class="row evbtn" data-act="go" data-v="birthdays"><span class="stripe birthday"></span><span class="time num">All day</span><div class="main"><div class="t">${esc(e.title)}</div><div class="s">${esc(e.bday.rel||'Birthday')}${e.bday.known?'':' · year worked out from age'}</div></div>${ICON.cake.replace('<svg','<svg width="20" height="20" style="color:var(--bday);flex:none"')}</button>`;
-  const dn=dupsOf(e).length;
+  const dn=showDups()?dupsOf(e).length:0;
   return `<button class="row evbtn" data-act="evDetail" data-id="${e.id}"><span class="stripe ${e.type==='appointment'?'event':e.type}"></span><span class="time num">${fmtTime(e.time)}</span>
   <div class="main"><div class="t">${esc(e.title)} ${isNew('event',e)?NEWPILL:''}${dn?`<span class="dupchip">+${dn} duplicate</span>`:''}</div><div class="s">${e.mday?`Day ${e.mday[0]} of ${e.mday[1]}${e.lastEnd?' · until '+fmtTime(e.lastEnd):''} · `:''}${e.sub?esc(e.sub)+' · ':''}${e.rep?'↻ '+REP[e.rep.f]+' · ':''}${byLine(e)} · ${esc(SRC[e.src]||e.src)}</div></div>${whoBadge(e.who)}</button>`;
 }
@@ -856,9 +858,11 @@ function V_settings(){
   const KIND={google:'Google',ics_pull:'iCal subscription',ics_feed:'iCal feed'};
   const c=cfg()||{};
   return `<section><div class="sec-head"><h2>Colour scheme</h2><span class="hint">Just for you</span></div><div class="swatches">${THEMES_HTML}</div></section>
+  <section><div class="sec-head"><h2>Display</h2><span class="hint">Just for you</span></div>
+    <div class="card"><div class="toggle" style="padding:12px 14px"><span><div style="font-weight:600">Show duplicate info</div><div class="hint" style="font-size:12px">Marks events that also appear in another calendar, and lists the copies on the event. Off just hides them.</div></span><button class="sw-btn ${showDups()?'on':''}" data-act="toggleDups" aria-pressed="${showDups()}" aria-label="Show duplicate info"></button></div></div></section>
   <section><div class="sec-head"><h2>Calendars</h2><button class="link" data-act="syncMine">↻ Sync mine</button></div>
     <div class="card rows">${CALS.map(k=>`<div class="row"><div class="main"><div class="t">${esc(k.name)}</div><div class="s">${k.kind==='ics_feed'?'Push only':k.pull&&k.push?'Pull + push':k.pull?'Pull':'Push'}${k.owner!=='B'?' · syncs when '+PEOPLE[k.owner]+' taps Sync':' · shared, syncs every hour'}</div></div><span class="kind">${KIND[k.kind]||k.kind}</span>${whoBadge(k.owner||'B')}</div>`).join('')||'<div class="empty">No calendars yet. Add them on the Calendars tab of the sheet.</div>'}</div>
-    <div class="hint">Sync only pulls the calendars you own. Duplicates are kept as a record but hidden. An event is never pushed to a calendar it (or its duplicate) came from, but still goes to the others.</div></section>
+    <div class="hint">Sync only pulls the calendars you own. Events pulled from more than one calendar are shown once; the extra copies are kept as a record.</div></section>
   <section><div class="sec-head"><h2>This phone</h2></div>
     <div class="card rows"><div class="row">${whoBadge(S.me)}<div class="main"><div class="t">Signed in as ${esc(PEOPLE[S.me])}</div><div class="s">${c.session?esc(c.email||'with Google'):'with the family passcode'}</div></div>${c.session?'<button class="btn ghost sm" data-act="signOut">Sign out</button>':'<button class="btn ghost sm" data-act="switchMe">Change</button>'}</div>
     <div class="row"><div class="main"><div class="t">Last save</div><div class="s">${esc(lastErr||'All changes saved')}</div></div><button class="btn ghost sm" data-act="refreshNow">Refresh</button></div></div></section>`;
@@ -925,7 +929,7 @@ function sheetEventDetail(e){
    <div class="row"><div class="main"><div class="s">Calendar</div><div class="t">${esc(SRC[e.src]||e.src)}</div><div class="s">${byLine(e)}</div></div></div></div>
   ${e.priv?'':e.src!=='app'?`<div class="hint">Pulled from ${esc(SRC[e.src]||e.src)}. Pulled events show in Family Hub only and are never copied to another calendar.</div>`:PUSH_TO.length?`<div class="aisle">Copied to</div><div class="card rows">${PUSH_TO.map(c=>{const here=dups.find(x=>x.src===c);
      return `<div class="row"><div class="main"><div class="t">${PUSH_NAME[c]}</div><div class="s">${!e.gcal?'Off for this event':here?`Skipped: already there as "${esc(here.title)}"`:'Copied when the calendars next sync'}</div></div><span class="kind">${!e.gcal||here?'Skip':'✓'}</span></div>`}).join('')}</div>`:''}
-  ${dups.length?`<div class="aisle">Possible duplicates · kept as a record</div><div class="card rows">${dups.map(x=>`<div class="row"><div class="main"><div class="t">${esc(x.title)}</div><div class="s">${esc(SRC[x.src]||x.src)} · ${fmtTime(x.time)} · ${esc(x.dupWhy)}</div></div><button class="btn ghost sm" data-act="notDup" data-id="${x.id}">Not a duplicate</button></div>`).join('')}</div>
+  ${dups.length&&showDups()?`<div class="aisle">Possible duplicates · kept as a record</div><div class="card rows">${dups.map(x=>`<div class="row"><div class="main"><div class="t">${esc(x.title)}</div><div class="s">${esc(SRC[x.src]||x.src)} · ${fmtTime(x.time)} · ${esc(x.dupWhy)}</div></div><button class="btn ghost sm" data-act="notDup" data-id="${x.id}">Not a duplicate</button></div>`).join('')}</div>
   <div class="hint" style="font-size:12px">A duplicate stays hidden and is never copied anywhere. Tap "Not a duplicate" to show it as its own event.</div>`:''}
   ${e.by===S.me?`<button class="btn ghost block" data-act="delEvent" data-id="${e.id}">Delete${e.rep?' all repeats':''}</button>`:''}`);
 }
@@ -1133,6 +1137,7 @@ document.addEventListener('click',e=>{
    case'openNote':{const x=notes.find(y=>y.id===n('n'));x.read=true;if(x.kind==='todo')go('todos');else{S.sel=events.find(e=>e.id===x.ref).d;S.calMode='week';S.weekStart=Math.floor(S.sel/7)*7;go('calendar')}break}
    case'todoToggle':{const t=todos.find(x=>x.id===n('id'));t.done=!t.done;if(t.done&&t.rep&&t.date&&!todos.some(x=>x!==t&&x.title===t.title&&x.date&&isoOf(x.date)===isoOf(nextDate(t.date,t.rep.f)))){const nx={...t,id:id(),done:false,date:nextDate(t.date,t.rep.f)};t.spawned=true;todos.push(nx);render();toast(`Done. Next one: ${DN[nx.date.getDay()]} ${nx.date.getDate()} ${MN[nx.date.getMonth()]}`)}else render();break}
    case'swToggle':el.classList.toggle('on');break;
+   case'toggleDups':{const on=!showDups();try{localStorage.setItem('fh-dups',on?'1':'0')}catch(e){S.dups=on}render();break}
    case'saveEvent':{const t=$('#evTitle').value.trim();if(!t){$('#evTitle').focus();return}
      const priv=el.dataset.priv==='1';const d=diff(new Date($('#evDate').value+'T00:00'));const g=!priv&&$('#evG').classList.contains('on');
      const rp=$('#evRep').value,un=$('#evUntil').value,en=$('#evEnd').value;const endD=en?diff(new Date(en+'T00:00')):null;const ne={id:id(),d,endD:endD!=null&&endD>d?endD:null,time:$('#evTime').value||'',title:t,type:$('#evType').value,who:$('#evWho').value,by:S.me,priv,gcal:g,src:'app',rep:rp?{f:rp,until:un?diff(new Date(un+'T00:00')):null}:null};events.push(ne);if(!priv&&ne.who!==S.me)notify(ne.who,'event',ne.id,`${PEOPLE[S.me]} assigned you ${ne.type==='pickup'?'a pick-up':'an event'}`);
@@ -1223,7 +1228,7 @@ async function doSync(){
   try{const d=diffTabs();if(d.n)await persist();const j=await api('sync');await loadAll();
     sheet(`<h3>Synced ${esc(PEOPLE[S.me])}'s calendars</h3><div class="hint">Only calendars you own were pulled. ${esc(PEOPLE[OTHER()])}'s sync on their own phone; shared ones sync every hour.</div>
      <div class="card rows"><div class="row"><div class="main"><div class="t">${j.added.length} new event${j.added.length===1?'':'s'}${j.updated?`, ${j.updated} updated`:''}${j.removed?`, ${j.removed} removed`:''}</div><div class="s">${j.pushed} pushed to other calendars</div></div></div>
-     ${j.duplicates.map(x=>`<div class="row"><div class="main"><div class="t">"${esc(x.title)}" looks like "${esc(x.matches)}"</div><div class="s">${esc(x.calendar)} · kept as a duplicate record, hidden</div></div></div>`).join('')}
+     ${(showDups()?j.duplicates:[]).map(x=>`<div class="row"><div class="main"><div class="t">"${esc(x.title)}" looks like "${esc(x.matches)}"</div><div class="s">${esc(x.calendar)} · kept as a duplicate record, hidden</div></div></div>`).join('')}
      ${j.errors.map(x=>`<div class="row"><div class="main"><div class="t" style="color:var(--protein)">Problem</div><div class="s">${esc(x)}</div></div></div>`).join('')}</div>
      <button class="btn block" data-act="closeSheetBtn">Done</button>`);render()}
   catch(e){sheet(`<h3>Sync didn't finish</h3><div class="hint">${esc(e.message)}</div><button class="btn block" data-act="closeSheetBtn">OK</button>`)}
