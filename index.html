@@ -178,6 +178,21 @@ input[type=text],input[type=number],input[type=date],input[type=time],select{fon
 .dragging{opacity:.3}
 .over{background:var(--meal-soft)!important;box-shadow:inset 0 0 0 2px var(--meal)}
 body.is-dragging{user-select:none;-webkit-user-select:none}
+[hidden]{display:none!important}
+.gchips{display:flex;gap:6px;overflow-x:auto;padding:0 max(12px, env(safe-area-inset-left,0px)) 8px;scrollbar-width:none}
+.gchips::-webkit-scrollbar{display:none}
+.gchip{flex:none;display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:4px 10px 4px 7px;font-size:12px;font-weight:600}
+.gchip i{width:10px;height:10px;border-radius:50%;background:transparent;box-shadow:inset 0 0 0 2px var(--c)}
+.gchip.on{color:var(--fg);border-color:color-mix(in srgb,var(--c) 50%,var(--line))}
+.gchip.on i{background:var(--c)}
+.gchip.edit{padding:4px 10px;color:var(--accent)}
+.row.past .t{text-decoration:line-through;text-decoration-thickness:1.5px}
+.row.past{opacity:.55}
+.time small{display:block;font-size:11px;color:var(--muted);font-weight:500;margin-top:1px}
+.divrow{padding:8px 14px 6px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--surface-2);border-top:1px solid var(--line)}
+.mini.chip.cyc{min-width:54px;justify-content:center;font-weight:700}
+.mini.chip.cyc.who-R{color:var(--r-ink,var(--fg))}
+#evGroupSel{margin-top:6px;width:100%}
 .evc.cc.cc,.evc.bar.cc.cc{background:color-mix(in srgb,var(--c) 22%,var(--surface));color:color-mix(in srgb,var(--c) 72%,var(--fg))}
 .stripe.cc.cc{background:var(--c)}
 .colpick{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
@@ -463,19 +478,22 @@ const catFor=name=>USER_CAT[normName(name)]||categorise(name);
 const cap=s=>s?s[0].toUpperCase()+s.slice(1):s;
 
 // ---------- live data (filled from the sheet by fromTabs) ----------
-let recipes=[],meals={},mealPid={},holding=[],cookedRows=[],events=[],groceries=[],shopping=[],todos=[],birthdays=[],notes=[],bins=[],incoming=[];
+let recipes=[],meals={},mealPid={},holding=[],cookedRows=[],events=[],groceries=[],shopping=[],todos=[],birthdays=[],notes=[],bins=[],incoming=[],groups=[],SEEDED_GROUPS=false;
 let CALS=[],SETTINGS={},PEOPLE_ROWS=[],SRC={app:'App only'},PUSH_TO=[],PUSH_NAME={};
 const REP={'':"Doesn't repeat",daily:'Every day',weekdays:'Every weekday',weekly:'Every week',fortnightly:'Every fortnight',monthly:'Every month',yearly:'Every year'};
 const repOptions=cur=>Object.entries(REP).map(([k,l])=>`<option value="${k}" ${k===(cur||'')?'selected':''}>${l}</option>`).join('');
 const spanOf=e=>e.endD!=null&&e.endD>e.d?e.endD-e.d:0;
 function occurs(e,d){const n=spanOf(e);for(let k=0;k<=n;k++)if(startsOn(e,d-k))return true;return false}
-function startsOn(e,d){
+function startsOn(e,d){return startsOn0(e,d)&&!(e.rep&&e.skip&&blockedOn(d,e))}
+function startsOn0(e,d){
   if(!e.rep)return e.d===d;if(d<e.d||(e.rep.until!=null&&d>e.rep.until))return false;
   const a=addDays(TODAY,e.d),b=addDays(TODAY,d),wd=b.getDay();
   switch(e.rep.f){case'daily':return true;case'weekdays':return wd>0&&wd<6;case'weekly':return (d-e.d)%7===0;case'fortnightly':return (d-e.d)%14===0;
     case'monthly':return a.getDate()===b.getDate();case'yearly':return a.getDate()===b.getDate()&&a.getMonth()===b.getMonth()}
   return false;
 }
+// next date for a repeating task, stepping past holidays when it's set to skip them
+function nextFree(t){let x=nextDate(t.date,t.rep.f);if(t.skip){let i=0;while(i++<400&&blockedOn(diff(x)))x=nextDate(x,t.rep.f)}return x}
 function nextDate(dt,f){const x=new Date(dt);if(f==='daily')x.setDate(x.getDate()+1);else if(f==='weekdays'){do{x.setDate(x.getDate()+1)}while(x.getDay()===0||x.getDay()===6)}
   else if(f==='weekly')x.setDate(x.getDate()+7);else if(f==='fortnightly')x.setDate(x.getDate()+14);else if(f==='monthly')x.setMonth(x.getMonth()+1);else if(f==='yearly')x.setFullYear(x.getFullYear()+1);return x}
 // duplicate check used when pulling calendars: same day, start within 15 min (or both all-day), mostly the same words
@@ -494,7 +512,19 @@ const bdayEvents=d=>{const dt=addDays(TODAY,d);return birthdays.filter(b=>b.show
 // bins: each bin type repeats every week, fortnight or four weeks from a known collection day
 // colours you can give a calendar item (otherwise it takes its type's colour)
 const EVCOL=[['#D50000','Tomato'],['#E67C73','Flamingo'],['#F4511E','Tangerine'],['#F6BF26','Banana'],['#33B679','Sage'],['#0B8043','Basil'],['#039BE5','Peacock'],['#3F51B5','Blueberry'],['#8E24AA','Grape'],['#616161','Graphite']];
-const cc=x=>x&&x.colour?` cc" style="--c:${x.colour}`:'';
+const hiddenGroups=()=>{try{return JSON.parse(localStorage.getItem('fh-hidden-groups')||'[]')}catch(e){return S.hiddenGroups||[]}};
+const setHiddenGroups=a=>{try{localStorage.setItem('fh-hidden-groups',JSON.stringify(a))}catch(e){S.hiddenGroups=a}};
+const groupById=g=>groups.find(x=>String(x.id)===String(g));
+// an item's group: the one picked for it, or the first group whose words appear in its title
+function groupOf(e){if(!e||e.bday||e.bins||e.todo||e.meal)return null;if(e.group==='none')return null;if(e.group)return groupById(e.group)||null;
+  const t=(e.title||'').toLowerCase();return groups.find(g=>String(g.words||'').split(',').map(w=>w.trim().toLowerCase()).some(w=>w&&t.includes(w)))||null}
+const itemColour=x=>x&&(x.colour||(groupOf(x)||{}).colour)||'';
+const cc=x=>itemColour(x)?` cc" style="--c:${itemColour(x)}`:'';
+const groupShown=e=>{const g=groupOf(e);return !g||!hiddenGroups().includes(String(g.id))};
+// repeats can skip days covered by an event in a group that pauses repeats (holidays, school holidays)
+const blockedOn=(d,self)=>events.some(x=>x!==self&&!x.rep&&!x.dupOf&&x.d<=d&&(x.endD!=null&&x.endD>x.d?x.endD:x.d)>=d&&(groupOf(x)||{}).blocks);
+const blockNames=()=>groups.filter(g=>g.blocks).map(g=>g.name.toLowerCase()).join(' and ')||'holidays';
+const groupOptions=cur=>`<option value="" ${!cur?'selected':''}>Automatic (by title)</option>${groups.map(g=>`<option value="${g.id}" ${String(cur)===String(g.id)?'selected':''}>${esc(g.name)}</option>`).join('')}<option value="none" ${cur==='none'?'selected':''}>No group</option>`;
 const colourPick=(cur,act,idAttr)=>`<div class="colpick" role="group" aria-label="Colour"><button type="button" class="none ${!cur?'on':''}" data-act="${act}" data-c="" ${idAttr} aria-label="Type colour" title="Type colour"></button>${EVCOL.map(([c,n])=>`<button type="button" class="${cur===c?'on':''}" style="--c:${c}" data-act="${act}" data-c="${c}" ${idAttr} aria-label="${n}" title="${n}"></button>`).join('')}</div>`;
 const BINC={red:['Red','#D93B30'],yellow:['Yellow','#E8B500'],green:['Green','#2E9A4A'],purple:['Purple','#7E4CC9'],blue:['Blue','#2F6FE0'],grey:['Grey','#6B7785']};
 const BIN_EVERY={weekly:7,fortnightly:14,monthly:28};
@@ -541,12 +571,15 @@ function fromTabs(t){
   syncCooked();
   events=(t.Events||[]).filter(e=>e.title).map(e=>({id:N_(e.id),d:offOf(e.start_date)??0,endD:offOf(e.end_date),time:e.start_time||'',end:e.end_time||'',title:e.title,type:e.type||'event',who:e.who||'B',by:e.created_by||'R',
     priv:B_(e.private),rep:e.repeat?{f:e.repeat,until:offOf(e.repeat_until)}:null,sub:String(e.notes||'').split('\n')[0],notes:e.notes||'',gcal:B_(e.sync_to_gcal),cal:e.calendar_id||'',ext:e.external_id||'',
-    src:e.source||'app',dupOf:N_(e.duplicate_of),dupWhy:e.duplicate_reason||'',colour:e.colour||'',upcoming:!e.start_time&&!e.repeat}));
+    src:e.source||'app',dupOf:N_(e.duplicate_of),dupWhy:e.duplicate_reason||'',colour:e.colour||'',group:e.group||'',skip:B_(e.skip_holidays),upcoming:!e.start_time&&!e.repeat}));
+  groups=(t.Groups||[]).filter(x=>x.name).map(x=>({id:N_(x.id),name:x.name,colour:x.colour||'#039BE5',words:x.keywords||'',blocks:B_(x.pauses_repeats)}));
+  SEEDED_GROUPS=false;if(!(t.Groups||[]).length){SEEDED_GROUPS=true;groups=[{id:1,name:'Holidays',colour:'#039BE5',words:'stay at, holiday, trip, camping',blocks:true},{id:2,name:'School holidays',colour:'#F6BF26',words:'school holidays, term break',blocks:true},
+    {id:3,name:'Annual leave',colour:'#33B679',words:'annual leave',blocks:false},{id:4,name:'Brewing',colour:'#8E24AA',words:'brew',blocks:false}]}
   bins=(t.Bins||[]).filter(x=>x.colour).map(x=>({id:N_(x.id),colour:x.colour,label:x.label||'',freq:x.frequency||'weekly',first:offOf(x.first_date),show:x.show_on_calendar===''||x.show_on_calendar==null?true:B_(x.show_on_calendar)}));
   incoming=(t.Incoming||[]).filter(x=>x.title).map(x=>({id:N_(x.id),cal:x.calendar_id,title:x.title,d:offOf(x.start_date)??0,endD:offOf(x.end_date),time:x.start_time||'',status:x.status||'pending',dupTitle:x.duplicate_title||''}));
   groceries=(t.Groceries||[]).filter(g=>g.item).map(g=>({id:N_(g.id),name:g.item,qty:g.note||'',need:g.recipe_qty||'',cat:g.category||catFor(g.item),rid:N_(g.recipe_id),rname:g.recipe_name||'',pid:N_(g.plan_id),by:g.created_by||'R',done:B_(g.done),doneAt:g.done_at||''}));
   shopping=(t.Shopping||[]).filter(x=>x.item).map(x=>({id:N_(x.id),name:x.item,qty:x.qty||'',cat:x.category||'Other',store:x.store||'',by:x.created_by||'R',done:B_(x.done),doneAt:x.done_at||''}));
-  todos=(t.Todos||[]).filter(x=>x.title).map(x=>({id:N_(x.id),title:x.title,who:x.who||'B',by:x.created_by||'R',priv:B_(x.private),date:parseYmd(x.date),time:x.time||'',dt:x.date_type==='on'?'on':'by',rep:x.repeat?{f:x.repeat}:null,done:B_(x.done),doneAt:x.done_at||'',notes:x.notes||'',sort:x.sort===''||x.sort==null?null:+x.sort}));
+  todos=(t.Todos||[]).filter(x=>x.title).map(x=>({id:N_(x.id),title:x.title,who:x.who||'B',by:x.created_by||'R',priv:B_(x.private),date:parseYmd(x.date),time:x.time||'',dt:x.date_type==='on'?'on':'by',skip:B_(x.skip_holidays),rep:x.repeat?{f:x.repeat}:null,done:B_(x.done),doneAt:x.done_at||'',notes:x.notes||'',sort:x.sort===''||x.sort==null?null:+x.sort}));
   birthdays=(t.Birthdays||[]).filter(b=>b.name).map(b=>({id:N_(b.id),name:b.name,rel:b.relation||'',day:+b.day,month:(+b.month||1)-1,year:+b.birth_year,known:B_(b.year_known),how:b.how_added||'',show:b.show_on_calendar===''||b.show_on_calendar==null?true:B_(b.show_on_calendar),cal:b.calendar_id||'',kind:b.kind==='anniversary'?'anniversary':'birthday'}));
   notes=(t.Notifications||[]).map(x=>({id:N_(x.id),to:x.to,from:x.created_by,kind:x.item_type,type:x.type||'assigned',ref:N_(x.item_id),msg:x.message,read:!!x.read_at,readAt:x.read_at||'',pushedAt:x.pushed_at||''}));
   const meRow=PEOPLE_ROWS.find(p=>p.id===S.me);if(meRow&&meRow.theme){const [tk,md]=String(meRow.theme).split('|');try{if(tk)localStorage.setItem('fh-theme',tk);if(md)localStorage.setItem('fh-mode',md)}catch(e){S.theme=tk;S.mode=md}}
@@ -555,7 +588,8 @@ function toTabs(){
   const T={};
   T.Events=events.map(e=>({id:e.id,start_date:ymdOff(e.d),end_date:ymdOff(e.endD!=null&&e.endD>e.d?e.endD:e.d),start_time:e.time||'',end_time:e.end||'',all_day:!e.time,title:e.title,type:e.type,who:e.who,private:!!e.priv,
     repeat:e.rep?e.rep.f:'',repeat_until:e.rep&&e.rep.until!=null?ymdOff(e.rep.until):'',notes:e.notes||'',sync_to_gcal:!!e.gcal&&!e.priv,calendar_id:e.cal||'',external_id:e.ext||'',source:e.src||'app',
-    duplicate_of:e.dupOf??'',duplicate_reason:e.dupOf?(e.dupWhy||''):'',colour:e.colour||'',created_by:e.by}));
+    duplicate_of:e.dupOf??'',duplicate_reason:e.dupOf?(e.dupWhy||''):'',colour:e.colour||'',group:e.group||'',skip_holidays:!!e.skip,created_by:e.by}));
+  T.Groups=groups.map(x=>({id:x.id,name:x.name,colour:x.colour,keywords:x.words||'',pauses_repeats:!!x.blocks}));
   T.Bins=bins.map(x=>({id:x.id,colour:x.colour,label:x.label||'',frequency:x.freq,first_date:x.first!=null?ymdOff(x.first):'',show_on_calendar:x.show!==false}));
   T.Recipes=recipes.map(r=>({id:r.id,name:r.name,type:r.type,prep_mins:r.prep||'',cook_mins:r.cook||'',serves:r.serves,tags:r.tags.join(', '),
     method:r.steps.map((x,i)=>`${i+1}. `+(Array.isArray(x)?`${x[0]} – ${x[1]}`:x)).join('\n'),source:r.srcKind||'manual',book_ref:r.source||'',photo_url:r.photo||'',notes:(r.notes||[]).join('\n')}));
@@ -567,7 +601,7 @@ function toTabs(){
   cookedRows.forEach(c=>T.MealPlan.push({id:c.id,recipe_id:c.rid??'',recipe_name:c.name,date:ymdOff(c.d),status:'cooked'}));
   T.Groceries=groceries.map(g=>({id:g.id,item:g.name,note:g.rid?'':(g.qty||''),recipe_qty:g.need||'',category:g.cat,recipe_id:g.rid??'',recipe_name:g.rid?((recipeById(g.rid)||{}).name||g.rname||''):'',plan_id:g.pid??'',done:!!g.done,done_at:stampDone(g),created_by:g.by}));
   T.Shopping=shopping.map(x=>({id:x.id,item:x.name,qty:x.qty||'',category:x.cat,store:x.store||'',done:!!x.done,done_at:stampDone(x),created_by:x.by}));
-  T.Todos=todos.map(x=>({id:x.id,title:x.title,who:x.who,private:!!x.priv,date:x.date?isoOf(x.date):'',time:x.time||'',date_type:x.dt||'by',repeat:x.rep?x.rep.f:'',done:!!x.done,done_at:stampDone(x),notes:x.notes||'',sort:x.sort??'',created_by:x.by}));
+  T.Todos=todos.map(x=>({id:x.id,title:x.title,who:x.who,private:!!x.priv,date:x.date?isoOf(x.date):'',time:x.time||'',date_type:x.dt||'by',repeat:x.rep?x.rep.f:'',skip_holidays:!!x.skip,done:!!x.done,done_at:stampDone(x),notes:x.notes||'',sort:x.sort??'',created_by:x.by}));
   T.Birthdays=birthdays.map(b=>({id:b.id,name:b.name,relation:b.rel||'',day:b.day,month:b.month+1,birth_year:b.year,year_known:!!b.known,how_added:b.how||'',show_on_calendar:b.show!==false,calendar_id:b.cal||'',kind:b.kind||'birthday'}));
   T.Notifications=notes.map(x=>({id:x.id,to:x.to,type:x.type||'assigned',item_type:x.kind,item_id:x.ref,message:x.msg,pushed_at:x.pushedAt||'',read_at:x.read?(x.readAt||(x.readAt=nowStamp())):'',created_by:x.from}));
   T.GroceryCatalog=Object.entries(USER_CAT).map(([k,c])=>({item:k,category:c,source:'user'}));
@@ -576,7 +610,15 @@ function toTabs(){
 }
 const KEYC=k=>k==='GroceryCatalog'?'item':'id';
 const NO_DELETE=['GroceryCatalog','People'];
-let SNAP=null,saving=false,saveTimer=null,lastErr='';
+let SNAP=null,saving=false,saveTimer=null,lastErr='',SAVESEQ=0,RELOAD_AFTER_SAVE=false;
+// the last data from the backend, kept on this phone so the app opens with it straight away
+const CACHE_KEY='fh-cache';
+function readCache(){try{const c=JSON.parse(localStorage.getItem(CACHE_KEY)||'null');return c&&c.me===(cfg()||{}).me&&c.url===(cfg()||{}).url?c:null}catch(e){return null}}
+function writeCache(tabs){try{localStorage.setItem(CACHE_KEY,JSON.stringify({me:(cfg()||{}).me,url:(cfg()||{}).url,at:Date.now(),tabs}))}catch(e){}}
+function patchCache(ch){const c=readCache();if(!c)return;for(const k in ch){const rows=c.tabs[k]=c.tabs[k]||[],key=KEYC(k),ix={};rows.forEach((r,i)=>ix[String(r[key])]=i);
+  ch[k].upsert.forEach(r=>{const i=ix[String(r[key])];if(i!=null)Object.assign(rows[i],r);else rows.push({...r})});
+  ch[k].remove.forEach(id=>{const i=ix[String(id)];if(i!=null)rows[i].deleted=true})}
+  c.tabs[k]=c.tabs[k];try{localStorage.setItem(CACHE_KEY,JSON.stringify(c))}catch(e){}}
 function snapOf(T){const o={};for(const k in T){o[k]={};T[k].forEach(r=>o[k][String(r[KEYC(k)])]=JSON.stringify(r))}return o}
 function diffTabs(){const T=toTabs(),now=snapOf(T),ch={};let n=0;
   for(const k in T){const up=[],rm=[];
@@ -607,20 +649,27 @@ async function persist(){
   saving=true;setStatus('saving');
   try{await api('save',{changes:ch});
     for(const k in ch){SNAP[k]=SNAP[k]||{};ch[k].upsert.forEach(r=>{const key=String(r[KEYC(k)]);SNAP[k][key]=now[k][key]});ch[k].remove.forEach(key=>delete SNAP[k][key])}
-    setStatus('saved')}
+    SAVESEQ++;patchCache(ch);setStatus('saved')}
   catch(e){setStatus(e.code==='net'?'net':'error',e.message);if(e.code==='auth')openSetup(e.message)}
   finally{saving=false}
   if(diffTabs().n&&lastErr==='')queueSave();
+  else if(RELOAD_AFTER_SAVE&&!saving){RELOAD_AFTER_SAVE=false;loadAll().catch(()=>{})}
 }
-async function loadAll(){setStatus('loading');const j=await api('load');fromTabs(j.tabs);SNAP=snapOf(toTabs());applyTheme();
-  if(S.recipe&&!recipeById(S.recipe))S.recipe=null;if(!$('#overlay').innerHTML)render();else if(!$('.sheet,.setup'))render();setStatus('saved')}
+async function loadAll(){
+  const seq0=SAVESEQ,had=SNAP&&diffTabs().n;if(!SNAP)setStatus('loading');
+  const j=await api('load');
+  // changes made (or saved) while this load was on its way are newer than what it brought back: keep them, save, then load again
+  if(SNAP&&(had||saving||SAVESEQ!==seq0||diffTabs().n)){RELOAD_AFTER_SAVE=true;queueSave();return}
+  writeCache(j.tabs);applyTabs(j.tabs);setStatus('saved')}
+function applyTabs(tabs){fromTabs(tabs);SNAP=snapOf(toTabs());if(SEEDED_GROUPS){SNAP.Groups={};queueSave()}applyTheme();
+  if(S.recipe&&!recipeById(S.recipe))S.recipe=null;if(!$('#overlay').innerHTML)renderKeep();else if(!$('.sheet,.setup'))renderKeep()}
 async function refresh(){if(saving||drag||$('#overlay .sheet,#overlay .setup,#overlay .drawer'))return;const d=diffTabs();if(d.n){persist();return}
-  try{await loadAll();render()}catch(e){setStatus(e.code==='net'?'net':'error',e.message)}}
+  try{await loadAll()}catch(e){setStatus(e.code==='net'?'net':'error',e.message)}}
 function lastSyncText(){const t=CALS.filter(c=>c.owner===S.me&&c.last_synced).map(c=>c.last_synced).sort().pop();if(!t)return'never';const d=new Date(t.replace(' ','T'));return isNaN(d)?t:`${rel(d).toLowerCase()} ${fmtTime(String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'))}`}
 
 // ---------- state ----------
 const S={view:'today',dOff:0,me:((()=>{try{return JSON.parse(localStorage.getItem('fh-config')||'{}').me}catch(e){}})()||'R'),filter:'all',calMode:'month',sel:0,weekStart:0,month:{y:TODAY.getFullYear(),m:TODAY.getMonth()},recipe:null,snap:null,ingSel:null};
-const VIEWS=[['today','Today'],['calendar','Calendar'],['plan','Meal plan'],['recipes','Recipes'],['groceries','Groceries'],['shopping','Other shopping'],['todos','To-dos'],['birthdays','Birthdays'],['bins','Bins'],['settings','Settings']];
+const VIEWS=[['today','Today'],['calendar','Calendar'],['plan','Meal plan'],['recipes','Recipes'],['groceries','Groceries'],['shopping','Other shopping'],['todos','Tasks'],['birthdays','Birthdays'],['bins','Bins'],['settings','Settings']];
 const myNew=()=>notes.filter(x=>x.to===S.me&&!x.read);
 const isNew=(kind,o)=>notes.some(x=>x.to===S.me&&!x.read&&x.kind===kind&&x.ref===o.id);
 const NEWPILL='<span class="pill new">New</span>';
@@ -635,21 +684,24 @@ const LOCK='<svg class="lock" viewBox="0 0 24 24" width="13" height="13" fill="n
 const byLine=x=>`${x.priv?LOCK+'Private · ':''}<span class="by ${x.by}">${x.by===S.me?'Added by you':'Added by '+PEOPLE[x.by]}</span>`;
 const filterChips=(priv=true)=>`<div class="chips" role="group" aria-label="Filter by who added it">${[['all','Everyone'],['mine','Added by me'],['theirs','Added by '+PEOPLE[OTHER()]]].concat(priv?[['private','Private']]:[]).map(([v,l])=>`<button class="chip ${S.filter===v?'on':''}" data-act="filter" data-v="${v}">${l}</button>`).join('')}</div>`;
 const spanDay=(e,d)=>{const n=spanOf(e);if(!n)return e;let k=0;while(k<n&&!startsOn(e,d-k))k++;return k===0?{...e,mday:[1,n+1]}:{...e,time:'',mday:[k+1,n+1],lastEnd:k===n?e.end:''}};
-const dayEvents=(d,f)=>events.filter(e=>!e.dupOf&&occurs(e,d)&&visible(e)&&(!f||passFilter(e))).map(e=>spanDay(e,d)).concat(bdayEvents(d)).concat(binEvents(d)).sort((a,b)=>a.time.localeCompare(b.time));
+const dayEvents=(d,f)=>events.filter(e=>!e.dupOf&&groupShown(e)&&occurs(e,d)&&visible(e)&&(!f||passFilter(e))).map(e=>spanDay(e,d)).concat(bdayEvents(d)).concat(binEvents(d)).sort((a,b)=>a.time.localeCompare(b.time));
 // the same duplicate pulled more than once is shown once
 const dupsOf=e=>{const seen={};return events.filter(x=>x.dupOf===e.id).filter(x=>{const k=x.src+'|'+x.title+'|'+x.time;return seen[k]?false:(seen[k]=1)})};
 const showDups=()=>{try{return localStorage.getItem('fh-dups')==='1'}catch(e){return !!S.dups}};
 const isoOf=d=>d?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`:'';
+const fmtRange=(a,b)=>{if(!a)return'All day';if(!b||b<=a)return fmtTime(a);const A=fmtTime(a),B=fmtTime(b),am=x=>x.slice(-2);return (am(A)===am(B)?A.slice(0,-2):A)+'–'+B};
+const nowHM=()=>{const n=new Date();return String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')};
 const fmtTime=t=>{if(!t)return'All day';let[h,m]=t.split(':').map(Number);const ap=h>=12?'pm':'am';h=h%12||12;return h+(m?':'+String(m).padStart(2,'0'):'')+ap};
 function toast(msg){document.querySelectorAll('.toast').forEach(t=>t.remove());const t=document.createElement('div');t.className='toast';t.setAttribute('role','status');t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),1800)}
-const dotsFor=d=>{const t=[...new Set(dayEvents(d,true).map(e=>e.colour||(e.type==='appointment'?'event':e.type)))];return `<span class="dots">${t.map(x=>x[0]==='#'?`<i style="background:${x}"></i>`:`<i class="${x}"></i>`).join('')}</span>`};
+const dotsFor=d=>{const t=[...new Set(dayEvents(d,true).map(e=>itemColour(e)||(e.type==='appointment'?'event':e.type)))];return `<span class="dots">${t.map(x=>x[0]==='#'?`<i style="background:${x}"></i>`:`<i class="${x}"></i>`).join('')}</span>`};
 
 // ---------- views ----------
 function eventRow(e,d){
   if(e.bins)return `<button class="row evbtn" data-act="go" data-v="bins"><span class="stripe" style="background:${(BINC[e.bins[0].colour]||[0,'#888'])[1]}"></span><span class="time num">Bins</span><div class="main"><div class="t">${esc(e.title)}</div><div class="s">${e.bins.map(b=>esc(b.label||'')).filter(Boolean).join(' · ')||'Collection day'}</div></div><span class="bdots">${binDots(e.bins)}</span></button>`;
   if(e.bday)return `<button class="row evbtn" data-act="go" data-v="birthdays"><span class="stripe birthday"></span><span class="time num">All day</span><div class="main"><div class="t">${esc(e.title)}</div><div class="s">${esc(e.bday.rel||'Birthday')}${e.bday.known?'':' · year worked out from age'}</div></div>${ICON.cake.replace('<svg','<svg width="20" height="20" style="color:var(--bday);flex:none"')}</button>`;
   const dn=showDups()?dupsOf(e).length:0;
-  return `<button class="row evbtn" data-act="evDetail" data-id="${e.id}"><span class="stripe ${e.type==='appointment'?'event':e.type}${cc(e)}"></span><span class="time num">${fmtTime(e.time)}</span>
+  const endT=e.mday?(e.mday[0]===e.mday[1]?e.lastEnd:(e.mday[0]===1?'':'')):e.end, past=d===0&&S.view==='today'&&e.time&&(endT||e.time)<nowHM()&&(!e.mday||e.mday[0]===e.mday[1]);
+  return `<button class="row evbtn ${past?'past':''}" data-act="evDetail" data-id="${e.id}"><span class="stripe ${e.type==='appointment'?'event':e.type}${cc(e)}"></span><span class="time num">${e.time?(e.end&&!e.mday?`${fmtTime(e.time)}<small>${fmtTime(e.end)}</small>`:fmtTime(e.time)):'All day'}</span>
   <div class="main"><div class="t">${esc(e.title)} ${isNew('event',e)?NEWPILL:''}${dn?`<span class="dupchip">+${dn} duplicate</span>`:''}</div><div class="s">${e.mday?`Day ${e.mday[0]} of ${e.mday[1]}${e.lastEnd?' · until '+fmtTime(e.lastEnd):''} · `:''}${e.sub?esc(e.sub)+' · ':''}${e.rep?'↻ '+REP[e.rep.f]+' · ':''}${byLine(e)} · ${esc(SRC[e.src]||e.src)}</div></div>${whoBadge(e.who)}</button>`;
 }
 // manual order (drag to reorder); items never dragged fall back to their date
@@ -659,7 +711,7 @@ const todoDateText0=t=>{if(!t.date)return'No date';const n=diff(t.date),r=rel(t.
 // a timed to-do shown inside a day's schedule
 function schedTodoRow(t){
   return `<div class="row ${t.done?'done':''}"><span class="stripe todo"></span><span class="time num">${fmtTime(t.time)}</span>
-  <button class="main" data-act="editTodo" data-id="${t.id}"><div class="t">${esc(t.title)} ${isNew('todo',t)?NEWPILL:''}</div><div class="s"><span class="tag todo">To-do</span>${t.rep?' ↻ '+REP[t.rep.f]+' ·':''} ${byLine(t)}</div></button>
+  <button class="main" data-act="editTodo" data-id="${t.id}"><div class="t">${esc(t.title)} ${isNew('todo',t)?NEWPILL:''}</div><div class="s"><span class="tag todo">Task</span>${t.rep?' ↻ '+REP[t.rep.f]+' ·':''} ${byLine(t)}</div></button>
   <button class="check ${t.done?'on':''}" data-act="todoToggle" data-id="${t.id}" aria-label="Complete ${esc(t.title)}">${t.done?ICON.tick:''}</button></div>`;
 }
 const timedTodos=X=>todos.filter(t=>visible(t)&&t.date&&t.time&&diff(t.date)===X);
@@ -672,6 +724,7 @@ function V_today(){
   const X=S.dOff, dt=addDays(TODAY,X), ev=dayEvents(X), r=mealOf(meals[X]);
   const tds=todos.filter(t=>visible(t)&&t.date&&!t.done&&((diff(t.date)===X&&!t.time)||(X===0&&diff(t.date)<0))).sort(todoCmp);
   const doneT=todos.filter(t=>visible(t)&&t.done&&t.date&&diff(t.date)===X&&!t.time);
+  const later=X!==0?[]:todos.filter(t=>visible(t)&&!t.done&&!t.time&&(!t.date||(t.dt==='by'&&diff(t.date)>0))).sort(todoCmp);
   const nw=X===0?myNew():[];
   return `<div class="daynav"><button class="pg" data-act="dayNav" data-n="-1" aria-label="Previous day">‹</button>
     <div class="lbl"><b>${dayLabel(X)}</b><span>${X===0?DN[dt.getDay()]+' '+dt.getDate()+' '+MN[dt.getMonth()]:`<button class="link" style="font-size:12px;padding:0" data-act="dayNav" data-n="0">Back to today</button>`}</span></div>
@@ -685,11 +738,11 @@ function V_today(){
   ${binsOn(X+1).length?`<button class="binbar" data-act="go" data-v="bins"><span class="bdots">${binDots(binsOn(X+1))}</span><span><b>${X===0?'Bins out tonight':'Bins out the night before'}</b><span class="hint"> · ${esc(binNames(binsOn(X+1)))} collected ${X===0?'tomorrow':dayLabel(X+1).toLowerCase()}</span></span></button>`:''}
   <section><div class="sec-head"><h2>Schedule</h2><button class="link" data-act="addEventOn" data-d="${X}">+ Add</button></div>
     <div class="card rows">${scheduleHTML(X,false)||'<div class="empty">Nothing on</div>'}</div></section>
-  <section><div class="sec-head"><h2>To-dos</h2><button class="link" data-act="go" data-v="todos">All</button></div>
-    <div class="card rows">${tds.map(todoRow).join('')+doneT.map(todoRow).join('')||`<div class="empty">Nothing ${X===0?'due today':'for this day'}</div>`}</div></section>
+  <section><div class="sec-head"><h2>Tasks</h2><button class="link" data-act="go" data-v="todos">All</button></div>
+    <div class="card rows">${tds.map(todoRow).join('')+doneT.map(todoRow).join('')||`<div class="empty">Nothing ${X===0?'due today':'for this day'}</div>`}${later.length?`<div class="divrow">No date or due later</div>${later.map(todoRow).join('')}`:''}</div></section>
   ${X===0?`<div class="tiles">
     <button class="card tile" data-act="go" data-v="groceries"><span class="big num">${groceries.filter(s=>!s.done).length}</span><span class="s">groceries to buy</span></button>
-    <button class="card tile" data-act="go" data-v="todos"><span class="big num">${todos.filter(t=>!t.done&&visible(t)).length}</span><span class="s">open to-dos</span></button>
+    <button class="card tile" data-act="go" data-v="todos"><span class="big num">${todos.filter(t=>!t.done&&visible(t)).length}</span><span class="s">open tasks</span></button>
   </div>`:''}`;
 }
 function chipFor(x){
@@ -703,15 +756,17 @@ function monthDayItems(o){
   items.sort((a,b)=>(!!b.mday-!!a.mday)||(a.mday&&b.mday?a.d-b.d:0)||(a.time||'').localeCompare(b.time||''));
   return items;
 }
+function groupChips(){const h=hiddenGroups();
+  return `<div class="gchips" role="group" aria-label="Show groups">${groups.map(g=>{const on=!h.includes(String(g.id));return `<button class="gchip ${on?'on':''}" data-act="grpToggle" data-id="${g.id}" aria-pressed="${on}" style="--c:${g.colour}"><i></i>${esc(g.name)}</button>`}).join('')}<button class="gchip edit" data-act="grpManage" aria-label="Edit groups">Edit</button></div>`}
 function V_calendar(){
-  return reviewBanner()+V_calendar0();
+  return reviewBanner()+V_calendar0().replace('<!--GROUPS-->',groupChips());
 }
 function V_calendar0(){
   if(S.calMode==='week'){
     const a=addDays(TODAY,S.weekStart),b=addDays(TODAY,S.weekStart+6);
     const label=S.weekStart===0?'Next 7 days':`${a.getDate()} ${MN[a.getMonth()]} – ${b.getDate()} ${MN[b.getMonth()]}`;
     const d=addDays(TODAY,S.sel), r=null, inPlan=false; // dinners live on Today and Meal plan, not the calendar
-    return `${calBar(label,'wk',-7,7)}
+    return `${calBar(label,'wk',-7,7)}<!--GROUPS-->
     <div class="week">${[...Array(7)].map((_,i)=>{const o=S.weekStart+i,dd=addDays(TODAY,o);
       return `<button class="day ${S.sel===o?'sel':''}" data-act="pick" data-o="${o}"><span class="dn">${DN[dd.getDay()]}</span><span class="dd num">${dd.getDate()}</span>${dotsFor(o)}</button>`}).join('')}</div>
     ${filterChips()}
@@ -733,12 +788,12 @@ function V_calendar0(){
     const L=lanes.length,max=Math.max(1,(S.mcMax||4)-L);
     const bg=days.map(d=>{const out=d.dt.getMonth()!==m,n=d.items.length;return `<button class="mc ${out?'out':''} ${d.o===0?'today':''}" style="grid-column:${d.i+1}" data-act="dayOpen" data-o="${d.o}" aria-label="${d.dt.getDate()} ${MONTHS[d.dt.getMonth()]}, ${n} item${n===1?'':'s'}"></button><span class="mcd num ${out?'out':''} ${d.o===0?'today':''}" style="grid-column:${d.i+1}">${d.dt.getDate()}</span>`}).join('');
     const bars=list.map(sg=>{const t=sg.x.time&&sg.first?fmtTime(sg.x.time).replace(':00','').replace('am','a').replace('pm','p')+' ':'';
-      return `<span class="evc bar ${sg.x.type==='appointment'?'event':sg.x.type}${sg.first?'':' cl'}${sg.last?'':' cr'}${sg.x.colour?' cc':''}" style="${sg.x.colour?'--c:'+sg.x.colour+';':''}grid-column:${sg.a+1} / ${sg.b+2};grid-row:${sg.lane+2}">${t?`<span class="et">${esc(t)}</span>`:''}${esc(sg.x.title)}</span>`}).join('');
+      return `<span class="evc bar ${sg.x.type==='appointment'?'event':sg.x.type}${sg.first?'':' cl'}${sg.last?'':' cr'}${itemColour(sg.x)?' cc':''}" style="${itemColour(sg.x)?'--c:'+itemColour(sg.x)+';':''}grid-column:${sg.a+1} / ${sg.b+2};grid-row:${sg.lane+2}">${t?`<span class="et">${esc(t)}</span>`:''}${esc(sg.x.title)}</span>`}).join('');
     const singles=days.map(d=>{const its=d.items.filter(x=>!x.mday),shown=its.slice(0,max),more=its.length-shown.length;
       return its.length?`<div class="mcl" style="grid-column:${d.i+1};grid-row:${L+2}">${shown.map(chipFor).join('')}${more>0?`<span class="evmore">+${more} more</span>`:''}</div>`:''}).join('');
     return `<div class="wk" style="grid-template-rows:auto${' auto'.repeat(L)} 1fr">${bg}${bars}${singles}</div>`;
   };
-  return `<div class="mcal" style="--weeks:${weeks}">${calBar(`${MONTHS[m]} ${y}`,'mo',-1,1)}
+  return `<div class="mcal" style="--weeks:${weeks}">${calBar(`${MONTHS[m]} ${y}`,'mo',-1,1)}<!--GROUPS-->
     <div class="mgrid"><div class="mwh">${DW.map(w=>`<span class="mwd">${w}</span>`).join('')}</div>${[...Array(weeks)].map((_,w)=>wk(w)).join('')}</div></div>`;
 }
 function calBar(label,act,a,b){
@@ -890,19 +945,21 @@ function sheetGroCat(k){
   <div class="toggle"><span><div style="font-weight:600">Remember for next time</div><div class="hint" style="font-size:12px">Saves to the catalogue so recipes use it too</div></span><button class="sw-btn on" id="groRemember" data-act="swToggle" aria-label="Remember for next time"></button></div>
   ${lines.some(x=>!x.rid)?`<button class="btn ghost block" data-act="groDelete" data-k="${esc(k)}">Remove from list</button>`:''}`);
 }
+const TF=()=>S.tf||(S.tf={dt:'on',who:'B',priv:false,skip:false});
 function V_todos(){
   const list=todos.filter(t=>visible(t)&&passFilter(t)).sort(todoCmp);
-  return `<form data-form="todo" class="todo-form"><div class="addbar"><input type="text" id="todoInput" placeholder="Add a to-do" autocomplete="off" aria-label="New to-do"><button class="btn">Add</button></div>
+  return `<form data-form="todo" class="todo-form"><div class="addbar"><input type="text" id="todoInput" placeholder="Add a task" autocomplete="off" aria-label="New task"><button class="btn">Add</button></div>
   <div class="minis">
-   <span class="segsm" role="group" aria-label="Date means"><button type="button" class="on" data-act="todoDT" data-v="on" aria-pressed="true">Do on</button><button type="button" data-act="todoDT" data-v="by" aria-pressed="false">Due by</button></span>
+   <button type="button" class="mini chip cyc" id="todoDTb" data-act="todoDTc" aria-label="Date means: ${TF().dt==='on'?'do on':'due by'}. Tap to change">${TF().dt==='on'?'Do on':'Due by'}</button>
    <label class="mini"><span class="sr">When</span><select id="todoWhen">${[...Array(7)].map((_,i)=>`<option value="${i}">${i===0?'Today':i===1?'Tomorrow':DN[addDays(TODAY,i).getDay()]+' '+addDays(TODAY,i).getDate()}</option>`).join('')}<option value="none">No date</option><option value="pick">Other date…</option></select></label>
    <label class="mini" id="todoPickF" hidden><span class="sr">Date</span><input type="date" id="todoDue" value="${isoOf(TODAY)}"></label>
    <label class="mini"><span class="mini-l">at</span><input type="time" id="todoTime" aria-label="Time (optional)"></label>
-   <label class="mini"><span class="sr">Who it's for</span><select id="todoWho"><option value="B">Both</option><option value="R">${esc(PEOPLE.R)}</option><option value="T">${esc(PEOPLE.T)}</option></select></label>
+   <button type="button" class="mini chip cyc who-${TF().priv?S.me:TF().who}" id="todoWhoB" data-act="todoWhoC" ${TF().priv?'disabled':''} aria-label="For ${esc(TF().priv?PEOPLE[S.me]:TF().who==='B'?'both':PEOPLE[TF().who])}. Tap to change">${TF().priv?S.me:TF().who==='B'?'R+T':TF().who}</button>
    <label class="mini"><span class="sr">Repeats</span><select id="todoRep">${Object.entries(REP).map(([k,l])=>`<option value="${k}">${k?l:'No repeat'}</option>`).join('')}</select></label>
-   <button type="button" class="mini chip priv" id="todoPriv" data-act="privToggle" aria-pressed="false">${LOCK}Private</button>
-  </div><input type="hidden" id="todoDT" value="on"></form>
-  <div class="hint" style="margin-top:-12px">New to-dos are for today unless you pick another day. With a time, it moves into that day's schedule. Drag the dots to reorder.</div>
+   <button type="button" class="mini chip priv ${TF().priv?'on':''}" id="todoPriv" data-act="privToggle" aria-pressed="${TF().priv}">${LOCK}Private</button>
+   <button type="button" class="mini chip ${TF().skip?'on':''}" id="todoSkipF" data-act="todoSkipC" aria-pressed="${TF().skip}" hidden>Skip ${esc(blockNames())}</button>
+  </div><input type="hidden" id="todoDT" value="${TF().dt}"><input type="hidden" id="todoWho" value="${TF().priv?S.me:TF().who}"></form>
+  <div class="hint" style="margin-top:-12px">New tasks are for today unless you pick another day. With a time, it moves into that day's schedule. Drag the dots to reorder.</div>
   ${filterChips()}
   <div class="card rows">${list.map(todoRow).join('')||'<div class="empty">Nothing to do</div>'}</div>`;
 }
@@ -940,6 +997,19 @@ async function decideImports(imp,skip){
   await api('decide',{imports:imp,skips:skip});await loadAll();
 }
 const reviewBanner=()=>{const n=pendingImports().length;return n?`<button class="revbanner" data-act="go" data-v="imports"><b>${n} new event${n===1?'':'s'} to review</b><span>from your calendars ›</span></button>`:''};
+function sheetGroups(){
+  sheet(`<h3>Calendar groups</h3><div class="hint">Events join a group when you pick it, or automatically when their title has one of the group's words. Turn a group off on the calendar to hide it.</div>
+  <div class="card rows">${groups.map(g=>`<button class="row" data-act="grpEdit" data-id="${g.id}"><span class="stripe" style="background:${g.colour}"></span><div class="main"><div class="t">${esc(g.name)}</div><div class="s">${g.words?'Words: '+esc(g.words):'Picked by hand only'}${g.blocks?' · pauses repeats':''}</div></div></button>`).join('')||'<div class="empty">No groups yet</div>'}</div>
+  <button class="btn block" data-act="grpEdit" data-id="">+ New group</button>`);
+}
+function sheetGroup(g){const ng=g||{name:'',colour:EVCOL[6][0],words:'',blocks:false};S.grpCol=ng.colour;
+  sheet(`<h3>${g?'Edit group':'New group'}</h3>
+  <div class="field"><label for="grpName">Name</label><input type="text" id="grpName" value="${esc(ng.name)}" placeholder="e.g. Brewing"></div>
+  <div class="field"><label>Colour</label><div class="colpick" role="group" aria-label="Colour">${EVCOL.map(([c,n])=>`<button type="button" class="${ng.colour===c?'on':''}" style="--c:${c}" data-act="grpCol" data-c="${c}" aria-label="${n}" title="${n}"></button>`).join('')}</div></div>
+  <div class="field"><label for="grpWords">Add events whose title contains (optional)</label><input type="text" id="grpWords" value="${esc(ng.words||'')}" placeholder="e.g. brew, keg"><div class="hint" style="font-size:12px">Separate words with commas.</div></div>
+  <div class="toggle"><span><div style="font-weight:600">Pauses repeats</div><div class="hint" style="font-size:12px">Repeating events and tasks set to skip holidays won't happen on these days.</div></span><button class="sw-btn ${ng.blocks?'on':''}" id="grpBlocks" data-act="swToggle" aria-label="Pauses repeats"></button></div>
+  <div class="two">${g?`<button class="btn ghost block" data-act="grpDel" data-id="${g.id}">Delete</button>`:'<button class="btn ghost block" data-act="grpManage">Back</button>'}<button class="btn block" data-act="grpSave" data-id="${g?g.id:''}">Save</button></div>`);
+}
 function V_bins(){
   return `<section><div class="sec-head"><h2>Bin collection</h2><button class="link" data-act="addBin">+ Add bin</button></div>
     <div class="card rows">${bins.map(b=>{const nb=nextBin(b),c=BINC[b.colour]||[b.colour,'#888'];return `<button class="row" data-act="editBin" data-id="${b.id}"><span class="binbig" style="background:${c[1]}"></span>
@@ -988,9 +1058,11 @@ function sheetEvent(){
   const d=addDays(TODAY,S.sel);const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   sheet(`<h3>New event</h3>
   <div class="field"><label for="evTitle">What</label><input type="text" id="evTitle" placeholder="e.g. Frankie – piano lesson"></div>
-  <div class="two"><div class="field"><label for="evDate">Date</label><input type="date" id="evDate" value="${iso}"></div><div class="field"><label for="evTime">Time</label><input type="time" id="evTime" value="15:00"></div></div>
+  <div class="two"><div class="field"><label for="evDate">Date</label><input type="date" id="evDate" value="${iso}"></div><div class="field"><label for="evTime">Starts</label><input type="time" id="evTime" value="15:00"></div></div>
+  <div class="two"><div class="field"><label for="evEndT">Ends (optional)</label><input type="time" id="evEndT" value="16:00"></div><div class="field"><label for="evGroup">Group</label><select id="evGroup">${groupOptions('')}</select></div></div>
   <div class="two"><div class="field"><label for="evEnd">Ends on (optional)</label><input type="date" id="evEnd" min="${iso}"></div><div class="field"><label for="evRep">Repeats</label><select id="evRep">${repOptions('')}</select></div></div>
-  <div class="field" id="evUntilF" hidden><label for="evUntil">Repeat until (optional)</label><input type="date" id="evUntil"></div>
+  <div id="evUntilF" hidden><div class="field"><label for="evUntil">Repeat until (optional)</label><input type="date" id="evUntil"></div>
+  <div class="toggle"><span><div style="font-weight:600">Skip during ${esc(blockNames())}</div><div class="hint" style="font-size:12px">Repeats that land on those days don't happen</div></span><button class="sw-btn" id="evSkipT" data-act="swToggle" aria-label="Skip during holidays"></button></div></div>
   <div class="two"><div class="field"><label for="evType">Type</label><select id="evType"><option value="pickup">Pick-up / drop-off</option><option value="event">Event</option></select></div>
   <div class="field"><label for="evWho">Who's on it</label><select id="evWho"><option value="R">Reuben</option><option value="T">Tiff</option><option value="B">Both</option></select></div></div>
   <div class="field"><label>Colour</label>${colourPick('','newColour','')}</div>
@@ -1018,24 +1090,26 @@ function sheetShopPrompt(r,day){
 }
 function sheetEditTodo(t){
   const mine=t.by===S.me;
-  sheet(`<h3>Edit to-do</h3>
-  <div class="field"><label for="etTitle">To-do</label><input type="text" id="etTitle" value="${esc(t.title)}"></div>
+  sheet(`<h3>Edit task</h3>
+  <div class="field"><label for="etTitle">Task</label><input type="text" id="etTitle" value="${esc(t.title)}"></div>
   <div class="two"><div class="field"><label for="etWho">For</label><select id="etWho" ${t.priv?'disabled':''}>${['B','R','T'].map(w=>`<option value="${w}" ${t.who===w?'selected':''}>${w==='B'?'Both of us':PEOPLE[w]}</option>`).join('')}</select></div>
   <div class="field"><label for="etDue">Date</label><input type="date" id="etDue" value="${isoOf(t.date)}"></div></div>
   <div class="two"><div class="field"><label for="etTime">Time (optional)</label><input type="time" id="etTime" value="${t.time||''}"></div><span></span></div>
   <div class="two"><div class="field"><label for="etDT">Date means</label><select id="etDT"><option value="by" ${t.dt!=='on'?'selected':''}>Do by (deadline)</option><option value="on" ${t.dt==='on'?'selected':''}>Do on (that day)</option></select></div>
   <div class="field"><label for="etRep">Repeats</label><select id="etRep">${repOptions(t.rep&&t.rep.f)}</select></div></div>
-  <div class="toggle ${mine?'':'disabled'}"><span><div style="font-weight:600">${LOCK} Private</div><div class="hint" style="font-size:12px">${mine?'Only you will see it. Private to-dos are always for you.':'Only '+PEOPLE[t.by]+', who added it, can make it private.'}</div></span><button class="sw-btn ${t.priv?'on':''}" id="etPriv" data-act="etPrivToggle" aria-label="Private" ${mine?'':'disabled'}></button></div>
+  <div class="toggle ${mine?'':'disabled'}"><span><div style="font-weight:600">${LOCK} Private</div><div class="hint" style="font-size:12px">${mine?'Only you will see it. Private tasks are always for you.':'Only '+PEOPLE[t.by]+', who added it, can make it private.'}</div></span><button class="sw-btn ${t.priv?'on':''}" id="etPriv" data-act="etPrivToggle" aria-label="Private" ${mine?'':'disabled'}></button></div>
   <div class="hint" style="font-size:12px">${byLine(t)}</div>
   <div class="two"><button class="btn ghost block" data-act="delTodo" data-id="${t.id}">Delete</button><button class="btn block" data-act="saveTodo" data-id="${t.id}">Save</button></div>`);
 }
 function sheetEventDetail(e){
   const dups=dupsOf(e),d=addDays(TODAY,S.sel);
   sheet(`<h3>${esc(e.title)}</h3>
-  <div class="card rows"><div class="row"><div class="main"><div class="s">When</div><div class="t">${e.rep?REP[e.rep.f]+' from '+rel(addDays(TODAY,e.d)):dayLabel(e.d)}, ${fmtTime(e.time)}${spanOf(e)?` → ${dayLabel(e.endD)}${e.end?', '+fmtTime(e.end):''} (${spanOf(e)+1} days)`:''}</div></div></div>
+  <div class="card rows"><div class="row"><div class="main"><div class="s">When</div><div class="t">${e.rep?REP[e.rep.f]+' from '+rel(addDays(TODAY,e.d)):dayLabel(e.d)}, ${spanOf(e)?fmtTime(e.time):fmtRange(e.time,e.end)}${e.rep&&e.skip?' · skips '+esc(blockNames()):''}${spanOf(e)?` → ${dayLabel(e.endD)}${e.end?', '+fmtTime(e.end):''} (${spanOf(e)+1} days)`:''}</div></div></div>
    <div class="row"><div class="main"><div class="s">Who's on it</div><div class="t">${e.who==='B'?'Both of you':PEOPLE[e.who]}</div></div>${whoBadge(e.who)}</div>
    <div class="row"><div class="main"><div class="s">Calendar</div><div class="t">${esc(SRC[e.src]||e.src)}</div><div class="s">${byLine(e)}</div></div></div>
-   <div class="row"><div class="main"><div class="s">Colour${e.rep?' (every repeat)':''}</div>${colourPick(e.colour||'','evColour',`data-id="${e.id}"`)}</div></div></div>
+   <div class="row"><div class="main"><div class="s">Group</div><select id="evGroupSel" data-id="${e.id}" aria-label="Group">${groupOptions(e.group||'')}</select></div></div>
+   <div class="row"><div class="main"><div class="s">Colour${e.rep?' (every repeat)':''}${!e.colour&&groupOf(e)?' · using '+esc(groupOf(e).name)+"'s":''}</div>${colourPick(e.colour||'','evColour',`data-id="${e.id}"`)}</div></div>
+   ${e.rep?`<div class="row"><div class="main"><div class="t">Skip during ${esc(blockNames())}</div><div class="s">Repeats on those days don't happen</div></div><button class="sw-btn ${e.skip?'on':''}" data-act="evSkip" data-id="${e.id}" aria-label="Skip during holidays"></button></div>`:''}</div>
   ${e.priv?'':e.src!=='app'?`<div class="hint">Pulled from ${esc(SRC[e.src]||e.src)}. Pulled events show in Family Hub only and are never copied to another calendar.</div>`:PUSH_TO.length?`<div class="aisle">Copied to</div><div class="card rows">${PUSH_TO.map(c=>{const here=dups.find(x=>x.src===c);
      return `<div class="row"><div class="main"><div class="t">${PUSH_NAME[c]}</div><div class="s">${!e.gcal?'Off for this event':here?`Skipped: already there as "${esc(here.title)}"`:'Copied when the calendars next sync'}</div></div><span class="kind">${!e.gcal||here?'Skip':'✓'}</span></div>`}).join('')}</div>`:''}
   ${dups.length&&showDups()?`<div class="aisle">Possible duplicates · kept as a record</div><div class="card rows">${dups.map(x=>`<div class="row"><div class="main"><div class="t">${esc(x.title)}</div><div class="s">${esc(SRC[x.src]||x.src)} · ${fmtTime(x.time)} · ${esc(x.dupWhy)}</div></div><button class="btn ghost sm" data-act="notDup" data-id="${x.id}">Not a duplicate</button></div>`).join('')}</div>
@@ -1185,7 +1259,16 @@ function applyTheme(){const T=THEMES[themeKey()],dk=isDark(),p=dk?T.dark:T.light
 try{new MutationObserver(applyTheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyTheme)}catch(e){}
 
 // ---------- render ----------
-const TITLES={bins:['Household','Bins'],imports:['Calendar','Review imports'],birthdays:['Family','Birthdays'],settings:['Your','Settings'],today:['Sunday 15 November','Today'],calendar:['Family','Calendar'],plan:['Dinners','Meal plan'],recipes:['Our','Recipes'],groceries:['Food','Groceries'],shopping:['Everything else','Other shopping'],todos:['Shared','To-dos']};
+const TITLES={bins:['Household','Bins'],imports:['Calendar','Review imports'],birthdays:['Family','Birthdays'],settings:['Your','Settings'],today:['Sunday 15 November','Today'],calendar:['Family','Calendar'],plan:['Dinners','Meal plan'],recipes:['Our','Recipes'],groceries:['Food','Groceries'],shopping:['Everything else','Other shopping'],todos:['Shared','Tasks']};
+function renderKeep(){
+  const m=$('#main');if(!m)return render();
+  const vals={};m.querySelectorAll('input[id],select[id],textarea[id]').forEach(el=>{vals[el.id]=el.value});
+  const a=document.activeElement,fid=a&&m.contains(a)&&a.id,ss=fid&&a.selectionStart!=null?[a.selectionStart,a.selectionEnd]:null,sy=window.scrollY;
+  render();
+  for(const k in vals){const el=document.getElementById(k);if(el&&m.contains(el)&&el.value!==vals[k]&&el.type!=='hidden')el.value=vals[k]}
+  if(fid){const el=document.getElementById(fid);if(el){el.focus({preventScroll:true});if(ss)try{el.setSelectionRange(ss[0],ss[1])}catch(e){}}}
+  window.scrollTo(0,sy);
+}
 function render(){
   const td=addDays(TODAY,S.dOff);$('#eyebrow').textContent=S.view==='today'?`${DN[td.getDay()]} ${td.getDate()} ${MONTHS[td.getMonth()]}`:TITLES[S.view][0];
   $('#heading').textContent=S.view==='recipes'&&S.recipe?'Recipe':S.view==='today'?(S.dOff===0?'Today':dayLabel(S.dOff).split(' ')[0]):TITLES[S.view][1];
@@ -1230,6 +1313,15 @@ document.addEventListener('click',e=>{
    case'impSave':{const pend=pendingImports(),imp=pend.filter(x=>S.impSel[x.id]).map(x=>x.id),skip=pend.filter(x=>!S.impSel[x.id]).map(x=>x.id);
      el.disabled=true;decideImports(imp,skip).then(()=>{S.impSel=null;render();toast(`Imported ${imp.length}${skip.length?`, skipped ${skip.length}`:''}`)}).catch(e=>{el.disabled=false;toast(e.message)});break}
    case'impRestore':{const imp=Object.keys(S.impSel).map(Number);el.disabled=true;decideImports(imp,[]).then(()=>{S.impSel={};render();toast(`Imported ${imp.length}`)}).catch(e=>{el.disabled=false;toast(e.message)});break}
+   case'grpToggle':{const h=hiddenGroups(),k=String(el.dataset.id);setHiddenGroups(h.includes(k)?h.filter(x=>x!==k):h.concat(k));render();break}
+   case'grpManage':sheetGroups();break;
+   case'grpEdit':sheetGroup(el.dataset.id?groupById(el.dataset.id):null);break;
+   case'grpCol':S.grpCol=el.dataset.c;el.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===el));break;
+   case'grpSave':{const name=$('#grpName').value.trim();if(!name){$('#grpName').focus();return}
+     const rec={name,colour:S.grpCol,words:$('#grpWords').value.trim(),blocks:$('#grpBlocks').classList.contains('on')};
+     const g=el.dataset.id?groupById(el.dataset.id):null;if(g)Object.assign(g,rec);else groups.push({id:id(),...rec});render();sheetGroups();toast(`${name} saved`);break}
+   case'grpDel':{const g=groupById(el.dataset.id);groups=groups.filter(x=>x!==g);events.forEach(e=>{if(String(e.group)===String(g.id))e.group=''});render();sheetGroups();toast(`${g.name} deleted`);break}
+   case'evSkip':{const e=events.find(x=>x.id===n('id'));e.skip=!e.skip;render();sheetEventDetail(e);break}
    case'addBin':sheetBin(null);break;
    case'editBin':sheetBin(bins.find(b=>b.id===n('id')));break;
    case'binCol':S.binCol=el.dataset.v;el.parentNode.querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b===el);b.setAttribute('aria-pressed',b===el)});break;
@@ -1260,13 +1352,15 @@ document.addEventListener('click',e=>{
    case'promptShop':{const r=recipeById(n('r'));let c=0;r.ing.forEach((g,i)=>{if(S.ingSel.on[i]){addGro(g[1],scaleQty(g[0],scaleOf(r)),r.id,S.me,false,S.promptPid);c++}});closeSheet();render();toast(`Added ${c} items to groceries`);break}
    case'closeSheetBtn':closeSheet();break;
    case'editTodo':sheetEditTodo(todos.find(x=>x.id===n('id')));break;
-   case'todoDT':$('#todoDT').value=el.dataset.v;el.parentNode.querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b===el);b.setAttribute('aria-pressed',b===el)});break;
-   case'privToggle':{const on=el.classList.toggle('on');el.setAttribute('aria-pressed',on);const w=$('#todoWho');if(on){w.value=S.me}w.disabled=on;break}
+   case'todoDTc':{const f=TF();f.dt=f.dt==='on'?'by':'on';$('#todoDT').value=f.dt;el.textContent=f.dt==='on'?'Do on':'Due by';el.setAttribute('aria-label',`Date means: ${f.dt==='on'?'do on':'due by'}. Tap to change`);break}
+   case'todoWhoC':{const f=TF(),order=['B','R','T'];f.who=order[(order.indexOf(f.who)+1)%3];$('#todoWho').value=f.who;el.textContent=f.who==='B'?'R+T':f.who;el.className=`mini chip cyc who-${f.who}`;el.setAttribute('aria-label',`For ${f.who==='B'?'both':PEOPLE[f.who]}. Tap to change`);break}
+   case'todoSkipC':{const f=TF();f.skip=!f.skip;el.classList.toggle('on',f.skip);el.setAttribute('aria-pressed',f.skip);break}
+   case'privToggle':{const f=TF(),on=el.classList.toggle('on');f.priv=on;el.setAttribute('aria-pressed',on);const w=$('#todoWho'),b=$('#todoWhoB');w.value=on?S.me:f.who;b.disabled=on;b.textContent=on?S.me:f.who==='B'?'R+T':f.who;b.className=`mini chip cyc who-${on?S.me:f.who}`;break}
    case'etPrivToggle':{const on=el.classList.toggle('on');const w=$('#etWho');if(on)w.value=S.me;w.disabled=on;break}
    case'saveTodo':{const t=todos.find(x=>x.id===n('id'));const v=$('#etTitle').value.trim();if(!v){$('#etTitle').focus();return}
      const was=t.who;t.title=v;t.priv=$('#etPriv').classList.contains('on');t.who=t.priv?S.me:$('#etWho').value;const dv=$('#etDue').value;t.date=dv?new Date(dv+'T00:00'):null;t.dt=$('#etDT').value;t.time=$('#etTime').value||'';const rp=$('#etRep').value;t.rep=rp?{f:rp}:null;closeSheet();render();
-     if(!t.priv&&t.who!==was&&t.who!==S.me){notify(t.who,'todo',t.id,`${PEOPLE[S.me]} assigned you a to-do`);toast(`Updated. ${t.who==='B'?PEOPLE[OTHER()]:PEOPLE[t.who]} will get a notification.`)}else toast('To-do updated');break}
-   case'delTodo':todos=todos.filter(x=>x.id!==n('id'));closeSheet();render();toast('To-do deleted');break;
+     if(!t.priv&&t.who!==was&&t.who!==S.me){notify(t.who,'todo',t.id,`${PEOPLE[S.me]} assigned you a task`);toast(`Updated. ${t.who==='B'?PEOPLE[OTHER()]:PEOPLE[t.who]} will get a notification.`)}else toast('Task updated');break}
+   case'delTodo':todos=todos.filter(x=>x.id!==n('id'));closeSheet();render();toast('Task deleted');break;
    case'dropHold':{const h=holding.find(x=>x.hid===n('h')),m=mealOf(h.rid);const go_=()=>{const c=removeMeal(h.hid);holding=holding.filter(x=>x!==h);closeSheet();render();toast(`${m.name} removed${c?` with ${c} grocery item${c>1?'s':''}`:''}`)};
      if(el.dataset.ok){go_();break}const cnt=groceries.filter(g=>g.pid===h.hid&&!g.done).length;if(!cnt){go_();break}sheetRemoveMeal(m.name,'the meal plan',cnt,'dropHold',`data-h="${h.hid}"`);break}
    case'filter':S.filter=el.dataset.v;render();break;
@@ -1290,12 +1384,12 @@ document.addEventListener('click',e=>{
    case'groDelete':groceries=groceries.filter(g=>!(keyOf(g.name)===el.dataset.k&&!g.rid));closeSheet();render();break;
    case'seenAll':notes.forEach(x=>{if(x.to===S.me)x.read=true});render();break;
    case'openNote':{const x=notes.find(y=>y.id===n('n'));x.read=true;if(x.kind==='todo')go('todos');else{S.sel=events.find(e=>e.id===x.ref).d;S.calMode='week';S.weekStart=Math.floor(S.sel/7)*7;go('calendar')}break}
-   case'todoToggle':{const t=todos.find(x=>x.id===n('id'));t.done=!t.done;if(t.done&&t.rep&&t.date&&!todos.some(x=>x!==t&&x.title===t.title&&x.date&&isoOf(x.date)===isoOf(nextDate(t.date,t.rep.f)))){const nx={...t,id:id(),done:false,date:nextDate(t.date,t.rep.f)};t.spawned=true;todos.push(nx);render();toast(`Done. Next one: ${DN[nx.date.getDay()]} ${nx.date.getDate()} ${MN[nx.date.getMonth()]}`)}else render();break}
+   case'todoToggle':{const t=todos.find(x=>x.id===n('id'));t.done=!t.done;if(t.done&&t.rep&&t.date&&!todos.some(x=>x!==t&&x.title===t.title&&x.date&&isoOf(x.date)===isoOf(nextFree(t)))){const nx={...t,id:id(),done:false,date:nextFree(t)};t.spawned=true;todos.push(nx);render();toast(`Done. Next one: ${DN[nx.date.getDay()]} ${nx.date.getDate()} ${MN[nx.date.getMonth()]}`)}else render();break}
    case'swToggle':el.classList.toggle('on');break;
    case'toggleDups':{const on=!showDups();try{localStorage.setItem('fh-dups',on?'1':'0')}catch(e){S.dups=on}render();break}
    case'saveEvent':{const t=$('#evTitle').value.trim();if(!t){$('#evTitle').focus();return}
      const priv=el.dataset.priv==='1';const d=diff(new Date($('#evDate').value+'T00:00'));const g=!priv&&$('#evG').classList.contains('on');
-     const rp=$('#evRep').value,un=$('#evUntil').value,en=$('#evEnd').value;const endD=en?diff(new Date(en+'T00:00')):null;const ne={id:id(),colour:S.newColour||'',d,endD:endD!=null&&endD>d?endD:null,time:$('#evTime').value||'',title:t,type:$('#evType').value,who:$('#evWho').value,by:S.me,priv,gcal:g,src:'app',rep:rp?{f:rp,until:un?diff(new Date(un+'T00:00')):null}:null};events.push(ne);if(!priv&&ne.who!==S.me)notify(ne.who,'event',ne.id,`${PEOPLE[S.me]} assigned you ${ne.type==='pickup'?'a pick-up':'an event'}`);
+     const rp=$('#evRep').value,un=$('#evUntil').value,en=$('#evEnd').value;const endD=en?diff(new Date(en+'T00:00')):null;const ne={id:id(),colour:S.newColour||'',group:$('#evGroup').value,skip:!!rp&&$('#evSkipT').classList.contains('on'),end:$('#evTime').value?$('#evEndT').value||'':'',d,endD:endD!=null&&endD>d?endD:null,time:$('#evTime').value||'',title:t,type:$('#evType').value,who:$('#evWho').value,by:S.me,priv,gcal:g,src:'app',rep:rp?{f:rp,until:un?diff(new Date(un+'T00:00')):null}:null};events.push(ne);if(!priv&&ne.who!==S.me)notify(ne.who,'event',ne.id,`${PEOPLE[S.me]} assigned you ${ne.type==='pickup'?'a pick-up':'an event'}`);
      S.sel=d;closeSheet();render();toast(priv?'Private event saved. Only you can see it.':g?'Saved and added to Google Calendar':'Saved in the app only');break}
    case'snap':$('#photo').value='';$('#photo').click();break;
    case'saveSnap':{const d=S.snap.draft,prep=+$('#snPrep').value||0,cook=+$('#snCook').value||0;
@@ -1309,15 +1403,16 @@ document.addEventListener('submit',e=>{
   if(f==='shop'){const v=$('#shopInput').value.trim();if(!v)return;shopping.unshift({id:id(),name:cap(v),qty:'',cat:$('#shopCat').value,by:S.me,done:false})}
   if(f==='gro'){const v=$('#groInput').value.trim();if(!v)return;addGro(v,'',null,S.me);toast(`${cap(v)} added to ${catFor(v)}`)}
   if(f==='todo'){const v=$('#todoInput').value.trim();if(!v)return;const priv=$('#todoPriv').classList.contains('on');const dv=$('#todoDue').value;
-    const rp=$('#todoRep').value;const t={id:id(),title:v,who:priv?S.me:$('#todoWho').value,by:S.me,priv,date:dv?new Date(dv+'T00:00'):null,dt:$('#todoDT').value,time:dv?$('#todoTime').value||'':'',rep:rp&&dv?{f:rp}:null,done:false};t.sort=Math.min(0,...todos.filter(x=>!x.done&&x.sort!=null).map(x=>x.sort))-10;todos.unshift(t);
-    if(!priv&&t.who!==S.me){notify(t.who,'todo',t.id,`${PEOPLE[S.me]} assigned you a to-do`);toast(`To-do added. ${t.who==='B'?PEOPLE[OTHER()]:PEOPLE[t.who]} will get a notification.`)}else toast(priv?'Private to-do added. Only you can see it.':'To-do added')}
+    const rp=$('#todoRep').value;const t={id:id(),title:v,who:priv?S.me:$('#todoWho').value,by:S.me,priv,date:dv?new Date(dv+'T00:00'):null,dt:$('#todoDT').value,time:dv?$('#todoTime').value||'':'',rep:rp&&dv?{f:rp}:null,skip:!!(rp&&dv&&TF().skip),done:false};S.tf=null;t.sort=Math.min(0,...todos.filter(x=>!x.done&&x.sort!=null).map(x=>x.sort))-10;todos.unshift(t);
+    if(!priv&&t.who!==S.me){notify(t.who,'todo',t.id,`${PEOPLE[S.me]} assigned you a task`);toast(`Task added. ${t.who==='B'?PEOPLE[OTHER()]:PEOPLE[t.who]} will get a notification.`)}else toast(priv?'Private task added. Only you can see it.':'Task added')}
   render();const inp=$({shop:'#shopInput',gro:'#groInput',todo:'#todoInput'}[f]);inp&&inp.focus();
 });
 $('#photo').addEventListener('change',e=>{
   const file=e.target.files[0];if(file)startSnap(file);
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
-document.addEventListener('change',e=>{if(['bdDay','bdMonth'].includes(e.target.id))bdHint();if(e.target.id==='evRep')$('#evUntilF').hidden=!e.target.value;
+document.addEventListener('change',e=>{if(e.target.id==='evGroupSel'){const ev=events.find(x=>x.id===+e.target.dataset.id);ev.group=e.target.value;render();sheetEventDetail(ev);return}
+  if(e.target.id==='todoRep'){const f=$('#todoSkipF');if(f)f.hidden=!e.target.value}if(['bdDay','bdMonth'].includes(e.target.id))bdHint();if(e.target.id==='evRep')$('#evUntilF').hidden=!e.target.value;
   if(e.target.id==='todoWhen'){const v=e.target.value,f=$('#todoPickF'),d=$('#todoDue');f.hidden=v!=='pick';if(v==='none')d.value='';else if(v!=='pick')d.value=isoOf(addDays(TODAY,+v));else if(!d.value)d.value=isoOf(TODAY)}});
 document.addEventListener('input',e=>{if(['bdYear','bdAge'].includes(e.target.id)){bdHint();return}if(e.target.id==='rSearch'){S.rq=e.target.value;const pos=e.target.selectionStart;render();const i=$('#rSearch');if(i){i.focus();i.setSelectionRange(pos,pos)}return}
   if(e.target.id!=='groInput')return;const v=e.target.value.trim(),h=$('#groHint');if(h)h.innerHTML=v?`Goes in <b>${esc(catFor(v))}</b>`:'Items sort themselves into categories. Drag one by its handle to another category to fix it (remembered for next time), or tap it to see what each recipe needs.'});
@@ -1371,7 +1466,7 @@ async function finishGoogleSignIn(){
     await loadAll();$('#overlay').innerHTML='';render();toast('Signed in as '+PEOPLE[S.me])}
   catch(e){openSetup(e.message)}
 }
-async function signOut(){const c=cfg();try{await api('signout')}catch(e){}setCfg({url:c.url,checked:true,clientId:c.clientId,passcode:c.passcode});SNAP=null;openSetup()}
+async function signOut(){const c=cfg();try{await api('signout')}catch(e){}setCfg({url:c.url,checked:true,clientId:c.clientId,passcode:c.passcode});try{localStorage.removeItem('fh-cache')}catch(e){}SNAP=null;openSetup()}
 async function connect(){
   const key=$('#cfgKey').value;if(!S.cfgMe){openSetupMsg({key},"Pick who's using this phone.");return}
   const old=cfg();setCfg({...old,key,me:S.cfgMe,session:''});S.me=S.cfgMe;
@@ -1400,7 +1495,8 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(
 applyTheme();render();
 if(/[#&]id_token=|[#&]error=/.test(location.hash))finishGoogleSignIn();
 else if(!cfg()||!cfg().url||(!cfg().session&&!cfg().key))openSetup();
-else loadAll().catch(e=>{setStatus(e.code==='net'?'net':'error',e.message);if(e.code==='auth')openSetup(e.message)});
+else{const c=readCache();if(c){try{applyTabs(c.tabs);setStatus('loading')}catch(e){SNAP=null}}
+  loadAll().catch(e=>{setStatus(e.code==='net'?'net':'error',e.message);if(e.code==='auth')openSetup(e.message)})}
 </script>
 
 </body>
