@@ -26,6 +26,9 @@ img{max-width:100%}
   padding:calc(24px + env(safe-area-inset-top,0px)) max(16px, env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(16px, env(safe-area-inset-left,0px));overflow:auto}
 .setup-card{width:100%;max-width:420px;display:flex;flex-direction:column;gap:14px}
 .setup-card h1{font-size:30px;font-weight:800}
+.gbtn{display:flex;align-items:center;justify-content:center;gap:10px}
+.setup-card code{font-size:11px;word-break:break-all;background:var(--surface-2);padding:1px 4px;border-radius:4px}
+.setup-card .link{align-self:center}
 .err{background:var(--surface);border:1px solid var(--protein);color:var(--protein);border-radius:12px;padding:10px 12px;font-size:14px}
 
 /* Layout: single phone column, sticky header with a menu button top-left opening a side drawer; colour-coded entries like a fridge calendar */
@@ -58,6 +61,8 @@ body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size
   padding-left:max(16px, env(safe-area-inset-left,0px));padding-right:max(16px, env(safe-area-inset-right,0px));padding-block:0 40px}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
 .app{max-width:520px;margin:0 auto}
+body.wide .app{max-width:1400px}
+@media (min-width:700px){body.wide .mcal{margin-inline:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}body.wide .calbar{padding:10px 12px}}
 h1,h2,h3{font-family:var(--font-display);margin:0;text-wrap:balance}
 button{font:inherit;color:inherit;cursor:pointer}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -175,6 +180,49 @@ input[type=text],input[type=number],input[type=date],input[type=time],select{fon
 body.is-dragging{user-select:none;-webkit-user-select:none}
 .syncbar{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .stripe.todo{background:var(--accent)}.tag.todo{background:var(--accent-soft);color:var(--accent);margin-right:4px}
+.minis{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.mini{display:inline-flex;align-items:center;gap:4px;height:34px;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:0 2px 0 6px;font-size:13px;flex:0 0 auto;max-width:100%}
+.mini input,.mini select{border:0!important;background:none!important;padding:0 4px!important;font-size:13px!important;width:auto!important;min-width:0;height:32px;color:var(--fg)}
+.mini input[type=date]{max-width:8em;font-variant-numeric:tabular-nums}.mini input[type=time]{max-width:5.6em}
+.minis .segsm button{padding:5px 8px;font-size:12.5px}
+.minis .segsm{height:34px;padding:2px}
+.mini{gap:2px}
+.mini-l{font-size:12px;font-weight:600;color:var(--muted)}
+.mini.chip{padding:0 10px;gap:5px}
+.minis .segsm{height:34px;align-items:center}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.tgrip{margin:-8px -4px -8px -8px;width:24px}
+.tgrip-space{width:16px;flex:none;margin-left:-8px}
+.row.over-top{box-shadow:inset 0 3px 0 var(--accent)}
+.row.over-bot{box-shadow:inset 0 -3px 0 var(--accent)}
+.mcal{margin-inline:calc(-1 * max(16px, env(safe-area-inset-left,0px)));margin-top:-6px}
+.calbar{display:flex;align-items:center;gap:6px;padding:0 max(12px, env(safe-area-inset-left,0px)) 8px;flex-wrap:wrap}
+.calbar h2{font-size:18px;font-weight:800;min-width:0;margin-right:auto}
+.calbar .pg{width:34px;height:34px;font-size:17px}
+.calbar-r{display:flex;align-items:center;gap:6px;margin-left:auto}
+.calbar .segsm button{padding:5px 8px;font-size:12.5px}
+.calbar .btn.sm{padding:6px 10px}
+.mgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:minmax(calc((100dvh - 210px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)) / var(--weeks)),auto);border-top:1px solid var(--line);background:var(--surface)}
+.mgrid .mwd{grid-row:auto;min-height:0;font-size:11px;font-weight:700;color:var(--muted);text-align:center;padding:4px 0;border-bottom:1px solid var(--line);background:var(--bg)}
+.mgrid{grid-template-rows:auto}
+.mc{border:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--surface);padding:2px 2px 4px;display:flex;flex-direction:column;align-items:stretch;gap:2px;min-width:0;text-align:left;overflow:hidden;cursor:pointer}
+.mc:nth-child(7n+7){border-right:0}
+.mc.out{background:var(--bg)}
+.mc.out .mcd{color:var(--muted)}
+.mcd{font-size:12px;font-weight:600;align-self:center;width:22px;height:22px;display:grid;place-items:center;border-radius:50%;margin-bottom:1px}
+.mc.today .mcd{background:var(--accent);color:var(--accent-ink)}
+.evc{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;font-size:10px;line-height:1.25;font-weight:600;border-radius:4px;padding:1px 2px;overflow:hidden;overflow-wrap:anywhere;hyphens:auto;min-width:0;letter-spacing:-.1px}
+.evc .et{display:none}
+@media (min-width:700px){.evc{-webkit-line-clamp:2;padding:1px 4px}.evc .et{display:inline}}
+.evc.event{background:var(--event-soft);color:var(--event)}
+.evc.pickup,.evc.dropoff{background:var(--pickup-soft);color:var(--pickup)}
+.evc.birthday{background:var(--bday-soft);color:var(--bday)}
+.evc.meal{background:var(--meal-soft);color:var(--meal)}
+.evc.todo{background:var(--accent-soft);color:var(--accent)}
+.evc.holiday,.evc.booking{background:var(--surface-2);color:var(--fg)}
+.evmore{font-size:10px;font-weight:700;color:var(--muted);padding:0 3px}
+@media (min-width:700px){.evc{font-size:12px}.mcd{font-size:13px}}
+.mc{padding:2px 1px 4px}
 .late{color:var(--protein);font-weight:600}
 .banner{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--r);background:var(--meal-soft);color:var(--fg)}
 .banner .main{flex:1;min-width:0}
@@ -396,7 +444,8 @@ function findDup(n){
 const ord=n=>n+(['th','st','nd','rd'][(n%100-20)%10]||['th','st','nd','rd'][n%100]||'th');
 function nextBday(b){let y=TODAY.getFullYear(),dt=new Date(y,b.month,b.day);if(dt<TODAY)dt=new Date(++y,b.month,b.day);return {date:dt,age:y-b.year,off:diff(dt)}}
 function yearFromAge(day,month,age){const had=new Date(TODAY.getFullYear(),month,day)<=TODAY;return TODAY.getFullYear()-age-(had?0:1)}
-const bdayEvents=d=>{const dt=addDays(TODAY,d);return birthdays.filter(b=>b.day===dt.getDate()&&b.month===dt.getMonth()).map(b=>({id:'b'+b.id,bday:b,d,time:'',type:'birthday',who:'B',by:'R',title:`${b.name}'s ${ord(dt.getFullYear()-b.year)} birthday`}))};
+const bdTitle=(b,age)=>b.kind==='anniversary'?`${b.name}'s ${ord(age)} anniversary`:`${b.name}'s ${ord(age)} birthday`;
+const bdayEvents=d=>{const dt=addDays(TODAY,d);return birthdays.filter(b=>b.day===dt.getDate()&&b.month===dt.getMonth()).map(b=>({id:'b'+b.id,bday:b,d,time:'',type:'birthday',who:'B',by:'R',title:bdTitle(b,dt.getFullYear()-b.year)}))};
 const addGro=(name,qty,rid,by,done=false,pid=null)=>groceries.push({id:id(),name:cap(name),qty:rid?'':qty,need:rid?qty:'',cat:catFor(name),rid:rid||null,pid,by,done});
 const RTYPES=["Chicken", "Beef", "Pork", "Fish & seafood", "Vegetarian", "Sauces & extras"];
 const notify=(to,kind,ref,msg)=>{if(to==='B'){notify('R',kind,ref,msg);notify('T',kind,ref,msg);return}if(to===S.me)return;notes.push({id:id(),to,from:S.me,kind,ref,msg,read:false})};
@@ -437,8 +486,8 @@ function fromTabs(t){
     src:e.source||'app',dupOf:N_(e.duplicate_of),dupWhy:e.duplicate_reason||'',upcoming:!e.start_time&&!e.repeat}));
   groceries=(t.Groceries||[]).filter(g=>g.item).map(g=>({id:N_(g.id),name:g.item,qty:g.note||'',need:g.recipe_qty||'',cat:g.category||catFor(g.item),rid:N_(g.recipe_id),rname:g.recipe_name||'',pid:N_(g.plan_id),by:g.created_by||'R',done:B_(g.done),doneAt:g.done_at||''}));
   shopping=(t.Shopping||[]).filter(x=>x.item).map(x=>({id:N_(x.id),name:x.item,qty:x.qty||'',cat:x.category||'Other',store:x.store||'',by:x.created_by||'R',done:B_(x.done),doneAt:x.done_at||''}));
-  todos=(t.Todos||[]).filter(x=>x.title).map(x=>({id:N_(x.id),title:x.title,who:x.who||'B',by:x.created_by||'R',priv:B_(x.private),date:parseYmd(x.date),time:x.time||'',dt:x.date_type==='on'?'on':'by',rep:x.repeat?{f:x.repeat}:null,done:B_(x.done),doneAt:x.done_at||'',notes:x.notes||''}));
-  birthdays=(t.Birthdays||[]).filter(b=>b.name).map(b=>({id:N_(b.id),name:b.name,rel:b.relation||'',day:+b.day,month:(+b.month||1)-1,year:+b.birth_year,known:B_(b.year_known),how:b.how_added||'',show:b.show_on_calendar===''||b.show_on_calendar==null?true:B_(b.show_on_calendar),cal:b.calendar_id||''}));
+  todos=(t.Todos||[]).filter(x=>x.title).map(x=>({id:N_(x.id),title:x.title,who:x.who||'B',by:x.created_by||'R',priv:B_(x.private),date:parseYmd(x.date),time:x.time||'',dt:x.date_type==='on'?'on':'by',rep:x.repeat?{f:x.repeat}:null,done:B_(x.done),doneAt:x.done_at||'',notes:x.notes||'',sort:x.sort===''||x.sort==null?null:+x.sort}));
+  birthdays=(t.Birthdays||[]).filter(b=>b.name).map(b=>({id:N_(b.id),name:b.name,rel:b.relation||'',day:+b.day,month:(+b.month||1)-1,year:+b.birth_year,known:B_(b.year_known),how:b.how_added||'',show:b.show_on_calendar===''||b.show_on_calendar==null?true:B_(b.show_on_calendar),cal:b.calendar_id||'',kind:b.kind==='anniversary'?'anniversary':'birthday'}));
   notes=(t.Notifications||[]).map(x=>({id:N_(x.id),to:x.to,from:x.created_by,kind:x.item_type,type:x.type||'assigned',ref:N_(x.item_id),msg:x.message,read:!!x.read_at,readAt:x.read_at||'',pushedAt:x.pushed_at||''}));
   const meRow=PEOPLE_ROWS.find(p=>p.id===S.me);if(meRow&&meRow.theme&&THEMES[meRow.theme])try{localStorage.setItem('fh-theme',meRow.theme)}catch(e){S.theme=meRow.theme}
 }
@@ -457,8 +506,8 @@ function toTabs(){
   cookedRows.forEach(c=>T.MealPlan.push({id:c.id,recipe_id:c.rid??'',recipe_name:c.name,date:ymdOff(c.d),status:'cooked'}));
   T.Groceries=groceries.map(g=>({id:g.id,item:g.name,note:g.rid?'':(g.qty||''),recipe_qty:g.need||'',category:g.cat,recipe_id:g.rid??'',recipe_name:g.rid?((recipeById(g.rid)||{}).name||g.rname||''):'',plan_id:g.pid??'',done:!!g.done,done_at:stampDone(g),created_by:g.by}));
   T.Shopping=shopping.map(x=>({id:x.id,item:x.name,qty:x.qty||'',category:x.cat,store:x.store||'',done:!!x.done,done_at:stampDone(x),created_by:x.by}));
-  T.Todos=todos.map(x=>({id:x.id,title:x.title,who:x.who,private:!!x.priv,date:x.date?isoOf(x.date):'',time:x.time||'',date_type:x.dt||'by',repeat:x.rep?x.rep.f:'',done:!!x.done,done_at:stampDone(x),notes:x.notes||'',created_by:x.by}));
-  T.Birthdays=birthdays.map(b=>({id:b.id,name:b.name,relation:b.rel||'',day:b.day,month:b.month+1,birth_year:b.year,year_known:!!b.known,how_added:b.how||'',show_on_calendar:b.show!==false,calendar_id:b.cal||''}));
+  T.Todos=todos.map(x=>({id:x.id,title:x.title,who:x.who,private:!!x.priv,date:x.date?isoOf(x.date):'',time:x.time||'',date_type:x.dt||'by',repeat:x.rep?x.rep.f:'',done:!!x.done,done_at:stampDone(x),notes:x.notes||'',sort:x.sort??'',created_by:x.by}));
+  T.Birthdays=birthdays.map(b=>({id:b.id,name:b.name,relation:b.rel||'',day:b.day,month:b.month+1,birth_year:b.year,year_known:!!b.known,how_added:b.how||'',show_on_calendar:b.show!==false,calendar_id:b.cal||'',kind:b.kind||'birthday'}));
   T.Notifications=notes.map(x=>({id:x.id,to:x.to,type:x.type||'assigned',item_type:x.kind,item_id:x.ref,message:x.msg,pushed_at:x.pushedAt||'',read_at:x.read?(x.readAt||(x.readAt=nowStamp())):'',created_by:x.from}));
   T.GroceryCatalog=Object.entries(USER_CAT).map(([k,c])=>({item:k,category:c,source:'user'}));
   T.People=PEOPLE_ROWS.filter(p=>p.id===S.me).map(p=>({id:p.id,theme:themeKey()}));
@@ -476,9 +525,15 @@ function diffTabs(){const T=toTabs(),now=snapOf(T),ch={};let n=0;
   return {ch,n,now}}
 function cfg(){try{return JSON.parse(localStorage.getItem('fh-config')||'null')}catch(e){return S.cfg||null}}
 function setCfg(c){S.cfg=c;try{localStorage.setItem('fh-config',JSON.stringify(c))}catch(e){}}
+async function rawApi(url,body){
+  let r;try{r=await fetch(url,{method:'POST',body:JSON.stringify(body)})}catch(e){throw Object.assign(new Error("Can't reach the backend. Check the link and your connection."),{code:'net'})}
+  let j;try{j=await r.json()}catch(e){throw new Error("The backend link doesn't look right. It should be the Web app URL ending in /exec.")}
+  if(!j.ok)throw Object.assign(new Error(j.error||'Something went wrong'),{code:j.code});return j;
+}
 async function api(action,data={}){
   const c=cfg();if(!c||!c.url)throw Object.assign(new Error('Not connected yet'),{code:'auth'});
-  let r;try{r=await fetch(c.url,{method:'POST',body:JSON.stringify({action,key:c.key,me:c.me,...data})})}catch(e){throw Object.assign(new Error("Can't reach the backend. Check your connection."),{code:'net'})}
+  const auth=c.session?{session:c.session}:{key:c.key,me:c.me};
+  let r;try{r=await fetch(c.url,{method:'POST',body:JSON.stringify({action,...auth,...data})})}catch(e){throw Object.assign(new Error("Can't reach the backend. Check your connection."),{code:'net'})}
   if(!r.ok)throw new Error('The backend replied with error '+r.status);
   let j;try{j=await r.json()}catch(e){throw new Error("The backend link doesn't look right. It should end in /exec.")}
   if(!j.ok)throw Object.assign(new Error(j.error||'Something went wrong'),{code:j.code});
@@ -503,7 +558,7 @@ async function refresh(){if(saving||drag||$('#overlay .sheet,#overlay .setup,#ov
 function lastSyncText(){const t=CALS.filter(c=>c.owner===S.me&&c.last_synced).map(c=>c.last_synced).sort().pop();if(!t)return'never';const d=new Date(t.replace(' ','T'));return isNaN(d)?t:`${rel(d).toLowerCase()} ${fmtTime(String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'))}`}
 
 // ---------- state ----------
-const S={view:'today',dOff:0,me:((()=>{try{return JSON.parse(localStorage.getItem('fh-config')||'{}').me}catch(e){}})()||'R'),filter:'all',calMode:'week',sel:0,weekStart:0,month:{y:TODAY.getFullYear(),m:TODAY.getMonth()},recipe:null,snap:null,ingSel:null};
+const S={view:'today',dOff:0,me:((()=>{try{return JSON.parse(localStorage.getItem('fh-config')||'{}').me}catch(e){}})()||'R'),filter:'all',calMode:'month',sel:0,weekStart:0,month:{y:TODAY.getFullYear(),m:TODAY.getMonth()},recipe:null,snap:null,ingSel:null};
 const VIEWS=[['today','Today'],['calendar','Calendar'],['plan','Meal plan'],['recipes','Recipes'],['groceries','Groceries'],['shopping','Other shopping'],['todos','To-dos'],['birthdays','Birthdays'],['settings','Settings']];
 const myNew=()=>notes.filter(x=>x.to===S.me&&!x.read);
 const isNew=(kind,o)=>notes.some(x=>x.to===S.me&&!x.read&&x.kind===kind&&x.ref===o.id);
@@ -532,6 +587,8 @@ function eventRow(e,d){
   return `<button class="row evbtn" data-act="evDetail" data-id="${e.id}"><span class="stripe ${e.type==='appointment'?'event':e.type}"></span><span class="time num">${fmtTime(e.time)}</span>
   <div class="main"><div class="t">${esc(e.title)} ${isNew('event',e)?NEWPILL:''}${dn?`<span class="dupchip">+${dn} duplicate</span>`:''}</div><div class="s">${e.sub?esc(e.sub)+' · ':''}${e.rep?'↻ '+REP[e.rep.f]+' · ':''}${byLine(e)} · ${esc(SRC[e.src]||e.src)}</div></div>${whoBadge(e.who)}</button>`;
 }
+// manual order (drag to reorder); items never dragged fall back to their date
+const todoCmp=(a,b)=>(a.done-b.done)||((a.sort??1e15)-(b.sort??1e15))||((a.date||9e15)-(b.date||9e15))||(a.id-b.id);
 const todoDateText=t=>t.date&&t.time?todoDateText0(t)+' at '+fmtTime(t.time):todoDateText0(t);
 const todoDateText0=t=>{if(!t.date)return'No date';const n=diff(t.date),r=rel(t.date),near=n===0||n===1,rl=near?r.toLowerCase():r;if(t.dt==='on')return(n<0&&!t.done?'Missed · was on ':near?'Do ':'Do on ')+rl;return(n<0&&!t.done?'Overdue · was due ':near?'Due ':'Due by ')+rl};
 // a timed to-do shown inside a day's schedule
@@ -548,10 +605,10 @@ function scheduleHTML(X,filtered){
 function dayLabel(o){const d=addDays(TODAY,o);return o===0?'Today':o===1?'Tomorrow':o===-1?'Yesterday':DN[d.getDay()]+' '+d.getDate()+' '+MN[d.getMonth()]}
 function V_today(){
   const X=S.dOff, dt=addDays(TODAY,X), ev=dayEvents(X), r=mealOf(meals[X]);
-  const tds=todos.filter(t=>visible(t)&&t.date&&!t.done&&((diff(t.date)===X&&!t.time)||(X===0&&diff(t.date)<0))).sort((a,b)=>a.date-b.date);
+  const tds=todos.filter(t=>visible(t)&&t.date&&!t.done&&((diff(t.date)===X&&!t.time)||(X===0&&diff(t.date)<0))).sort(todoCmp);
   const doneT=todos.filter(t=>visible(t)&&t.done&&t.date&&diff(t.date)===X&&!t.time);
   const coming=X===0?events.filter(e=>e.upcoming&&e.d>=0&&!e.dupOf).map(e=>({t:e.title,s:e.sub||'',o:e.d,k:'event'}))
-     .concat(birthdays.map(b=>{const n=nextBday(b);return {t:`${b.name} turns ${n.age}`,s:b.rel,o:n.off,k:'birthday'}}).filter(x=>x.o>0&&x.o<=45)).sort((a,b)=>a.o-b.o):[];
+     .concat(birthdays.map(b=>{const n=nextBday(b);return {t:b.kind==='anniversary'?bdTitle(b,n.age):`${b.name} turns ${n.age}`,s:b.rel,o:n.off,k:'birthday'}}).filter(x=>x.o>0&&x.o<=45)).sort((a,b)=>a.o-b.o):[];
   const nw=X===0?myNew():[];
   return `<div class="daynav"><button class="pg" data-act="dayNav" data-n="-1" aria-label="Previous day">‹</button>
     <div class="lbl"><b>${dayLabel(X)}</b><span>${X===0?DN[dt.getDay()]+' '+dt.getDate()+' '+MN[dt.getMonth()]:`<button class="link" style="font-size:12px;padding:0" data-act="dayNav" data-n="0">Back to today</button>`}</span></div>
@@ -573,31 +630,50 @@ function V_today(){
   <section><div class="sec-head"><h2>Coming up</h2></div>
     <div class="card rows">${coming.map(u=>`<div class="row"><div class="main"><div class="t">${esc(u.t)}</div><div class="s">${esc(u.s)}</div></div><span class="tag ${u.k}">${rel(addDays(TODAY,u.o))}</span></div>`).join('')}</div></section>`:''}`;
 }
+function chipFor(x){
+  const cls=x.bday?'birthday':x.todo?'todo':x.meal?'meal':(x.type==='appointment'?'event':x.type);
+  const t=x.time?fmtTime(x.time).replace(':00','').replace('am','a').replace('pm','p')+' ':'';
+  return `<span class="evc ${cls}">${t?`<span class="et">${esc(t)}</span>`:''}${esc(x.title)}</span>`;
+}
+function monthDayItems(o){
+  const items=dayEvents(o,true).map(e=>({...e})).concat(timedTodos(o).filter(passFilter).map(t=>({title:t.title,time:t.time,todo:1})));
+  items.sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  const m=mealOf(meals[o]);if(m)items.push({title:m.name,meal:1});
+  return items;
+}
 function V_calendar(){
-  const mode=`<div class="seg"><button class="${S.calMode==='week'?'on':''}" data-act="calMode" data-v="week">Week</button><button class="${S.calMode==='month'?'on':''}" data-act="calMode" data-v="month">Month</button></div>`;
-  let grid;
   if(S.calMode==='week'){
     const a=addDays(TODAY,S.weekStart),b=addDays(TODAY,S.weekStart+6);
     const label=S.weekStart===0?'Next 7 days':`${a.getDate()} ${MN[a.getMonth()]} – ${b.getDate()} ${MN[b.getMonth()]}`;
-    grid=`<div class="pager"><button class="pg" data-act="wk" data-n="-7" aria-label="Previous week">‹</button><h2>${label}</h2><button class="pg" data-act="wk" data-n="7" aria-label="Next week">›</button></div>
-    <div class="week">${[...Array(7)].map((_,i)=>{const o=S.weekStart+i,d=addDays(TODAY,o);
-      return `<button class="day ${S.sel===o?'sel':''}" data-act="pick" data-o="${o}"><span class="dn">${DN[d.getDay()]}</span><span class="dd num">${d.getDate()}</span>${dotsFor(o)}</button>`}).join('')}</div>`;
-  }else{
-    const {y,m}=S.month, first=new Date(y,m,1), lead=(first.getDay()+6)%7, n=new Date(y,m+1,0).getDate();
-    const cells=[...Array(lead)].map(()=>'<span class="mcell blank"></span>').join('')+[...Array(n)].map((_,i)=>{const d=new Date(y,m,i+1),o=diff(d);
-      return `<button class="mcell ${o===S.sel?'sel':''} ${o===0?'today':''} ${o<0?'past':''}" data-act="pick" data-o="${o}" aria-label="${i+1} ${MONTHS[m]}"><span class="dd num">${i+1}</span>${dotsFor(o)}</button>`}).join('');
-    grid=`<div class="pager"><button class="pg" data-act="mo" data-n="-1" aria-label="Previous month">‹</button><h2>${MONTHS[m]} ${y}</h2><button class="pg" data-act="mo" data-n="1" aria-label="Next month">›</button></div>
-    <div class="month">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(w=>`<span class="wd">${w}</span>`).join('')}${cells}</div>`;
+    const d=addDays(TODAY,S.sel), r=mealOf(meals[S.sel]), inPlan=S.sel>=0&&S.sel<7;
+    return `${calBar(label,'wk',-7,7)}
+    <div class="week">${[...Array(7)].map((_,i)=>{const o=S.weekStart+i,dd=addDays(TODAY,o);
+      return `<button class="day ${S.sel===o?'sel':''}" data-act="pick" data-o="${o}"><span class="dn">${DN[dd.getDay()]}</span><span class="dd num">${dd.getDate()}</span>${dotsFor(o)}</button>`}).join('')}</div>
+    ${filterChips()}
+    <section><div class="sec-head"><h2>${S.sel===0?'Today':DN[d.getDay()]+' '+d.getDate()+' '+MN[d.getMonth()]}</h2><button class="link" data-act="addEvent">+ Add event</button></div>
+      <div class="card rows">${scheduleHTML(S.sel,true)||'<div class="empty">Nothing scheduled</div>'}
+      ${r?`<button class="row" ${r.custom?'data-act="go" data-v="plan"':`data-act="openRecipe" data-id="${r.id}"`}><span class="stripe meal"></span><span class="time">Dinner</span><div class="main"><div class="t">${esc(r.name)}</div><div class="s">Meal plan</div></div></button>`
+        :inPlan?`<div class="row"><span class="stripe meal"></span><span class="time">Dinner</span><div class="main"><div class="s">No dinner planned</div></div><button class="link" data-act="choose" data-d="${S.sel}">Choose</button></div>`:''}</div></section>`;
   }
-  const d=addDays(TODAY,S.sel), r=mealOf(meals[S.sel]), inPlan=S.sel>=0&&S.sel<7;
-  return `<div class="syncbar"><button class="btn ghost sm" data-act="syncMine">↻ Sync my calendars</button><span class="hint">Last synced ${lastSyncText()}</span></div>
-  ${mode}${grid}
-  <div class="chips"><span class="tag pickup">Pick-up / drop-off</span><span class="tag event">Event</span><span class="tag meal">Dinner</span><span class="tag birthday">Birthday</span></div>
-  ${filterChips()}
-  <section><div class="sec-head"><h2>${S.sel===0?'Today':DN[d.getDay()]+' '+d.getDate()+' '+MN[d.getMonth()]}</h2><button class="link" data-act="addEvent">+ Add event</button></div>
-    <div class="card rows">${scheduleHTML(S.sel,true)||'<div class="empty">Nothing scheduled</div>'}
-    ${r?`<button class="row" ${r.custom?'data-act="go" data-v="plan"':`data-act="openRecipe" data-id="${r.id}"`}><span class="stripe meal"></span><span class="time">Dinner</span><div class="main"><div class="t">${esc(r.name)}</div><div class="s">Meal plan</div></div></button>`
-      :inPlan?`<div class="row"><span class="stripe meal"></span><span class="time">Dinner</span><div class="main"><div class="s">No dinner planned</div></div><button class="link" data-act="choose" data-d="${S.sel}">Choose</button></div>`:''}</div></section>`;
+  const {y,m}=S.month, first=new Date(y,m,1), lead=(first.getDay()+6)%7, start=new Date(y,m,1-lead);
+  const n=new Date(y,m+1,0).getDate(), weeks=Math.ceil((lead+n)/7);
+  const cells=[...Array(weeks*7)].map((_,i)=>{const dt=new Date(start.getFullYear(),start.getMonth(),start.getDate()+i),o=diff(dt),items=monthDayItems(o),out=dt.getMonth()!==m;
+    const shown=items.slice(0,S.mcMax||4),more=items.length-shown.length;
+    return `<button class="mc ${out?'out':''} ${o===0?'today':''}" data-act="dayOpen" data-o="${o}" aria-label="${dt.getDate()} ${MONTHS[dt.getMonth()]}, ${items.length} item${items.length===1?'':'s'}"><span class="mcd num">${dt.getDate()}</span>${shown.map(chipFor).join('')}${more>0?`<span class="evmore">+${more} more</span>`:''}</button>`}).join('');
+  return `<div class="mcal" style="--weeks:${weeks}">${calBar(`${MONTHS[m]} ${y}`,'mo',-1,1)}
+    <div class="mgrid">${['M','T','W','T','F','S','S'].map(w=>`<span class="mwd">${w}</span>`).join('')}${cells}</div></div>`;
+}
+function calBar(label,act,a,b){
+  return `<div class="calbar"><button class="pg" data-act="${act}" data-n="${a}" aria-label="Previous">‹</button><h2>${label}</h2><button class="pg" data-act="${act}" data-n="${b}" aria-label="Next">›</button>
+   <span class="calbar-r"><button class="btn ghost sm" data-act="calToday">Today</button><span class="segsm"><button class="${S.calMode==='month'?'on':''}" data-act="calMode" data-v="month">Month</button><button class="${S.calMode==='week'?'on':''}" data-act="calMode" data-v="week">Week</button></span>
+   <button class="pg" data-act="syncMine" aria-label="Sync my calendars" title="Sync my calendars">↻</button><button class="pg" data-act="addEvent" aria-label="Add event" title="Add event">+</button></span></div>`;
+}
+function sheetDay(o){
+  const d=addDays(TODAY,o),r=mealOf(meals[o]);S.sel=o;
+  sheet(`<h3>${dayLabel(o)}${o===0||o===1?' · '+DN[d.getDay()]+' '+d.getDate()+' '+MN[d.getMonth()]:''}</h3>
+  <div class="card rows">${scheduleHTML(o,true)||'<div class="empty">Nothing scheduled</div>'}
+  ${r?`<button class="row" ${r.custom?'data-act="go" data-v="plan"':`data-act="openRecipe" data-id="${r.id}"`}><span class="stripe meal"></span><span class="time">Dinner</span><div class="main"><div class="t">${esc(r.name)}</div><div class="s">Meal plan</div></div></button>`:''}</div>
+  <div class="two"><button class="btn ghost block" data-act="dayToToday" data-o="${o}">Open day</button><button class="btn block" data-act="addEventOn" data-d="${o}">+ Add event</button></div>`);
 }
 function V_plan(){
   const days=[...Array(7)].map((_,i)=>{const d=addDays(TODAY,i);const m=mealOf(meals[i]);
@@ -665,7 +741,8 @@ function V_recipe(r){
   ${r.notes&&r.notes.length?`<section><h2 style="font-size:16px">Notes</h2><div class="card notes"><ul>${r.notes.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></section>`:''}</div>`;
 }
 function todoRow(t){
-  return `<div class="row ${t.done?'done':''}"><button class="check ${t.done?'on':''}" data-act="todoToggle" data-id="${t.id}" aria-label="Complete ${esc(t.title)}">${t.done?ICON.tick:''}</button>
+  const grip=!t.done&&!t.time?`<span class="grip tgrip" data-drag="todo" data-id="${t.id}" aria-label="Drag to reorder ${esc(t.title)}"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="9" cy="6" r="1.7"/><circle cx="15" cy="6" r="1.7"/><circle cx="9" cy="12" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="9" cy="18" r="1.7"/><circle cx="15" cy="18" r="1.7"/></svg></span>`:'<span class="tgrip-space"></span>';
+  return `<div class="row ${t.done?'done':''}" data-drop="todo" data-id="${t.id}">${grip}<button class="check ${t.done?'on':''}" data-act="todoToggle" data-id="${t.id}" aria-label="Complete ${esc(t.title)}">${t.done?ICON.tick:''}</button>
   <button class="main" data-act="editTodo" data-id="${t.id}" aria-label="Edit ${esc(t.title)}"><div class="t">${esc(t.title)} ${isNew('todo',t)?NEWPILL:''}</div><div class="s"><span class="${t.date&&diff(t.date)<0&&!t.done?'late':''}">${todoDateText(t)}</span>${t.rep?' · ↻ '+REP[t.rep.f]:''} · ${byLine(t)}</div></button><button class="who ${t.who}" data-act="editTodo" data-id="${t.id}" aria-label="For ${PEOPLE[t.who]}. Change">${t.who==='B'?'R+T':t.who}</button></div>`;
 }
 function shopRow(s){
@@ -734,25 +811,28 @@ function sheetGroCat(k){
   ${lines.some(x=>!x.rid)?`<button class="btn ghost block" data-act="groDelete" data-k="${esc(k)}">Remove from list</button>`:''}`);
 }
 function V_todos(){
-  const list=todos.filter(t=>visible(t)&&passFilter(t)).sort((a,b)=>a.done-b.done||(a.date||9e15)-(b.date||9e15));
+  const list=todos.filter(t=>visible(t)&&passFilter(t)).sort(todoCmp);
   return `<form data-form="todo" class="todo-form"><div class="addbar"><input type="text" id="todoInput" placeholder="Add a to-do" autocomplete="off" aria-label="New to-do"><button class="btn">Add</button></div>
-  <div class="opts"><select id="todoWho" aria-label="Who it's for"><option value="B">For both</option><option value="R">For Reuben</option><option value="T">For Tiff</option></select>
-  <select id="todoDT" aria-label="Date type"><option value="by">Do by</option><option value="on">Do on</option></select>
-  <input type="date" id="todoDue" aria-label="Date (optional)" title="Date (optional)">
-  <input type="time" id="todoTime" aria-label="Time (optional)" title="Time (optional)">
-  <select id="todoRep" aria-label="Repeats">${repOptions('')}</select>
-  <button type="button" class="chip priv" id="todoPriv" data-act="privToggle" aria-pressed="false">${LOCK}Private</button></div></form>
-  <div class="hint" style="margin-top:-12px"><b>Do by</b> is a deadline. <b>Do on</b> puts it on that day's Today screen. Add a time and it moves into that day's schedule. Repeating to-dos create the next one when you tick them off.</div>
+  <div class="minis">
+   <span class="segsm" role="group" aria-label="Date means"><button type="button" class="on" data-act="todoDT" data-v="on" aria-pressed="true">Do on</button><button type="button" data-act="todoDT" data-v="by" aria-pressed="false">Due by</button></span>
+   <label class="mini"><span class="sr">When</span><select id="todoWhen">${[...Array(7)].map((_,i)=>`<option value="${i}">${i===0?'Today':i===1?'Tomorrow':DN[addDays(TODAY,i).getDay()]+' '+addDays(TODAY,i).getDate()}</option>`).join('')}<option value="none">No date</option><option value="pick">Other date…</option></select></label>
+   <label class="mini" id="todoPickF" hidden><span class="sr">Date</span><input type="date" id="todoDue" value="${isoOf(TODAY)}"></label>
+   <label class="mini"><span class="mini-l">at</span><input type="time" id="todoTime" aria-label="Time (optional)"></label>
+   <label class="mini"><span class="sr">Who it's for</span><select id="todoWho"><option value="B">Both</option><option value="R">${esc(PEOPLE.R)}</option><option value="T">${esc(PEOPLE.T)}</option></select></label>
+   <label class="mini"><span class="sr">Repeats</span><select id="todoRep">${Object.entries(REP).map(([k,l])=>`<option value="${k}">${k?l:'No repeat'}</option>`).join('')}</select></label>
+   <button type="button" class="mini chip priv" id="todoPriv" data-act="privToggle" aria-pressed="false">${LOCK}Private</button>
+  </div><input type="hidden" id="todoDT" value="on"></form>
+  <div class="hint" style="margin-top:-12px">New to-dos are for today unless you pick another day. With a time, it moves into that day's schedule. Drag the dots to reorder.</div>
   ${filterChips()}
   <div class="card rows">${list.map(todoRow).join('')||'<div class="empty">Nothing to do</div>'}</div>`;
 }
 function V_birthdays(){
   const list=birthdays.map(b=>({b,n:nextBday(b)})).sort((x,y)=>x.n.off-y.n.off);
-  return `<section><div class="sec-head"><h2>Birthdays</h2><button class="link" data-act="addBday">+ Add</button></div>
-    <div class="card rows">${list.map(({b,n})=>`<button class="row bdrow" data-act="editBday" data-id="${b.id}"><span class="age num">${n.age}<small>turns</small></span>
-      <div class="main"><div class="t">${esc(b.name)}</div><div class="s">${DN[n.date.getDay()]} ${n.date.getDate()} ${MN[n.date.getMonth()]} · ${n.off===0?'<b style="color:var(--bday)">Today</b>':n.off===1?'Tomorrow':'in '+n.off+' days'}${b.rel?' · '+esc(b.rel):''}</div>
-      <div class="s">Born ${b.known?b.year:'~'+b.year+' (worked out from age)'}</div></div></button>`).join('')||'<div class="empty">No birthdays yet</div>'}</div>
-    <div class="hint">Birthdays show on the calendar every year with the age they're turning, e.g. "Frankie's 8th birthday". Each year the backend adds that year's event to Google Calendar with the new age.</div></section>`;
+  return `<section><div class="sec-head"><h2>Birthdays & anniversaries</h2><button class="link" data-act="addBday">+ Add</button></div>
+    <div class="card rows">${list.map(({b,n})=>`<button class="row bdrow" data-act="editBday" data-id="${b.id}"><span class="age num">${n.age}<small>${b.kind==='anniversary'?'years':'turns'}</small></span>
+      <div class="main"><div class="t">${esc(b.name)}${b.kind==='anniversary'?' <span class="tag birthday">Anniversary</span>':''}</div><div class="s">${DN[n.date.getDay()]} ${n.date.getDate()} ${MN[n.date.getMonth()]} · ${n.off===0?'<b style="color:var(--bday)">Today</b>':n.off===1?'Tomorrow':'in '+n.off+' days'}${b.rel?' · '+esc(b.rel):''}</div>
+      <div class="s">${b.kind==='anniversary'?'Since':'Born'} ${b.known?b.year:'~'+b.year+' (worked out from age)'}</div></div></button>`).join('')||'<div class="empty">No birthdays yet</div>'}</div>
+    <div class="hint">These show on the calendar every year with the age they're turning, e.g. "Frankie's 7th birthday".</div></section>`;
 }
 function V_settings(){
   const THEMES_HTML=Object.entries(THEMES).map(([k,t])=>`<button class="swatch ${themeKey()===k?'on':''}" data-act="setTheme" data-v="${k}" aria-pressed="${themeKey()===k}"><i style="background:linear-gradient(135deg,${t[0]} 50%,${t[1]} 50%)"></i>${t[2]}</button>`).join('');
@@ -763,7 +843,7 @@ function V_settings(){
     <div class="card rows">${CALS.map(k=>`<div class="row"><div class="main"><div class="t">${esc(k.name)}</div><div class="s">${k.kind==='ics_feed'?'Push only':k.pull&&k.push?'Pull + push':k.pull?'Pull':'Push'}${k.owner!=='B'?' · syncs when '+PEOPLE[k.owner]+' taps Sync':' · shared, syncs every hour'}</div></div><span class="kind">${KIND[k.kind]||k.kind}</span>${whoBadge(k.owner||'B')}</div>`).join('')||'<div class="empty">No calendars yet. Add them on the Calendars tab of the sheet.</div>'}</div>
     <div class="hint">Sync only pulls the calendars you own. Duplicates are kept as a record but hidden. An event is never pushed to a calendar it (or its duplicate) came from, but still goes to the others.</div></section>
   <section><div class="sec-head"><h2>This phone</h2></div>
-    <div class="card rows"><div class="row">${whoBadge(S.me)}<div class="main"><div class="t">Signed in as ${esc(PEOPLE[S.me])}</div><div class="s">${esc((c.url||'').replace(/^https:\/\/script\.google\.com\/macros\/s\//,'').slice(0,14))}…</div></div><button class="btn ghost sm" data-act="switchMe">Change</button></div>
+    <div class="card rows"><div class="row">${whoBadge(S.me)}<div class="main"><div class="t">Signed in as ${esc(PEOPLE[S.me])}</div><div class="s">${c.session?esc(c.email||'with Google'):'with the family passcode'}</div></div>${c.session?'<button class="btn ghost sm" data-act="signOut">Sign out</button>':'<button class="btn ghost sm" data-act="switchMe">Change</button>'}</div>
     <div class="row"><div class="main"><div class="t">Last save</div><div class="s">${esc(lastErr||'All changes saved')}</div></div><button class="btn ghost sm" data-act="refreshNow">Refresh</button></div></div></section>`;
 }
 
@@ -784,9 +864,9 @@ function sheetEvent(){
   <div class="two"><div class="field"><label for="evRep">Repeats</label><select id="evRep">${repOptions('')}</select></div><div class="field"><label for="evUntil">Until (optional)</label><input type="date" id="evUntil"></div></div>
   <div class="two"><div class="field"><label for="evType">Type</label><select id="evType"><option value="pickup">Pick-up / drop-off</option><option value="event">Event</option></select></div>
   <div class="field"><label for="evWho">Who's on it</label><select id="evWho"><option value="R">Reuben</option><option value="T">Tiff</option><option value="B">Both</option></select></div></div>
-  <div class="toggle"><span><div style="font-weight:600">Add to Google Calendar</div><div class="hint" style="font-size:12px">Off keeps it in the app only</div></span><button class="sw-btn on" id="evG" data-act="swToggle" aria-label="Add to Google Calendar"></button></div>
+  ${PUSH_TO.length?`<div class="toggle"><span><div style="font-weight:600">Add to ${esc(PUSH_TO.map(c=>PUSH_NAME[c]).join(' and '))}</div><div class="hint" style="font-size:12px">Off keeps it in Family Hub only</div></span><button class="sw-btn on" id="evG" data-act="swToggle" aria-label="Add to shared calendar"></button></div>`:'<span id="evG"></span>'}
   <div class="two"><button class="btn block" data-act="saveEvent">Save</button><button class="btn ghost block" data-act="saveEvent" data-priv="1">${LOCK} Save as private</button></div>
-  <div class="hint" style="font-size:12px">Private events are only visible to you and stay in the app, not on the shared Google Calendar.</div>`);
+  <div class="hint" style="font-size:12px">Private events are only visible to you and stay in Family Hub.</div>`);
 }
 function sheetChoose(day){
   const d=addDays(TODAY,day);
@@ -825,19 +905,20 @@ function sheetEventDetail(e){
   <div class="card rows"><div class="row"><div class="main"><div class="s">When</div><div class="t">${e.rep?REP[e.rep.f]+' from '+rel(addDays(TODAY,e.d)):dayLabel(e.d)}, ${fmtTime(e.time)}</div></div></div>
    <div class="row"><div class="main"><div class="s">Who's on it</div><div class="t">${e.who==='B'?'Both of you':PEOPLE[e.who]}</div></div>${whoBadge(e.who)}</div>
    <div class="row"><div class="main"><div class="s">Calendar</div><div class="t">${esc(SRC[e.src]||e.src)}</div><div class="s">${byLine(e)}</div></div></div></div>
-  ${e.priv?'':`<div class="aisle">Calendar sync</div><div class="card rows">${PUSH_TO.map(c=>{const here=e.src===c?{title:e.title,orig:true}:dups.find(x=>x.src===c);const appOnly=e.src==='app'&&!e.gcal&&c!=='feed';
-     return `<div class="row"><div class="main"><div class="t">${PUSH_NAME[c]}</div><div class="s">${here?(here.orig?'Came from here, so not pushed back':`Skipped: already there as "${esc(here.title)}"`):appOnly?'App-only event, not pushed':'Pushed'}</div></div><span class="kind">${here||appOnly?'Skip':'✓ Synced'}</span></div>`}).join('')}</div>`}
+  ${e.priv?'':e.src!=='app'?`<div class="hint">Pulled from ${esc(SRC[e.src]||e.src)}. Pulled events show in Family Hub only and are never copied to another calendar.</div>`:PUSH_TO.length?`<div class="aisle">Copied to</div><div class="card rows">${PUSH_TO.map(c=>{const here=dups.find(x=>x.src===c);
+     return `<div class="row"><div class="main"><div class="t">${PUSH_NAME[c]}</div><div class="s">${!e.gcal?'Off for this event':here?`Skipped: already there as "${esc(here.title)}"`:'Copied when the calendars next sync'}</div></div><span class="kind">${!e.gcal||here?'Skip':'✓'}</span></div>`}).join('')}</div>`:''}
   ${dups.length?`<div class="aisle">Possible duplicates · kept as a record</div><div class="card rows">${dups.map(x=>`<div class="row"><div class="main"><div class="t">${esc(x.title)}</div><div class="s">${esc(SRC[x.src]||x.src)} · ${fmtTime(x.time)} · ${esc(x.dupWhy)}</div></div><button class="btn ghost sm" data-act="notDup" data-id="${x.id}">Not a duplicate</button></div>`).join('')}</div>
-  <div class="hint" style="font-size:12px">A duplicate stays hidden. The event isn't pushed to the calendar the duplicate came from (it's already there), but still goes to your other calendars. Tap "Not a duplicate" to show it as its own event.</div>`:''}
+  <div class="hint" style="font-size:12px">A duplicate stays hidden and is never copied anywhere. Tap "Not a duplicate" to show it as its own event.</div>`:''}
   ${e.by===S.me?`<button class="btn ghost block" data-act="delEvent" data-id="${e.id}">Delete${e.rep?' all repeats':''}</button>`:''}`);
 }
 function sheetBday(b){
-  const nb=b||{name:'',rel:'',day:TODAY.getDate(),month:TODAY.getMonth(),year:'',known:true};
+  const nb=b||{name:'',rel:'',day:TODAY.getDate(),month:TODAY.getMonth(),year:'',known:true,kind:'birthday'};
   S.bdMode=b?(b.known?'year':'age'):'year';
   const ageNow=b?TODAY.getFullYear()-b.year-(new Date(TODAY.getFullYear(),b.month,b.day)<=TODAY?0:1):'';
   sheet(`<h3>${b?'Edit birthday':'Add a birthday'}</h3>
   <div class="two"><div class="field"><label for="bdName">Name</label><input type="text" id="bdName" value="${esc(nb.name)}" placeholder="e.g. Nan"></div>
   <div class="field"><label for="bdRel">Who they are (optional)</label><input type="text" id="bdRel" value="${esc(nb.rel)}" placeholder="e.g. Grandma"></div></div>
+  <div class="field"><label for="bdKind">Type</label><select id="bdKind"><option value="birthday" ${nb.kind!=='anniversary'?'selected':''}>Birthday</option><option value="anniversary" ${nb.kind==='anniversary'?'selected':''}>Anniversary</option></select></div>
   <div class="two"><div class="field"><label for="bdDay">Day</label><select id="bdDay">${[...Array(31)].map((_,i)=>`<option ${i+1===nb.day?'selected':''}>${i+1}</option>`).join('')}</select></div>
   <div class="field"><label for="bdMonth">Month</label><select id="bdMonth">${MONTHS.map((m,i)=>`<option value="${i}" ${i===nb.month?'selected':''}>${m}</option>`).join('')}</select></div></div>
   <div class="field"><label>I know their</label><div class="segsm" role="group"><button type="button" class="${S.bdMode==='year'?'on':''}" data-act="bdMode" data-v="year">Birth year</button><button type="button" class="${S.bdMode==='age'?'on':''}" data-act="bdMode" data-v="age">Current age</button></div></div>
@@ -900,21 +981,32 @@ document.addEventListener('pointerdown',e=>{
   const row=g.closest('.row'),rc=row.getBoundingClientRect(),ghost=row.cloneNode(true);
   ghost.classList.add('drag-ghost');Object.assign(ghost.style,{width:rc.width+'px',left:rc.left+'px',top:rc.top+'px'});
   document.body.appendChild(ghost);row.classList.add('dragging');document.body.classList.add('is-dragging');
-  drag={src:g.dataset.drag,d:+g.dataset.d,h:+g.dataset.h,ghost,row,dx:e.clientX-rc.left,dy:e.clientY-rc.top,over:null,x:e.clientX,y:e.clientY};
+  drag={src:g.dataset.drag,d:+g.dataset.d,h:+g.dataset.h,tid:+g.dataset.id,ghost,row,dx:e.clientX-rc.left,dy:e.clientY-rc.top,over:null,x:e.clientX,y:e.clientY};
   try{g.setPointerCapture(e.pointerId)}catch(_){}
 });
 document.addEventListener('pointermove',e=>{
   if(!drag)return;e.preventDefault();drag.x=e.clientX;drag.y=e.clientY;
   drag.ghost.style.left=(e.clientX-drag.dx)+'px';drag.ghost.style.top=(e.clientY-drag.dy)+'px';
   const t=document.elementFromPoint(e.clientX,e.clientY);const z=t&&t.closest('[data-drop]');
-  if(z!==drag.over){drag.over&&drag.over.classList.remove('over');drag.over=z;z&&z.classList.add('over')}
+  const zz=z&&(drag.src==='todo')===(z.dataset.drop==='todo')?z:null;
+  if(zz!==drag.over){drag.over&&drag.over.classList.remove('over','over-top','over-bot');drag.over=zz;zz&&zz.dataset.drop!=='todo'&&zz.classList.add('over')}
+  if(zz&&zz.dataset.drop==='todo'){const r=zz.getBoundingClientRect(),top=e.clientY<r.top+r.height/2;zz.classList.toggle('over-top',top);zz.classList.toggle('over-bot',!top);drag.before=top}
   if(e.clientY<90)window.scrollBy(0,-12);else if(e.clientY>innerHeight-60)window.scrollBy(0,12);
 },{passive:false});
+function moveTodo(tid,target,before){
+  // reorder within what's on screen, then number the open untimed ones so the order is saved
+  const shown=[...document.querySelectorAll('[data-drop="todo"]')].map(r=>+r.dataset.id).filter((v,i,a)=>a.indexOf(v)===i);
+  if(!shown.includes(tid)||!shown.includes(target))return;
+  shown.splice(shown.indexOf(tid),1);let at=shown.indexOf(target);if(!before)at++;shown.splice(at,0,tid);
+  const list=shown.map(i=>todos.find(t=>t.id===i)).filter(t=>t&&!t.done&&!t.time);
+  const base=Math.min(0,...todos.filter(t=>t.sort!=null).map(t=>t.sort));list.forEach((t,i)=>t.sort=base+i*10);
+}
 function endDrag(ok){
   if(!drag)return;const {src,d,h,over}=drag;
-  drag.ghost.remove();drag.row.classList.remove('dragging');over&&over.classList.remove('over');document.body.classList.remove('is-dragging');drag=null;
+  drag.ghost.remove();drag.row.classList.remove('dragging');over&&over.classList.remove('over','over-top','over-bot');const before=drag.before,tid=drag.tid;document.body.classList.remove('is-dragging');drag=null;
   if(!ok||!over)return;
   const kind=over.dataset.drop,to=+over.dataset.d;
+  if(src==='todo'&&kind==='todo'){const target=+over.dataset.id;if(target!==tid)moveTodo(tid,target,before);render();return}
   if(src==='hold'&&kind==='day'){const it=holding.find(x=>x.hid===h);holding=holding.filter(x=>x!==it);placeOnDay(it.rid,to,it.hid);toast(`Planned for ${dayName(to)}`)}
   else if(src==='day'&&kind==='day'&&to!==d){const a=meals[d],b=meals[to],pa=mealPid[d],pb=mealPid[to];meals[to]=a;mealPid[to]=pa;if(b){meals[d]=b;mealPid[d]=pb}else{delete meals[d];delete mealPid[d]}toast(b?`Swapped ${dayName(d)} and ${dayName(to)}`:`Moved to ${dayName(to)}`)}
   else if(src==='day'&&kind==='hold'){holding.push({hid:mealPid[d]||id(),rid:meals[d]});delete meals[d];delete mealPid[d];toast('Moved back to "To allocate"')}
@@ -938,6 +1030,7 @@ const TITLES={birthdays:['Family','Birthdays'],settings:['Your','Settings'],toda
 function render(){
   const td=addDays(TODAY,S.dOff);$('#eyebrow').textContent=S.view==='today'?`${DN[td.getDay()]} ${td.getDate()} ${MONTHS[td.getMonth()]}`:TITLES[S.view][0];
   $('#heading').textContent=S.view==='recipes'&&S.recipe?'Recipe':S.view==='today'?(S.dOff===0?'Today':dayLabel(S.dOff).split(' ')[0]):TITLES[S.view][1];
+  document.body.classList.toggle('wide',S.view==='calendar'&&S.calMode==='month');
   $('#main').innerHTML=({today:V_today,calendar:V_calendar,plan:V_plan,recipes:V_recipes,groceries:V_groceries,shopping:V_shopping,todos:V_todos,birthdays:V_birthdays,settings:V_settings})[S.view]();
 }
 function go(v){closeSheet();if(v!=='recipes')S.pickFor=null;S.view=v;S.recipe=null;render();window.scrollTo(0,0);try{history.replaceState(null,'','#'+v)}catch(e){}}
@@ -954,8 +1047,11 @@ document.addEventListener('click',e=>{
    case'wk':S.weekStart+=n('n');S.sel=S.weekStart;render();break;
    case'mo':{let{y,m}=S.month;m+=n('n');if(m<0){m=11;y--}if(m>11){m=0;y++}S.month={y,m};render();break}
    case'pick':S.sel=n('o');render();break;
+   case'dayOpen':sheetDay(n('o'));break;
+   case'dayToToday':closeSheet();S.dOff=n('o');go('today');break;
+   case'calToday':S.sel=0;S.month={y:TODAY.getFullYear(),m:TODAY.getMonth()};S.weekStart=0;render();break;
    case'addEvent':sheetEvent();break;
-   case'addEventOn':S.sel=n('d');sheetEvent();break;
+   case'addEventOn':closeSheet();S.sel=n('d');sheetEvent();break;
    case'dayNav':S.dOff=el.dataset.n==='0'?0:S.dOff+n('n');render();break;
    case'evDetail':sheetEventDetail(events.find(x=>x.id===n('id')));break;
    case'notDup':{const x=events.find(y=>y.id===n('id')),p=events.find(y=>y.id===x.dupOf);x.dupOf=null;closeSheet();render();toast(`"${x.title}" now shows as its own event`);break}
@@ -968,8 +1064,8 @@ document.addEventListener('click',e=>{
    case'bdMode':S.bdMode=el.dataset.v;$('#bdYearF').hidden=S.bdMode!=='year';$('#bdAgeF').hidden=S.bdMode!=='age';el.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===el));bdHint();break;
    case'saveBday':{const name=$('#bdName').value.trim();if(!name){$('#bdName').focus();return}const day=+$('#bdDay').value,month=+$('#bdMonth').value;
      let year,known=S.bdMode==='year',how='';if(known){year=+$('#bdYear').value;if(!year){$('#bdYear').focus();return}}else{const a=$('#bdAge').value;if(a===''){$('#bdAge').focus();return}year=yearFromAge(day,month,+a);how=`Entered as age ${a} on ${isoOf(TODAY)}`}
-     const ex=el.dataset.id?birthdays.find(b=>b.id===n('id')):null,rec={name,rel:$('#bdRel').value.trim(),day,month,year,known,how,show:true};
-     if(ex)Object.assign(ex,rec);else birthdays.push({id:id(),...rec});closeSheet();render();const nb=nextBday(rec);toast(`${name} turns ${nb.age} on ${nb.date.getDate()} ${MN[nb.date.getMonth()]}. Added to the calendar.`);break}
+     const ex=el.dataset.id?birthdays.find(b=>b.id===n('id')):null,rec={name,rel:$('#bdRel').value.trim(),day,month,year,known,kind:$('#bdKind').value,how,show:true};
+     if(ex)Object.assign(ex,rec);else birthdays.push({id:id(),...rec});closeSheet();render();const nb=nextBday(rec);toast(`${bdTitle(rec,nb.age)} is on ${nb.date.getDate()} ${MN[nb.date.getMonth()]}. Added to the calendar.`);break}
    case'delBday':birthdays=birthdays.filter(b=>b.id!==n('id'));closeSheet();render();toast('Birthday removed');break;
    case'removePlanned':{const d=n('d'),m=mealOf(meals[d]),pid=mealPid[d];const go_=()=>{const c=removeMeal(pid);delete meals[d];delete mealPid[d];closeSheet();render();toast(`${m.name} removed${c?` with ${c} grocery item${c>1?'s':''}`:''}`)};
      if(el.dataset.ok){go_();break}const cnt=groceries.filter(g=>g.pid===pid&&!g.done).length;if(!cnt){go_();break}sheetRemoveMeal(m.name,d===0?'tonight':d===1?'tomorrow':dayLabel(d),cnt,'removePlanned',`data-d="${d}"`);break}
@@ -987,6 +1083,7 @@ document.addEventListener('click',e=>{
    case'promptShop':{const r=recipeById(n('r'));let c=0;r.ing.forEach((g,i)=>{if(S.ingSel.on[i]){addGro(g[1],scaleQty(g[0],scaleOf(r)),r.id,S.me,false,S.promptPid);c++}});closeSheet();render();toast(`Added ${c} items to groceries`);break}
    case'closeSheetBtn':closeSheet();break;
    case'editTodo':sheetEditTodo(todos.find(x=>x.id===n('id')));break;
+   case'todoDT':$('#todoDT').value=el.dataset.v;el.parentNode.querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b===el);b.setAttribute('aria-pressed',b===el)});break;
    case'privToggle':{const on=el.classList.toggle('on');el.setAttribute('aria-pressed',on);const w=$('#todoWho');if(on){w.value=S.me}w.disabled=on;break}
    case'etPrivToggle':{const on=el.classList.toggle('on');const w=$('#etWho');if(on)w.value=S.me;w.disabled=on;break}
    case'saveTodo':{const t=todos.find(x=>x.id===n('id'));const v=$('#etTitle').value.trim();if(!v){$('#etTitle').focus();return}
@@ -999,6 +1096,10 @@ document.addEventListener('click',e=>{
    case'switchMe':openSetup();break;
    case'cfgMe':S.cfgMe=el.dataset.v;el.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===el));break;
    case'cfgSave':connect();break;
+   case'cfgNext':setupNext();break;
+   case'gSignIn':googleSignIn();break;
+   case'usePass':openSetup('',true);break;
+   case'signOut':signOut();break;
    case'shopToggle':{const s=shopping.find(x=>x.id===n('id'));s.done=!s.done;render();break}
    case'clearDone':if(el.dataset.l==='groceries')groceries=groceries.filter(s=>!s.done);else shopping=shopping.filter(s=>!s.done);render();break;
    case'scale':{const r=recipeById(n('id'));S.serves=S.serves||{};S.serves[r.id]=Math.max(1,servesOf(r)+n('n'));render();break}
@@ -1030,7 +1131,7 @@ document.addEventListener('submit',e=>{
   if(f==='shop'){const v=$('#shopInput').value.trim();if(!v)return;shopping.unshift({id:id(),name:cap(v),qty:'',cat:$('#shopCat').value,by:S.me,done:false})}
   if(f==='gro'){const v=$('#groInput').value.trim();if(!v)return;addGro(v,'',null,S.me);toast(`${cap(v)} added to ${catFor(v)}`)}
   if(f==='todo'){const v=$('#todoInput').value.trim();if(!v)return;const priv=$('#todoPriv').classList.contains('on');const dv=$('#todoDue').value;
-    const rp=$('#todoRep').value;const t={id:id(),title:v,who:priv?S.me:$('#todoWho').value,by:S.me,priv,date:dv?new Date(dv+'T00:00'):null,dt:$('#todoDT').value,time:dv?$('#todoTime').value||'':'',rep:rp&&dv?{f:rp}:null,done:false};todos.unshift(t);
+    const rp=$('#todoRep').value;const t={id:id(),title:v,who:priv?S.me:$('#todoWho').value,by:S.me,priv,date:dv?new Date(dv+'T00:00'):null,dt:$('#todoDT').value,time:dv?$('#todoTime').value||'':'',rep:rp&&dv?{f:rp}:null,done:false};t.sort=Math.min(0,...todos.filter(x=>!x.done&&x.sort!=null).map(x=>x.sort))-10;todos.unshift(t);
     if(!priv&&t.who!==S.me){notify(t.who,'todo',t.id,`${PEOPLE[S.me]} assigned you a to-do`);toast(`To-do added. ${t.who==='B'?PEOPLE[OTHER()]:PEOPLE[t.who]} will get a notification.`)}else toast(priv?'Private to-do added. Only you can see it.':'To-do added')}
   render();const inp=$({shop:'#shopInput',gro:'#groInput',todo:'#todoInput'}[f]);inp&&inp.focus();
 });
@@ -1038,31 +1139,67 @@ $('#photo').addEventListener('change',e=>{
   const file=e.target.files[0];if(file)startSnap(file);
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
-document.addEventListener('change',e=>{if(['bdDay','bdMonth'].includes(e.target.id))bdHint()});
+document.addEventListener('change',e=>{if(['bdDay','bdMonth'].includes(e.target.id))bdHint();
+  if(e.target.id==='todoWhen'){const v=e.target.value,f=$('#todoPickF'),d=$('#todoDue');f.hidden=v!=='pick';if(v==='none')d.value='';else if(v!=='pick')d.value=isoOf(addDays(TODAY,+v));else if(!d.value)d.value=isoOf(TODAY)}});
 document.addEventListener('input',e=>{if(['bdYear','bdAge'].includes(e.target.id)){bdHint();return}if(e.target.id==='rSearch'){S.rq=e.target.value;const pos=e.target.selectionStart;render();const i=$('#rSearch');if(i){i.focus();i.setSelectionRange(pos,pos)}return}
   if(e.target.id!=='groInput')return;const v=e.target.value.trim(),h=$('#groHint');if(h)h.innerHTML=v?`Goes in <b>${esc(catFor(v))}</b>`:'Items sort themselves into categories. Tap one to see what each recipe needs or change its category.'});
 const h=(location.hash||'').slice(1);if(VIEWS.some(v=>v[0]===h))S.view=h;
 // ---------- first run, saving and refreshing ----------
-function openSetup(err){
+function redirectUri(){return location.origin+location.pathname.replace(/index\.html$/,'')}
+function openSetup(err,forcePass){
   const c=cfg()||{};S.cfgMe=c.me||'';
-  $('#overlay').innerHTML=`<div class="setup"><form class="setup-card" data-form="cfg">
-   <h1>Family Hub</h1><p class="hint">Connect this phone to your family's sheet. You only do this once.</p>
-   ${err?`<div class="err" role="alert">${esc(err)}</div>`:''}
+  const stage=!c.url||!c.checked?'link':(c.clientId&&!forcePass?'google':'pass');
+  const errHtml=err?`<div class="err" role="alert">${esc(err)}</div>`:'';
+  let inner;
+  if(stage==='link')inner=`<p class="hint">Connect this phone to your family's sheet. You only do this once.</p>${errHtml}
    <div class="field"><label for="cfgUrl">Backend link</label><input id="cfgUrl" type="url" autocomplete="off" value="${esc(c.url||'')}" placeholder="https://script.google.com/macros/s/…/exec"></div>
+   <button class="btn block" data-act="cfgNext" type="button">Continue</button>`;
+  else if(stage==='google')inner=`<p class="hint">Sign in with the Google account listed for you on the People tab.</p>${errHtml}
+   <button class="btn block gbtn" data-act="gSignIn" type="button"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#fff"/><path d="M17.6 12.2c0-.4 0-.8-.1-1.2H12v2.3h3.2a2.7 2.7 0 0 1-1.2 1.8v1.5h1.9c1.1-1 1.7-2.6 1.7-4.4z" fill="#4285F4"/><path d="M12 18c1.6 0 3-.5 3.9-1.4l-1.9-1.5c-.5.4-1.2.6-2 .6-1.5 0-2.8-1-3.3-2.4H6.8v1.5A6 6 0 0 0 12 18z" fill="#34A853"/><path d="M8.7 13.3a3.6 3.6 0 0 1 0-2.6V9.2H6.8a6 6 0 0 0 0 5.6l1.9-1.5z" fill="#FBBC05"/><path d="M12 8.4c.9 0 1.6.3 2.2.9l1.7-1.7A6 6 0 0 0 6.8 9.2l1.9 1.5c.5-1.4 1.8-2.3 3.3-2.3z" fill="#EA4335"/></svg>Sign in with Google</button>
+   ${c.passcode?'<button class="link" data-act="usePass" type="button">Use the family passcode instead</button>':''}
+   <button class="link" data-act="cfgLink" type="button">Change the backend link</button>
+   <p class="hint" style="font-size:12px">Redirect URI for Google Cloud: <code>${esc(redirectUri())}</code></p>`;
+  else inner=`<p class="hint">Type the family passcode and pick who's using this phone.</p>${errHtml}
    <div class="field"><label for="cfgKey">Family passcode</label><input id="cfgKey" type="password" autocomplete="current-password" value="${esc(c.key||'')}"></div>
    <div class="field"><label>Who's using this phone?</label><div class="segsm" role="group">${['R','T'].map(w=>`<button type="button" class="${S.cfgMe===w?'on':''}" data-act="cfgMe" data-v="${w}">${esc(PEOPLE[w])}</button>`).join('')}</div></div>
    <button class="btn block" data-act="cfgSave" type="button">Connect</button>
+   <button class="link" data-act="cfgLink" type="button">Change the backend link</button>`;
+  $('#overlay').innerHTML=`<div class="setup"><form class="setup-card" data-form="cfg" data-stage="${stage}"><h1>Family Hub</h1>${inner}
    ${SNAP?'<button class="btn ghost block" type="button" data-act="cfgCancel">Cancel</button>':''}</form></div>`;
 }
-async function connect(){
-  const url=$('#cfgUrl').value.trim(),key=$('#cfgKey').value;
-  if(!/^https:\/\/script\.google(usercontent)?\.com\//.test(url)){openSetupKeep('The backend link should start with https://script.google.com/');return}
-  if(!S.cfgMe){openSetupKeep("Pick who's using this phone.");return}
-  const old=cfg();setCfg({url,key,me:S.cfgMe});S.me=S.cfgMe;
-  try{await api('ping');SNAP=null;await loadAll();$('#overlay').innerHTML='';S.filter='all';render();toast('Connected as '+PEOPLE[S.me])}
-  catch(e){if(old)setCfg(old);openSetupKeep(e.message)}
+async function setupNext(){
+  const url=$('#cfgUrl').value.trim();
+  if(!/^https:\/\/script\.google(usercontent)?\.com\//.test(url)){openSetupMsg({url},'The backend link should start with https://script.google.com/');return}
+  try{const j=await rawApi(url,{action:'config'});setCfg({url,checked:true,clientId:j.clientId||'',passcode:!!j.passcode});
+    if(!j.clientId&&!j.passcode){openSetupMsg({url,checked:false},'The backend has no GOOGLE_CLIENT_ID or PASSCODE set yet (Project Settings → Script properties).');return}
+    openSetup()}
+  catch(e){openSetupMsg({url},e.message)}
 }
-function openSetupKeep(msg){const u=$('#cfgUrl').value,k=$('#cfgKey').value,m=S.cfgMe;setCfg({...(cfg()||{}),url:u,key:k,me:m});openSetup(msg)}
+function openSetupMsg(c,msg){setCfg({...(cfg()||{}),...c});openSetup(msg)}
+function googleSignIn(){
+  const c=cfg(),rnd=()=>Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join('');
+  const st={state:rnd(),nonce:rnd()};try{localStorage.setItem('fh-oauth',JSON.stringify(st))}catch(e){}
+  const q=new URLSearchParams({client_id:c.clientId,redirect_uri:redirectUri(),response_type:'id_token',scope:'openid email',nonce:st.nonce,state:st.state,prompt:'select_account'});
+  location.href='https://accounts.google.com/o/oauth2/v2/auth?'+q;
+}
+async function finishGoogleSignIn(){
+  const p=new URLSearchParams(location.hash.slice(1));history.replaceState(null,'',location.pathname+location.search);
+  let st={};try{st=JSON.parse(localStorage.getItem('fh-oauth')||'{}');localStorage.removeItem('fh-oauth')}catch(e){}
+  if(p.get('error')){openSetup(p.get('error')==='access_denied'?'Sign-in was cancelled.':'Google said: '+p.get('error'));return}
+  if(!st.state||p.get('state')!==st.state){openSetup('That sign-in came back without the right check. Please try again.');return}
+  const c=cfg();
+  try{const j=await rawApi(c.url,{action:'signin',idToken:p.get('id_token'),nonce:st.nonce});
+    setCfg({url:c.url,checked:true,clientId:c.clientId,passcode:c.passcode,session:j.session,me:j.me,email:j.email});S.me=j.me;if(j.name)PEOPLE[j.me]=j.name;
+    await loadAll();$('#overlay').innerHTML='';render();toast('Signed in as '+PEOPLE[S.me])}
+  catch(e){openSetup(e.message)}
+}
+async function signOut(){const c=cfg();try{await api('signout')}catch(e){}setCfg({url:c.url,checked:true,clientId:c.clientId,passcode:c.passcode});SNAP=null;openSetup()}
+async function connect(){
+  const key=$('#cfgKey').value;if(!S.cfgMe){openSetupMsg({key},"Pick who's using this phone.");return}
+  const old=cfg();setCfg({...old,key,me:S.cfgMe,session:''});S.me=S.cfgMe;
+  try{await api('ping');SNAP=null;await loadAll();$('#overlay').innerHTML='';S.filter='all';render();toast('Connected as '+PEOPLE[S.me])}
+  catch(e){setCfg({...old,key});openSetup(e.message,true)}
+}
 async function doSync(){
   sheet(`<h3>Syncing ${esc(PEOPLE[S.me])}'s calendars</h3><div class="spin" role="status" aria-label="Syncing"></div><div class="hint" style="text-align:center">Pulling your calendars and pushing changes. This can take up to a minute.</div>`);
   try{const d=diffTabs();if(d.n)await persist();const j=await api('sync');await loadAll();
@@ -1073,8 +1210,8 @@ async function doSync(){
      <button class="btn block" data-act="closeSheetBtn">Done</button>`);render()}
   catch(e){sheet(`<h3>Sync didn't finish</h3><div class="hint">${esc(e.message)}</div><button class="btn block" data-act="closeSheetBtn">OK</button>`)}
 }
-document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(el&&el.dataset.act==='cfgCancel'){$('#overlay').innerHTML='';return}if(SNAP)queueSave()});
-document.addEventListener('submit',e=>{if(e.target.dataset.form==='cfg'){e.preventDefault();connect();return}if(SNAP)queueSave()});
+document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(el&&el.dataset.act==='cfgCancel'){$('#overlay').innerHTML='';return}if(el&&el.dataset.act==='cfgLink'){setCfg({...(cfg()||{}),checked:false});openSetup();return}if(SNAP)queueSave()});
+document.addEventListener('submit',e=>{if(e.target.dataset.form==='cfg'){e.preventDefault();const st=e.target.dataset.stage;if(st==='link')setupNext();else if(st==='pass')connect();return}if(SNAP)queueSave()});
 document.addEventListener('pointerup',()=>{if(SNAP)setTimeout(queueSave,0)});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible')return;
   const t=new Date();t.setHours(0,0,0,0);if(t.getTime()!==TODAY.getTime()){location.reload();return}refresh()});
@@ -1082,7 +1219,8 @@ setInterval(()=>{if(document.visibilityState==='visible')refresh()},45000);
 window.addEventListener('online',()=>queueSave());
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 applyTheme();render();
-if(!cfg()||!cfg().url)openSetup();
+if(/[#&]id_token=|[#&]error=/.test(location.hash))finishGoogleSignIn();
+else if(!cfg()||!cfg().url||(!cfg().session&&!cfg().key))openSetup();
 else loadAll().catch(e=>{setStatus(e.code==='net'?'net':'error',e.message);if(e.code==='auth')openSetup(e.message)});
 </script>
 
