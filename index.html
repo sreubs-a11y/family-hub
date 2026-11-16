@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Family Hub">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Outfit:wght@600;800&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Space+Grotesk:wght@600;700&family=Nunito:wght@700;900&display=swap">
 <style>
 input[type=url],input[type=password]{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%;min-width:0}
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -41,7 +41,7 @@ img{max-width:100%}
   --scrim:rgba(10,15,20,.45);
   --font-display:"Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
   --font-body:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --r:14px;
+  --r:14px; --rb:12px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0F151C; --surface:#18212B; --surface-2:#212C38; --line:#2C3946;
@@ -123,12 +123,12 @@ section{display:flex;flex-direction:column;gap:10px}
 .check.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .done .t{text-decoration:line-through;color:var(--muted)}
 
-.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--surface-2);border-radius:12px;padding:3px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--surface-2);border-radius:var(--rb);padding:3px}
 .seg button{border:0;background:none;border-radius:9px;padding:8px;font-weight:600;color:var(--muted)}
 .seg button.on{background:var(--surface);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.08)}
 .pager{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .pager h2{font-size:17px;font-weight:700}
-.pg{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;padding:0;font-size:18px;font-weight:700}
+.pg{width:36px;height:36px;border-radius:min(var(--rb),18px);border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;padding:0;font-size:18px;font-weight:700}
 
 .week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .day{border:0;background:var(--surface);border-radius:12px;padding:8px 0 7px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}
@@ -138,7 +138,7 @@ section{display:flex;flex-direction:column;gap:10px}
 .dots i{width:5px;height:5px;border-radius:50%}
 .day.sel,.mcell.sel{background:var(--accent);color:var(--accent-ink)}
 .day.sel .dn{color:var(--accent-ink);opacity:.8}
-.dots .pickup{background:var(--pickup)}.dots .meal{background:var(--meal)}.dots .event{background:var(--event)}
+.dots .bins{background:var(--muted)}.dots .pickup{background:var(--pickup)}.dots .meal{background:var(--meal)}.dots .event{background:var(--event)}
 
 .month{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .month .wd{font-size:11px;font-weight:600;color:var(--muted);text-align:center;text-transform:uppercase;padding-bottom:2px}
@@ -154,7 +154,7 @@ section{display:flex;flex-direction:column;gap:10px}
 
 .addbar{display:flex;gap:8px}
 input[type=text],input[type=number],input[type=date],input[type=time],select{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%;min-width:0}
-.btn{border:0;border-radius:12px;padding:11px 16px;font-weight:600;background:var(--accent);color:var(--accent-ink);white-space:nowrap}
+.btn{border:0;border-radius:var(--rb);padding:11px 16px;font-weight:600;background:var(--accent);color:var(--accent-ink);white-space:nowrap}
 .btn.ghost{background:var(--surface-2);color:var(--fg)}
 .btn.sm{padding:6px 12px;font-size:13px;border-radius:10px}
 .btn.block{width:100%}
@@ -178,6 +178,41 @@ input[type=text],input[type=number],input[type=date],input[type=time],select{fon
 .dragging{opacity:.3}
 .over{background:var(--meal-soft)!important;box-shadow:inset 0 0 0 2px var(--meal)}
 body.is-dragging{user-select:none;-webkit-user-select:none}
+.evc.cc.cc,.evc.bar.cc.cc{background:color-mix(in srgb,var(--c) 22%,var(--surface));color:color-mix(in srgb,var(--c) 72%,var(--fg))}
+.stripe.cc.cc{background:var(--c)}
+.colpick{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.colpick button{width:30px;height:30px;border-radius:50%;border:2px solid var(--surface);background:var(--c);box-shadow:0 0 0 1px var(--line);padding:0}
+.colpick button.none{background:linear-gradient(135deg,var(--pickup) 0 33%,var(--event) 33% 66%,var(--meal) 66%)}
+.colpick button.on{box-shadow:0 0 0 2px var(--fg)}
+.bdot{display:inline-block;width:10px;height:10px;border-radius:50%;flex:none;box-shadow:0 0 0 1.5px var(--surface)}
+.bdots{display:flex;gap:2px;align-items:center}
+.evc.binc{display:flex;align-items:center;gap:2px;background:var(--surface-2);color:var(--fg)}
+.evc.binc .bdot{width:8px;height:8px}
+.binbar{display:flex;align-items:center;gap:12px;width:100%;margin:0 0 4px;padding:12px 14px;border:1px solid var(--line);background:var(--surface);border-radius:var(--r);text-align:left;color:var(--fg)}
+.binbig{width:26px;height:30px;border-radius:5px 5px 7px 7px;flex:none;box-shadow:inset 0 5px 0 rgba(0,0,0,.18)}
+.binpick{display:flex;flex-wrap:wrap;gap:8px}
+.binpick button{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px 6px 6px;font-weight:600;font-size:13px}
+.binpick i{width:20px;height:20px;border-radius:50%}
+.binpick button.on{border-color:var(--fg);box-shadow:0 0 0 1px var(--fg)}
+.bdwrap{padding:0;gap:0}
+.bdwrap .bdrow{flex:1;min-width:0;border:0;background:none}
+.bdwrap.off .bdrow{opacity:.55}
+.eye{border:0;background:none;color:var(--muted);width:48px;align-self:stretch;display:grid;place-items:center;flex:none}
+.eye.on{color:var(--bday)}
+.revbanner{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;width:100%;margin:0 0 10px;padding:12px 14px;border:0;border-radius:var(--r);background:var(--accent-soft);color:var(--fg);text-align:left}
+.revbanner span{color:var(--accent);font-weight:600}
+.row.imp .dupnote{color:var(--pickup)}
+.tcards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.tcard{border:2px solid transparent;padding:10px;display:flex;flex-direction:column;align-items:stretch;gap:8px;font-weight:700;font-size:13px;box-shadow:0 0 0 1px var(--line)}
+.tcard.on{border-color:var(--fg)}
+.tprev{display:flex;align-items:center;justify-content:space-between;border:1px solid;padding:8px 10px}
+.tprev b{font-size:20px;line-height:1}
+.tprev i{width:26px;height:14px;display:block}
+.modes{margin-top:12px;display:grid;grid-template-columns:repeat(3,1fr)}
+.gcat-empty{display:none;align-items:center;gap:8px;margin:10px 0;padding:12px 14px;border:2px dashed var(--line);border-radius:14px;font-weight:700;font-size:13px;color:var(--muted)}
+body.is-dragging .gcat-empty{display:flex}
+.gcat{border-radius:16px;transition:box-shadow .12s}
+.gcat.over,.gcat-empty.over{box-shadow:0 0 0 2px var(--accent);border-color:var(--accent)}
 .syncbar{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .stripe.todo{background:var(--accent)}.tag.todo{background:var(--accent-soft);color:var(--accent);margin-right:4px}
 .minis{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
@@ -354,6 +389,9 @@ const PEOPLE={R:'Reuben',T:'Tiff',B:'Both'}; // names are replaced by the People
 const whoBadge=w=>`<span class="who ${w}" title="${PEOPLE[w]}">${w==='B'?'R+T':w}</span>`;
 
 const ICON={
+ eye:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+ eyeoff:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3 3.9M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7a9.6 9.6 0 0 0 4.4-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>',
+ bin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 3h4M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13M10 11v6M14 11v6"/></svg>',
  today:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>',
  calendar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
  plan:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/></svg>',
@@ -425,7 +463,7 @@ const catFor=name=>USER_CAT[normName(name)]||categorise(name);
 const cap=s=>s?s[0].toUpperCase()+s.slice(1):s;
 
 // ---------- live data (filled from the sheet by fromTabs) ----------
-let recipes=[],meals={},mealPid={},holding=[],cookedRows=[],events=[],groceries=[],shopping=[],todos=[],birthdays=[],notes=[];
+let recipes=[],meals={},mealPid={},holding=[],cookedRows=[],events=[],groceries=[],shopping=[],todos=[],birthdays=[],notes=[],bins=[],incoming=[];
 let CALS=[],SETTINGS={},PEOPLE_ROWS=[],SRC={app:'App only'},PUSH_TO=[],PUSH_NAME={};
 const REP={'':"Doesn't repeat",daily:'Every day',weekdays:'Every weekday',weekly:'Every week',fortnightly:'Every fortnight',monthly:'Every month',yearly:'Every year'};
 const repOptions=cur=>Object.entries(REP).map(([k,l])=>`<option value="${k}" ${k===(cur||'')?'selected':''}>${l}</option>`).join('');
@@ -452,7 +490,20 @@ const ord=n=>n+(['th','st','nd','rd'][(n%100-20)%10]||['th','st','nd','rd'][n%10
 function nextBday(b){let y=TODAY.getFullYear(),dt=new Date(y,b.month,b.day);if(dt<TODAY)dt=new Date(++y,b.month,b.day);return {date:dt,age:y-b.year,off:diff(dt)}}
 function yearFromAge(day,month,age){const had=new Date(TODAY.getFullYear(),month,day)<=TODAY;return TODAY.getFullYear()-age-(had?0:1)}
 const bdTitle=(b,age)=>b.kind==='anniversary'?`${b.name}'s ${ord(age)} anniversary`:`${b.name}'s ${ord(age)} birthday`;
-const bdayEvents=d=>{const dt=addDays(TODAY,d);return birthdays.filter(b=>b.day===dt.getDate()&&b.month===dt.getMonth()).map(b=>({id:'b'+b.id,bday:b,d,time:'',type:'birthday',who:'B',by:'R',title:bdTitle(b,dt.getFullYear()-b.year)}))};
+const bdayEvents=d=>{const dt=addDays(TODAY,d);return birthdays.filter(b=>b.show!==false&&b.day===dt.getDate()&&b.month===dt.getMonth()).map(b=>({id:'b'+b.id,bday:b,d,time:'',type:'birthday',who:'B',by:'R',title:bdTitle(b,dt.getFullYear()-b.year)}))};
+// bins: each bin type repeats every week, fortnight or four weeks from a known collection day
+// colours you can give a calendar item (otherwise it takes its type's colour)
+const EVCOL=[['#D50000','Tomato'],['#E67C73','Flamingo'],['#F4511E','Tangerine'],['#F6BF26','Banana'],['#33B679','Sage'],['#0B8043','Basil'],['#039BE5','Peacock'],['#3F51B5','Blueberry'],['#8E24AA','Grape'],['#616161','Graphite']];
+const cc=x=>x&&x.colour?` cc" style="--c:${x.colour}`:'';
+const colourPick=(cur,act,idAttr)=>`<div class="colpick" role="group" aria-label="Colour"><button type="button" class="none ${!cur?'on':''}" data-act="${act}" data-c="" ${idAttr} aria-label="Type colour" title="Type colour"></button>${EVCOL.map(([c,n])=>`<button type="button" class="${cur===c?'on':''}" style="--c:${c}" data-act="${act}" data-c="${c}" ${idAttr} aria-label="${n}" title="${n}"></button>`).join('')}</div>`;
+const BINC={red:['Red','#D93B30'],yellow:['Yellow','#E8B500'],green:['Green','#2E9A4A'],purple:['Purple','#7E4CC9'],blue:['Blue','#2F6FE0'],grey:['Grey','#6B7785']};
+const BIN_EVERY={weekly:7,fortnightly:14,monthly:28};
+const binOn=(b,d)=>{if(b.first==null)return false;const n=BIN_EVERY[b.freq]||7,k=d-b.first;return ((k%n)+n)%n===0};
+const binsOn=d=>bins.filter(b=>b.show!==false&&binOn(b,d));
+const binNames=bs=>bs.map(b=>(BINC[b.colour]||[b.colour])[0]).join(' + ');
+const binDots=bs=>bs.map(b=>`<i class="bdot" style="background:${(BINC[b.colour]||[0,'#888'])[1]}"></i>`).join('');
+const binEvents=d=>{const bs=binsOn(d);return bs.length?[{id:'bin'+d,bins:bs,d,time:'',type:'bins',who:'B',by:'R',title:binNames(bs)+' bins'}]:[]};
+const nextBin=b=>{for(let d=0;d<60;d++)if(binOn(b,d))return d;return null};
 const addGro=(name,qty,rid,by,done=false,pid=null)=>groceries.push({id:id(),name:cap(name),qty:rid?'':qty,need:rid?qty:'',cat:catFor(name),rid:rid||null,pid,by,done});
 const RTYPES=["Chicken", "Beef", "Lamb", "Pork", "Fish & seafood", "Vegetarian", "Sauces & extras"];
 const notify=(to,kind,ref,msg)=>{if(to==='B'){notify('R',kind,ref,msg);notify('T',kind,ref,msg);return}if(to===S.me)return;notes.push({id:id(),to,from:S.me,kind,ref,msg,read:false})};
@@ -490,19 +541,22 @@ function fromTabs(t){
   syncCooked();
   events=(t.Events||[]).filter(e=>e.title).map(e=>({id:N_(e.id),d:offOf(e.start_date)??0,endD:offOf(e.end_date),time:e.start_time||'',end:e.end_time||'',title:e.title,type:e.type||'event',who:e.who||'B',by:e.created_by||'R',
     priv:B_(e.private),rep:e.repeat?{f:e.repeat,until:offOf(e.repeat_until)}:null,sub:String(e.notes||'').split('\n')[0],notes:e.notes||'',gcal:B_(e.sync_to_gcal),cal:e.calendar_id||'',ext:e.external_id||'',
-    src:e.source||'app',dupOf:N_(e.duplicate_of),dupWhy:e.duplicate_reason||'',upcoming:!e.start_time&&!e.repeat}));
+    src:e.source||'app',dupOf:N_(e.duplicate_of),dupWhy:e.duplicate_reason||'',colour:e.colour||'',upcoming:!e.start_time&&!e.repeat}));
+  bins=(t.Bins||[]).filter(x=>x.colour).map(x=>({id:N_(x.id),colour:x.colour,label:x.label||'',freq:x.frequency||'weekly',first:offOf(x.first_date),show:x.show_on_calendar===''||x.show_on_calendar==null?true:B_(x.show_on_calendar)}));
+  incoming=(t.Incoming||[]).filter(x=>x.title).map(x=>({id:N_(x.id),cal:x.calendar_id,title:x.title,d:offOf(x.start_date)??0,endD:offOf(x.end_date),time:x.start_time||'',status:x.status||'pending',dupTitle:x.duplicate_title||''}));
   groceries=(t.Groceries||[]).filter(g=>g.item).map(g=>({id:N_(g.id),name:g.item,qty:g.note||'',need:g.recipe_qty||'',cat:g.category||catFor(g.item),rid:N_(g.recipe_id),rname:g.recipe_name||'',pid:N_(g.plan_id),by:g.created_by||'R',done:B_(g.done),doneAt:g.done_at||''}));
   shopping=(t.Shopping||[]).filter(x=>x.item).map(x=>({id:N_(x.id),name:x.item,qty:x.qty||'',cat:x.category||'Other',store:x.store||'',by:x.created_by||'R',done:B_(x.done),doneAt:x.done_at||''}));
   todos=(t.Todos||[]).filter(x=>x.title).map(x=>({id:N_(x.id),title:x.title,who:x.who||'B',by:x.created_by||'R',priv:B_(x.private),date:parseYmd(x.date),time:x.time||'',dt:x.date_type==='on'?'on':'by',rep:x.repeat?{f:x.repeat}:null,done:B_(x.done),doneAt:x.done_at||'',notes:x.notes||'',sort:x.sort===''||x.sort==null?null:+x.sort}));
   birthdays=(t.Birthdays||[]).filter(b=>b.name).map(b=>({id:N_(b.id),name:b.name,rel:b.relation||'',day:+b.day,month:(+b.month||1)-1,year:+b.birth_year,known:B_(b.year_known),how:b.how_added||'',show:b.show_on_calendar===''||b.show_on_calendar==null?true:B_(b.show_on_calendar),cal:b.calendar_id||'',kind:b.kind==='anniversary'?'anniversary':'birthday'}));
   notes=(t.Notifications||[]).map(x=>({id:N_(x.id),to:x.to,from:x.created_by,kind:x.item_type,type:x.type||'assigned',ref:N_(x.item_id),msg:x.message,read:!!x.read_at,readAt:x.read_at||'',pushedAt:x.pushed_at||''}));
-  const meRow=PEOPLE_ROWS.find(p=>p.id===S.me);if(meRow&&meRow.theme&&THEMES[meRow.theme])try{localStorage.setItem('fh-theme',meRow.theme)}catch(e){S.theme=meRow.theme}
+  const meRow=PEOPLE_ROWS.find(p=>p.id===S.me);if(meRow&&meRow.theme){const [tk,md]=String(meRow.theme).split('|');try{if(tk)localStorage.setItem('fh-theme',tk);if(md)localStorage.setItem('fh-mode',md)}catch(e){S.theme=tk;S.mode=md}}
 }
 function toTabs(){
   const T={};
   T.Events=events.map(e=>({id:e.id,start_date:ymdOff(e.d),end_date:ymdOff(e.endD!=null&&e.endD>e.d?e.endD:e.d),start_time:e.time||'',end_time:e.end||'',all_day:!e.time,title:e.title,type:e.type,who:e.who,private:!!e.priv,
     repeat:e.rep?e.rep.f:'',repeat_until:e.rep&&e.rep.until!=null?ymdOff(e.rep.until):'',notes:e.notes||'',sync_to_gcal:!!e.gcal&&!e.priv,calendar_id:e.cal||'',external_id:e.ext||'',source:e.src||'app',
-    duplicate_of:e.dupOf??'',duplicate_reason:e.dupOf?(e.dupWhy||''):'',created_by:e.by}));
+    duplicate_of:e.dupOf??'',duplicate_reason:e.dupOf?(e.dupWhy||''):'',colour:e.colour||'',created_by:e.by}));
+  T.Bins=bins.map(x=>({id:x.id,colour:x.colour,label:x.label||'',frequency:x.freq,first_date:x.first!=null?ymdOff(x.first):'',show_on_calendar:x.show!==false}));
   T.Recipes=recipes.map(r=>({id:r.id,name:r.name,type:r.type,prep_mins:r.prep||'',cook_mins:r.cook||'',serves:r.serves,tags:r.tags.join(', '),
     method:r.steps.map((x,i)=>`${i+1}. `+(Array.isArray(x)?`${x[0]} – ${x[1]}`:x)).join('\n'),source:r.srcKind||'manual',book_ref:r.source||'',photo_url:r.photo||'',notes:(r.notes||[]).join('\n')}));
   T.Ingredients=[];recipes.forEach(r=>r.ing.forEach((g,i)=>{const m=g[3]||(g[3]={});if(!m.iid)m.iid=id();if(!('s' in m))m.s=isStaple(g[1]);
@@ -517,7 +571,7 @@ function toTabs(){
   T.Birthdays=birthdays.map(b=>({id:b.id,name:b.name,relation:b.rel||'',day:b.day,month:b.month+1,birth_year:b.year,year_known:!!b.known,how_added:b.how||'',show_on_calendar:b.show!==false,calendar_id:b.cal||'',kind:b.kind||'birthday'}));
   T.Notifications=notes.map(x=>({id:x.id,to:x.to,type:x.type||'assigned',item_type:x.kind,item_id:x.ref,message:x.msg,pushed_at:x.pushedAt||'',read_at:x.read?(x.readAt||(x.readAt=nowStamp())):'',created_by:x.from}));
   T.GroceryCatalog=Object.entries(USER_CAT).map(([k,c])=>({item:k,category:c,source:'user'}));
-  T.People=PEOPLE_ROWS.filter(p=>p.id===S.me).map(p=>({id:p.id,theme:themeKey()}));
+  T.People=PEOPLE_ROWS.filter(p=>p.id===S.me).map(p=>({id:p.id,theme:themeKey()+'|'+modeKey()}));
   return T;
 }
 const KEYC=k=>k==='GroceryCatalog'?'item':'id';
@@ -566,7 +620,7 @@ function lastSyncText(){const t=CALS.filter(c=>c.owner===S.me&&c.last_synced).ma
 
 // ---------- state ----------
 const S={view:'today',dOff:0,me:((()=>{try{return JSON.parse(localStorage.getItem('fh-config')||'{}').me}catch(e){}})()||'R'),filter:'all',calMode:'month',sel:0,weekStart:0,month:{y:TODAY.getFullYear(),m:TODAY.getMonth()},recipe:null,snap:null,ingSel:null};
-const VIEWS=[['today','Today'],['calendar','Calendar'],['plan','Meal plan'],['recipes','Recipes'],['groceries','Groceries'],['shopping','Other shopping'],['todos','To-dos'],['birthdays','Birthdays'],['settings','Settings']];
+const VIEWS=[['today','Today'],['calendar','Calendar'],['plan','Meal plan'],['recipes','Recipes'],['groceries','Groceries'],['shopping','Other shopping'],['todos','To-dos'],['birthdays','Birthdays'],['bins','Bins'],['settings','Settings']];
 const myNew=()=>notes.filter(x=>x.to===S.me&&!x.read);
 const isNew=(kind,o)=>notes.some(x=>x.to===S.me&&!x.read&&x.kind===kind&&x.ref===o.id);
 const NEWPILL='<span class="pill new">New</span>';
@@ -581,20 +635,21 @@ const LOCK='<svg class="lock" viewBox="0 0 24 24" width="13" height="13" fill="n
 const byLine=x=>`${x.priv?LOCK+'Private · ':''}<span class="by ${x.by}">${x.by===S.me?'Added by you':'Added by '+PEOPLE[x.by]}</span>`;
 const filterChips=(priv=true)=>`<div class="chips" role="group" aria-label="Filter by who added it">${[['all','Everyone'],['mine','Added by me'],['theirs','Added by '+PEOPLE[OTHER()]]].concat(priv?[['private','Private']]:[]).map(([v,l])=>`<button class="chip ${S.filter===v?'on':''}" data-act="filter" data-v="${v}">${l}</button>`).join('')}</div>`;
 const spanDay=(e,d)=>{const n=spanOf(e);if(!n)return e;let k=0;while(k<n&&!startsOn(e,d-k))k++;return k===0?{...e,mday:[1,n+1]}:{...e,time:'',mday:[k+1,n+1],lastEnd:k===n?e.end:''}};
-const dayEvents=(d,f)=>events.filter(e=>!e.dupOf&&occurs(e,d)&&visible(e)&&(!f||passFilter(e))).map(e=>spanDay(e,d)).concat(bdayEvents(d)).sort((a,b)=>a.time.localeCompare(b.time));
+const dayEvents=(d,f)=>events.filter(e=>!e.dupOf&&occurs(e,d)&&visible(e)&&(!f||passFilter(e))).map(e=>spanDay(e,d)).concat(bdayEvents(d)).concat(binEvents(d)).sort((a,b)=>a.time.localeCompare(b.time));
 // the same duplicate pulled more than once is shown once
 const dupsOf=e=>{const seen={};return events.filter(x=>x.dupOf===e.id).filter(x=>{const k=x.src+'|'+x.title+'|'+x.time;return seen[k]?false:(seen[k]=1)})};
 const showDups=()=>{try{return localStorage.getItem('fh-dups')==='1'}catch(e){return !!S.dups}};
 const isoOf=d=>d?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`:'';
 const fmtTime=t=>{if(!t)return'All day';let[h,m]=t.split(':').map(Number);const ap=h>=12?'pm':'am';h=h%12||12;return h+(m?':'+String(m).padStart(2,'0'):'')+ap};
 function toast(msg){document.querySelectorAll('.toast').forEach(t=>t.remove());const t=document.createElement('div');t.className='toast';t.setAttribute('role','status');t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),1800)}
-const dotsFor=d=>{const t=[...new Set(dayEvents(d,true).map(e=>e.type==='appointment'?'event':e.type))];if(meals[d])t.push('meal');return `<span class="dots">${t.map(x=>`<i class="${x}"></i>`).join('')}</span>`};
+const dotsFor=d=>{const t=[...new Set(dayEvents(d,true).map(e=>e.colour||(e.type==='appointment'?'event':e.type)))];return `<span class="dots">${t.map(x=>x[0]==='#'?`<i style="background:${x}"></i>`:`<i class="${x}"></i>`).join('')}</span>`};
 
 // ---------- views ----------
 function eventRow(e,d){
+  if(e.bins)return `<button class="row evbtn" data-act="go" data-v="bins"><span class="stripe" style="background:${(BINC[e.bins[0].colour]||[0,'#888'])[1]}"></span><span class="time num">Bins</span><div class="main"><div class="t">${esc(e.title)}</div><div class="s">${e.bins.map(b=>esc(b.label||'')).filter(Boolean).join(' · ')||'Collection day'}</div></div><span class="bdots">${binDots(e.bins)}</span></button>`;
   if(e.bday)return `<button class="row evbtn" data-act="go" data-v="birthdays"><span class="stripe birthday"></span><span class="time num">All day</span><div class="main"><div class="t">${esc(e.title)}</div><div class="s">${esc(e.bday.rel||'Birthday')}${e.bday.known?'':' · year worked out from age'}</div></div>${ICON.cake.replace('<svg','<svg width="20" height="20" style="color:var(--bday);flex:none"')}</button>`;
   const dn=showDups()?dupsOf(e).length:0;
-  return `<button class="row evbtn" data-act="evDetail" data-id="${e.id}"><span class="stripe ${e.type==='appointment'?'event':e.type}"></span><span class="time num">${fmtTime(e.time)}</span>
+  return `<button class="row evbtn" data-act="evDetail" data-id="${e.id}"><span class="stripe ${e.type==='appointment'?'event':e.type}${cc(e)}"></span><span class="time num">${fmtTime(e.time)}</span>
   <div class="main"><div class="t">${esc(e.title)} ${isNew('event',e)?NEWPILL:''}${dn?`<span class="dupchip">+${dn} duplicate</span>`:''}</div><div class="s">${e.mday?`Day ${e.mday[0]} of ${e.mday[1]}${e.lastEnd?' · until '+fmtTime(e.lastEnd):''} · `:''}${e.sub?esc(e.sub)+' · ':''}${e.rep?'↻ '+REP[e.rep.f]+' · ':''}${byLine(e)} · ${esc(SRC[e.src]||e.src)}</div></div>${whoBadge(e.who)}</button>`;
 }
 // manual order (drag to reorder); items never dragged fall back to their date
@@ -627,6 +682,7 @@ function V_today(){
   ${r?`<button class="dinner" ${r.custom?'data-act="go" data-v="plan"':`data-act="openRecipe" data-id="${r.id}"`}><span class="ico">${ICON.plate}</span>
     <span><div class="k">${X===0?"Tonight's dinner":'Dinner'}</div><div class="n">${esc(r.name)}</div><div class="hint">${mealSub(r)}</div></span></button>`
     :`<button class="dinner" ${X>=0&&X<7?`data-act="choose" data-d="${X}"`:'data-act="go" data-v="plan"'}><span class="ico">${ICON.plate}</span><span><div class="k">${X===0?"Tonight's dinner":'Dinner'}</div><div class="n">Not planned yet</div></span></button>`}
+  ${binsOn(X+1).length?`<button class="binbar" data-act="go" data-v="bins"><span class="bdots">${binDots(binsOn(X+1))}</span><span><b>${X===0?'Bins out tonight':'Bins out the night before'}</b><span class="hint"> · ${esc(binNames(binsOn(X+1)))} collected ${X===0?'tomorrow':dayLabel(X+1).toLowerCase()}</span></span></button>`:''}
   <section><div class="sec-head"><h2>Schedule</h2><button class="link" data-act="addEventOn" data-d="${X}">+ Add</button></div>
     <div class="card rows">${scheduleHTML(X,false)||'<div class="empty">Nothing on</div>'}</div></section>
   <section><div class="sec-head"><h2>To-dos</h2><button class="link" data-act="go" data-v="todos">All</button></div>
@@ -637,21 +693,24 @@ function V_today(){
   </div>`:''}`;
 }
 function chipFor(x){
+  if(x.bins)return `<span class="evc binc">${binDots(x.bins)}<span class="et">Bins</span></span>`;
   const cls=x.bday?'birthday':x.todo?'todo':x.meal?'meal':(x.type==='appointment'?'event':x.type);
   const t=x.time?fmtTime(x.time).replace(':00','').replace('am','a').replace('pm','p')+' ':'';
-  return `<span class="evc ${cls}${x.mday?' span'+(x.mday[0]>1?' cont':''):''}">${t?`<span class="et">${esc(t)}</span>`:''}${esc(x.title)}</span>`;
+  return `<span class="evc ${cls}${cc(x)}">${t?`<span class="et">${esc(t)}</span>`:''}${esc(x.title)}</span>`;
 }
 function monthDayItems(o){
   const items=dayEvents(o,true).map(e=>({...e})).concat(timedTodos(o).filter(passFilter).map(t=>({title:t.title,time:t.time,todo:1})));
   items.sort((a,b)=>(!!b.mday-!!a.mday)||(a.mday&&b.mday?a.d-b.d:0)||(a.time||'').localeCompare(b.time||''));
-  const m=mealOf(meals[o]);if(m)items.push({title:m.name,meal:1});
   return items;
 }
 function V_calendar(){
+  return reviewBanner()+V_calendar0();
+}
+function V_calendar0(){
   if(S.calMode==='week'){
     const a=addDays(TODAY,S.weekStart),b=addDays(TODAY,S.weekStart+6);
     const label=S.weekStart===0?'Next 7 days':`${a.getDate()} ${MN[a.getMonth()]} – ${b.getDate()} ${MN[b.getMonth()]}`;
-    const d=addDays(TODAY,S.sel), r=mealOf(meals[S.sel]), inPlan=S.sel>=0&&S.sel<7;
+    const d=addDays(TODAY,S.sel), r=null, inPlan=false; // dinners live on Today and Meal plan, not the calendar
     return `${calBar(label,'wk',-7,7)}
     <div class="week">${[...Array(7)].map((_,i)=>{const o=S.weekStart+i,dd=addDays(TODAY,o);
       return `<button class="day ${S.sel===o?'sel':''}" data-act="pick" data-o="${o}"><span class="dn">${DN[dd.getDay()]}</span><span class="dd num">${dd.getDate()}</span>${dotsFor(o)}</button>`}).join('')}</div>
@@ -674,7 +733,7 @@ function V_calendar(){
     const L=lanes.length,max=Math.max(1,(S.mcMax||4)-L);
     const bg=days.map(d=>{const out=d.dt.getMonth()!==m,n=d.items.length;return `<button class="mc ${out?'out':''} ${d.o===0?'today':''}" style="grid-column:${d.i+1}" data-act="dayOpen" data-o="${d.o}" aria-label="${d.dt.getDate()} ${MONTHS[d.dt.getMonth()]}, ${n} item${n===1?'':'s'}"></button><span class="mcd num ${out?'out':''} ${d.o===0?'today':''}" style="grid-column:${d.i+1}">${d.dt.getDate()}</span>`}).join('');
     const bars=list.map(sg=>{const t=sg.x.time&&sg.first?fmtTime(sg.x.time).replace(':00','').replace('am','a').replace('pm','p')+' ':'';
-      return `<span class="evc bar ${sg.x.type==='appointment'?'event':sg.x.type}${sg.first?'':' cl'}${sg.last?'':' cr'}" style="grid-column:${sg.a+1} / ${sg.b+2};grid-row:${sg.lane+2}">${t?`<span class="et">${esc(t)}</span>`:''}${esc(sg.x.title)}</span>`}).join('');
+      return `<span class="evc bar ${sg.x.type==='appointment'?'event':sg.x.type}${sg.first?'':' cl'}${sg.last?'':' cr'}${sg.x.colour?' cc':''}" style="${sg.x.colour?'--c:'+sg.x.colour+';':''}grid-column:${sg.a+1} / ${sg.b+2};grid-row:${sg.lane+2}">${t?`<span class="et">${esc(t)}</span>`:''}${esc(sg.x.title)}</span>`}).join('');
     const singles=days.map(d=>{const its=d.items.filter(x=>!x.mday),shown=its.slice(0,max),more=its.length-shown.length;
       return its.length?`<div class="mcl" style="grid-column:${d.i+1};grid-row:${L+2}">${shown.map(chipFor).join('')}${more>0?`<span class="evmore">+${more} more</span>`:''}</div>`:''}).join('');
     return `<div class="wk" style="grid-template-rows:auto${' auto'.repeat(L)} 1fr">${bg}${bars}${singles}</div>`;
@@ -688,7 +747,7 @@ function calBar(label,act,a,b){
    <button class="pg" data-act="syncMine" aria-label="Sync my calendars" title="Sync my calendars">↻</button><button class="pg" data-act="addEvent" aria-label="Add event" title="Add event">+</button></span></div>`;
 }
 function sheetDay(o){
-  const d=addDays(TODAY,o),r=mealOf(meals[o]);S.sel=o;
+  const d=addDays(TODAY,o),r=null;S.sel=o;
   sheet(`<h3>${dayLabel(o)}${o===0||o===1?' · '+DN[d.getDay()]+' '+d.getDate()+' '+MN[d.getMonth()]:''}</h3>
   <div class="card rows">${scheduleHTML(o,true)||'<div class="empty">Nothing scheduled</div>'}
   ${r?`<button class="row" ${r.custom?'data-act="go" data-v="plan"':`data-act="openRecipe" data-id="${r.id}"`}><span class="stripe meal"></span><span class="time">Dinner</span><div class="main"><div class="t">${esc(r.name)}</div><div class="s">Meal plan</div></div></button>`:''}</div>
@@ -791,7 +850,7 @@ function groMergedRow(lines){
   const recs=[...new Set(lines.filter(x=>x.rid).map(x=>recipeById(x.rid)).filter(Boolean).map(r=>r.name))];
   const extra=lines.some(x=>!x.rid);
   const sub=[recs.length?'For '+recs.map(esc).join(', '):'',extra&&!recs.length?byLine(g):extra?'plus extra':''].filter(Boolean).join(' · ');
-  return `<div class="row ${done?'done':''}"><button class="check ${done?'on':''}" data-act="groToggle" data-k="${esc(keyOf(g.name))}" aria-label="Tick off ${esc(g.name)}">${done?ICON.tick:''}</button>
+  return `<div class="row ${done?'done':''}">${done?'':`<span class="grip" data-drag="gro" data-k="${esc(keyOf(g.name))}" aria-label="Drag ${esc(g.name)} to another category"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="9" cy="6" r="1.7"/><circle cx="15" cy="6" r="1.7"/><circle cx="9" cy="12" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="9" cy="18" r="1.7"/><circle cx="15" cy="18" r="1.7"/></svg></span>`}<button class="check ${done?'on':''}" data-act="groToggle" data-k="${esc(keyOf(g.name))}" aria-label="Tick off ${esc(g.name)}">${done?ICON.tick:''}</button>
   <button class="main" data-act="groEdit" data-k="${esc(keyOf(g.name))}" aria-label="${esc(g.name)}: amounts and category"><div class="t">${esc(g.name)}${typed?` <span class="qty">${esc(typed)}</span>`:''}</div><div class="s">${sub}</div></button></div>`;
 }
 function groLineRow(g){
@@ -808,12 +867,14 @@ function V_groceries(){
     body=rids.map(rid=>{const items=open.filter(g=>g.rid===rid),r=rid?recipeById(rid):null;
       return `<div class="sec-head"><div class="aisle">${r?esc(r.name):'Extras'}</div>${r?`<button class="link" data-act="openRecipe" data-id="${r.id}">Recipe</button>`:''}</div><div class="card rows">${items.map(groLineRow).join('')}</div>`}).join('');
   }else{
-    body=GCATS.map(c=>{const items=open.filter(g=>g.cat===c);if(!items.length)return'';
+    const any=open.length;
+    body=any?GCATS.map(c=>{const items=open.filter(g=>g.cat===c);
       const m=new Map();items.forEach(g=>{const k=keyOf(g.name);m.has(k)?m.get(k).push(g):m.set(k,[g])});
-      return `<div class="aisle"><span class="dot c${GCATS.indexOf(c)}"></span>${c} <span style="font-weight:600">· ${m.size}</span></div><div class="card rows">${[...m.values()].map(groMergedRow).join('')}</div>`}).join('');
+      if(!items.length)return `<div class="gcat-empty" data-drop="gcat" data-c="${c}"><span class="dot c${GCATS.indexOf(c)}"></span>${c}</div>`;
+      return `<div data-drop="gcat" data-c="${c}" class="gcat"><div class="aisle"><span class="dot c${GCATS.indexOf(c)}"></span>${c} <span style="font-weight:600">· ${m.size}</span></div><div class="card rows">${[...m.values()].map(groMergedRow).join('')}</div></div>`}).join(''):'';
   }
   return `<form data-form="gro" class="todo-form"><div class="addbar"><input type="text" id="groInput" placeholder="Add a grocery, e.g. yoghurt" autocomplete="off" aria-label="New grocery"><button class="btn">Add</button></div></form>
-  <div class="hint" id="groHint" style="margin-top:-12px">Items sort themselves into categories. Tap one to see what each recipe needs or change its category.</div>
+  <div class="hint" id="groHint" style="margin-top:-12px">Items sort themselves into categories. Drag one by its handle to another category to fix it (remembered for next time), or tap it to see what each recipe needs.</div>
   ${seg}${filterChips(false)}
   <section>${body||'<div class="empty">Nothing to buy</div>'}</section>
   ${done.length?`<section><div class="sec-head"><h2 style="color:var(--muted)">In the trolley</h2><button class="link" data-act="clearDone" data-l="groceries">Clear</button></div><div class="card rows">${done.map(groLineRow).join('')}</div></section>`:''}`;
@@ -848,16 +909,61 @@ function V_todos(){
 function V_birthdays(){
   const list=birthdays.map(b=>({b,n:nextBday(b)})).sort((x,y)=>x.n.off-y.n.off);
   return `<section><div class="sec-head"><h2>Birthdays & anniversaries</h2><button class="link" data-act="addBday">+ Add</button></div>
-    <div class="card rows">${list.map(({b,n})=>`<button class="row bdrow" data-act="editBday" data-id="${b.id}"><span class="age num">${n.age}<small>${b.kind==='anniversary'?'years':'turns'}</small></span>
+    <div class="card rows">${list.map(({b,n})=>`<div class="row bdwrap ${b.show===false?'off':''}"><button class="row bdrow" data-act="editBday" data-id="${b.id}"><span class="age num">${n.age}<small>${b.kind==='anniversary'?'years':'turns'}</small></span>
       <div class="main"><div class="t">${esc(b.name)}${b.kind==='anniversary'?' <span class="tag birthday">Anniversary</span>':''}</div><div class="s">${DN[n.date.getDay()]} ${n.date.getDate()} ${MN[n.date.getMonth()]} · ${n.off===0?'<b style="color:var(--bday)">Today</b>':n.off===1?'Tomorrow':'in '+n.off+' days'}${b.rel?' · '+esc(b.rel):''}</div>
-      <div class="s">${b.kind==='anniversary'?'Since':'Born'} ${b.known?b.year:'~'+b.year+' (worked out from age)'}</div></div></button>`).join('')||'<div class="empty">No birthdays yet</div>'}</div>
-    <div class="hint">These show on the calendar every year with the age they're turning, e.g. "Frankie's 7th birthday".</div></section>`;
+      <div class="s">${b.kind==='anniversary'?'Since':'Born'} ${b.known?b.year:'~'+b.year+' (worked out from age)'}${b.show===false?' · hidden from calendar':''}</div></div></button>
+      <button class="eye ${b.show===false?'':'on'}" data-act="bdShow" data-id="${b.id}" aria-pressed="${b.show!==false}" aria-label="${b.show===false?'Show':'Hide'} ${esc(b.name)} on the calendar" title="${b.show===false?'Hidden from calendar':'Shown on calendar'}">${b.show===false?ICON.eyeoff:ICON.eye}</button></div>`).join('')||'<div class="empty">No birthdays yet</div>'}</div>
+    <div class="hint">These show on the calendar every year with the age they're turning, e.g. "Frankie's 7th birthday". Tap the eye to hide one from the calendar.</div></section>`;
+}
+// ---------- calendar imports: new events found by a sync wait here until the calendar's owner decides ----------
+const pendingImports=()=>incoming.filter(x=>x.status==='pending');
+function impRow(x,checked){const end=x.endD!=null&&x.endD>x.d?' → '+dayLabel(x.endD):'';
+  return `<div class="row imp"><button class="check ${checked?'on':''}" data-act="impTick" data-id="${x.id}" aria-pressed="${checked}" aria-label="Import ${esc(x.title)}">${checked?ICON.tick:''}</button>
+  <div class="main"><div class="t">${esc(x.title)}</div><div class="s">${dayLabel(x.d)}${end}, ${fmtTime(x.time)} · ${esc(SRC[x.cal]||x.cal)}</div>${x.dupTitle?`<div class="s dupnote">Looks like "${esc(x.dupTitle)}", already in Family Hub</div>`:''}</div></div>`}
+function V_imports(){
+  const tab=S.impTab||'pending';
+  const pend=pendingImports().sort((a,b)=>a.d-b.d||(a.time||'').localeCompare(b.time||''));
+  const skipAll=incoming.filter(x=>x.status==='skipped'),skip=skipAll.filter(x=>S.impPast||(x.endD??x.d)>=0).sort((a,b)=>a.d-b.d);
+  if(!S.impSel){S.impSel={};pend.forEach(x=>{if(!x.dupTitle)S.impSel[x.id]=1})}
+  const list=tab==='pending'?pend:skip,nT=list.filter(x=>S.impSel[x.id]).length;
+  const seg=`<div class="seg"><button class="${tab==='pending'?'on':''}" data-act="impTab" data-v="pending">To review${pend.length?' · '+pend.length:''}</button><button class="${tab==='skipped'?'on':''}" data-act="impTab" data-v="skipped">Skipped${skipAll.length?' · '+skipAll.length:''}</button></div>`;
+  const body=list.length?`<div class="sec-head"><span class="hint">${tab==='pending'?'Ticked events are imported. Unticked ones are skipped and won\'t be asked about again.':'Skipped events stay out of Family Hub. Tick any you want after all.'}</span><button class="link" data-act="impAll" data-v="${nT===list.length?0:1}">${nT===list.length?'Untick all':'Tick all'}</button></div>
+    <div class="card rows">${list.map(x=>impRow(x,!!S.impSel[x.id])).join('')}</div>`
+    :`<div class="empty card">${tab==='pending'?'Nothing to review. New events from your calendars show up here after a sync.':'Nothing skipped'+(S.impPast?'':' from today on')+'.'}</div>`;
+  const btn=tab==='pending'?(pend.length?`<button class="btn block" data-act="impSave">Import ${nT}${pend.length-nT?`, skip ${pend.length-nT}`:''}</button>`:'')
+    :(skip.length?`<button class="btn block" data-act="impRestore" ${nT?'':'disabled style="opacity:.5"'}>Import ${nT} ticked</button>`:'');
+  return `${seg}${tab==='skipped'?`<div class="toggle" style="margin-top:12px"><span>Include past events</span><button class="sw-btn ${S.impPast?'on':''}" data-act="impPast" aria-label="Include past events"></button></div>`:''}
+  <section>${body}</section>${btn}`;
+}
+async function decideImports(imp,skip){
+  const d=diffTabs();if(d.n)await persist();
+  await api('decide',{imports:imp,skips:skip});await loadAll();
+}
+const reviewBanner=()=>{const n=pendingImports().length;return n?`<button class="revbanner" data-act="go" data-v="imports"><b>${n} new event${n===1?'':'s'} to review</b><span>from your calendars ›</span></button>`:''};
+function V_bins(){
+  return `<section><div class="sec-head"><h2>Bin collection</h2><button class="link" data-act="addBin">+ Add bin</button></div>
+    <div class="card rows">${bins.map(b=>{const nb=nextBin(b),c=BINC[b.colour]||[b.colour,'#888'];return `<button class="row" data-act="editBin" data-id="${b.id}"><span class="binbig" style="background:${c[1]}"></span>
+      <div class="main"><div class="t">${esc(c[0])} bin${b.label?' · '+esc(b.label):''}</div><div class="s">${({weekly:'Every week',fortnightly:'Every fortnight',monthly:'Every 4 weeks'})[b.freq]||''} on ${b.first!=null?DNL[addDays(TODAY,b.first).getDay()]:'?'}${nb!=null?' · next '+(nb===0?'today':nb===1?'tomorrow':dayLabel(nb)):''}${b.show===false?' · hidden from calendar':''}</div></div></button>`}).join('')||'<div class="empty">No bins yet</div>'}</div>
+    <div class="hint">Collection days show on the calendar, and Today reminds you the night before.</div></section>`;
+}
+const DNL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+function sheetBin(b){
+  const nb=b||{colour:'red',label:'',freq:'weekly',first:null,show:true};S.binCol=nb.colour;
+  const nx=b&&nextBin(b)!=null?isoOf(addDays(TODAY,nextBin(b))):'';
+  sheet(`<h3>${b?'Edit bin':'Add a bin'}</h3>
+  <div class="field"><label>Colour</label><div class="binpick" role="group">${Object.entries(BINC).map(([k,[n,c]])=>`<button type="button" class="${S.binCol===k?'on':''}" data-act="binCol" data-v="${k}" aria-pressed="${S.binCol===k}"><i style="background:${c}"></i>${n}</button>`).join('')}</div></div>
+  <div class="field"><label for="binLabel">What goes in it (optional)</label><input type="text" id="binLabel" value="${esc(nb.label)}" placeholder="e.g. Recycling"></div>
+  <div class="two"><div class="field"><label for="binFreq">Collected</label><select id="binFreq">${[['weekly','Every week'],['fortnightly','Every fortnight'],['monthly','Every 4 weeks']].map(([v,l])=>`<option value="${v}" ${nb.freq===v?'selected':''}>${l}</option>`).join('')}</select></div>
+  <div class="field"><label for="binNext">Next collection</label><input type="date" id="binNext" value="${nx}"></div></div>
+  <div class="toggle"><span><div style="font-weight:600">Show on calendar</div></span><button class="sw-btn ${nb.show!==false?'on':''}" id="binShow" data-act="swToggle" aria-label="Show on calendar"></button></div>
+  <div class="two">${b?`<button class="btn ghost block" data-act="delBin" data-id="${b.id}">Delete</button>`:'<span></span>'}<button class="btn block" data-act="saveBin" data-id="${b?b.id:''}">Save</button></div>`);
 }
 function V_settings(){
-  const THEMES_HTML=Object.entries(THEMES).map(([k,t])=>`<button class="swatch ${themeKey()===k?'on':''}" data-act="setTheme" data-v="${k}" aria-pressed="${themeKey()===k}"><i style="background:linear-gradient(135deg,${t[0]} 50%,${t[1]} 50%)"></i>${t[2]}</button>`).join('');
+  const THEMES_HTML=Object.entries(THEMES).map(([k,t])=>{const p=isDark()?t.dark:t.light;return `<button class="tcard ${themeKey()===k?'on':''}" data-act="setTheme" data-v="${k}" aria-pressed="${themeKey()===k}" style="background:${p.bg};color:${p.fg};border-radius:${Math.min(t.r,18)}px"><span class="tprev" style="background:${p.surface};border-color:${p.line};border-radius:${Math.min(t.r,14)}px"><b style="font-family:${t.font},system-ui;color:${p.fg}">Aa</b><i style="background:${p.accent};border-radius:${Math.min(t.rb,99)}px"></i></span><span style="font-family:${t.font},system-ui">${t.name}</span></button>`}).join('');
+  const MODE_HTML=`<div class="segsm modes" role="group" aria-label="Light or dark">${[['auto','Match phone'],['light','Light'],['dark','Dark']].map(([v,l])=>`<button class="${modeKey()===v?'on':''}" data-act="setMode" data-v="${v}" aria-pressed="${modeKey()===v}">${l}</button>`).join('')}</div>`;
   const KIND={google:'Google',ics_pull:'iCal subscription',ics_feed:'iCal feed'};
   const c=cfg()||{};
-  return `<section><div class="sec-head"><h2>Colour scheme</h2><span class="hint">Just for you</span></div><div class="swatches">${THEMES_HTML}</div></section>
+  return `<section><div class="sec-head"><h2>Look</h2><span class="hint">Just for you</span></div><div class="tcards">${THEMES_HTML}</div>${MODE_HTML}</section>
   <section><div class="sec-head"><h2>Display</h2><span class="hint">Just for you</span></div>
     <div class="card"><div class="toggle" style="padding:12px 14px"><span><div style="font-weight:600">Show duplicate info</div><div class="hint" style="font-size:12px">Marks events that also appear in another calendar, and lists the copies on the event. Off just hides them.</div></span><button class="sw-btn ${showDups()?'on':''}" data-act="toggleDups" aria-pressed="${showDups()}" aria-label="Show duplicate info"></button></div></div></section>
   <section><div class="sec-head"><h2>Calendars</h2><button class="link" data-act="syncMine">↻ Sync mine</button></div>
@@ -872,12 +978,13 @@ function V_settings(){
 function sheet(html){$('#overlay').innerHTML=`<div class="scrim" data-act="closeSheet"><div class="sheet" role="dialog" aria-modal="true">${html}</div></div>`}
 function closeSheet(){if($('#overlay .setup')&&!SNAP)return;$('#overlay').innerHTML='';S.snap=null}
 function openMenu(){
-  const counts={today:myNew().length?myNew().length+' new':'',groceries:groceries.filter(s=>!s.done).length,shopping:shopping.filter(s=>!s.done).length,todos:todos.filter(t=>!t.done&&visible(t)).length,plan:holding.length?holding.length+' to allocate':''};
+  const counts={calendar:pendingImports().length?pendingImports().length+' to review':'',today:myNew().length?myNew().length+' new':'',groceries:groceries.filter(s=>!s.done).length,shopping:shopping.filter(s=>!s.done).length,todos:todos.filter(t=>!t.done&&visible(t)).length,plan:holding.length?holding.length+' to allocate':''};
   $('#overlay').innerHTML=`<div class="scrim left" data-act="closeSheet"><nav class="drawer" aria-label="Menu"><div class="brand">Family Hub</div>
   <div class="me">${whoBadge(S.me)}<div class="main">Signed in as<b>${PEOPLE[S.me]}</b></div><button class="link" data-act="switchMe">Change</button></div>
-  ${VIEWS.map(([k,l],i)=>`${i===2||i===4||i===7||i===9?'<div class="sep"></div>':''}<button class="nav ${S.view===k?'on':''}" data-act="go" data-v="${k}">${({birthdays:ICON.cake,settings:ICON.gear}[k]||ICON[k]||ICON.bag)}<span>${l}</span>${counts[k]?`<span class="c">${counts[k]}</span>`:''}</button>`).join('')}</nav></div>`;
+  ${VIEWS.map(([k,l],i)=>`${i===2||i===4||i===7||i===10?'<div class="sep"></div>':''}<button class="nav ${S.view===k?'on':''}" data-act="go" data-v="${k}">${({birthdays:ICON.cake,settings:ICON.gear,bins:ICON.bin}[k]||ICON[k]||ICON.bag)}<span>${l}</span>${counts[k]?`<span class="c">${counts[k]}</span>`:''}</button>`).join('')}</nav></div>`;
 }
 function sheetEvent(){
+  S.newColour='';
   const d=addDays(TODAY,S.sel);const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   sheet(`<h3>New event</h3>
   <div class="field"><label for="evTitle">What</label><input type="text" id="evTitle" placeholder="e.g. Frankie – piano lesson"></div>
@@ -886,6 +993,7 @@ function sheetEvent(){
   <div class="field" id="evUntilF" hidden><label for="evUntil">Repeat until (optional)</label><input type="date" id="evUntil"></div>
   <div class="two"><div class="field"><label for="evType">Type</label><select id="evType"><option value="pickup">Pick-up / drop-off</option><option value="event">Event</option></select></div>
   <div class="field"><label for="evWho">Who's on it</label><select id="evWho"><option value="R">Reuben</option><option value="T">Tiff</option><option value="B">Both</option></select></div></div>
+  <div class="field"><label>Colour</label>${colourPick('','newColour','')}</div>
   ${PUSH_TO.length?`<div class="toggle"><span><div style="font-weight:600">Add to ${esc(PUSH_TO.map(c=>PUSH_NAME[c]).join(' and '))}</div><div class="hint" style="font-size:12px">Off keeps it in Family Hub only</div></span><button class="sw-btn on" id="evG" data-act="swToggle" aria-label="Add to shared calendar"></button></div>`:'<span id="evG"></span>'}
   <div class="two"><button class="btn block" data-act="saveEvent">Save</button><button class="btn ghost block" data-act="saveEvent" data-priv="1">${LOCK} Save as private</button></div>
   <div class="hint" style="font-size:12px">Private events are only visible to you and stay in Family Hub.</div>`);
@@ -926,7 +1034,8 @@ function sheetEventDetail(e){
   sheet(`<h3>${esc(e.title)}</h3>
   <div class="card rows"><div class="row"><div class="main"><div class="s">When</div><div class="t">${e.rep?REP[e.rep.f]+' from '+rel(addDays(TODAY,e.d)):dayLabel(e.d)}, ${fmtTime(e.time)}${spanOf(e)?` → ${dayLabel(e.endD)}${e.end?', '+fmtTime(e.end):''} (${spanOf(e)+1} days)`:''}</div></div></div>
    <div class="row"><div class="main"><div class="s">Who's on it</div><div class="t">${e.who==='B'?'Both of you':PEOPLE[e.who]}</div></div>${whoBadge(e.who)}</div>
-   <div class="row"><div class="main"><div class="s">Calendar</div><div class="t">${esc(SRC[e.src]||e.src)}</div><div class="s">${byLine(e)}</div></div></div></div>
+   <div class="row"><div class="main"><div class="s">Calendar</div><div class="t">${esc(SRC[e.src]||e.src)}</div><div class="s">${byLine(e)}</div></div></div>
+   <div class="row"><div class="main"><div class="s">Colour${e.rep?' (every repeat)':''}</div>${colourPick(e.colour||'','evColour',`data-id="${e.id}"`)}</div></div></div>
   ${e.priv?'':e.src!=='app'?`<div class="hint">Pulled from ${esc(SRC[e.src]||e.src)}. Pulled events show in Family Hub only and are never copied to another calendar.</div>`:PUSH_TO.length?`<div class="aisle">Copied to</div><div class="card rows">${PUSH_TO.map(c=>{const here=dups.find(x=>x.src===c);
      return `<div class="row"><div class="main"><div class="t">${PUSH_NAME[c]}</div><div class="s">${!e.gcal?'Off for this event':here?`Skipped: already there as "${esc(here.title)}"`:'Copied when the calendars next sync'}</div></div><span class="kind">${!e.gcal||here?'Skip':'✓'}</span></div>`}).join('')}</div>`:''}
   ${dups.length&&showDups()?`<div class="aisle">Possible duplicates · kept as a record</div><div class="card rows">${dups.map(x=>`<div class="row"><div class="main"><div class="t">${esc(x.title)}</div><div class="s">${esc(SRC[x.src]||x.src)} · ${fmtTime(x.time)} · ${esc(x.dupWhy)}</div></div><button class="btn ghost sm" data-act="notDup" data-id="${x.id}">Not a duplicate</button></div>`).join('')}</div>
@@ -947,6 +1056,7 @@ function sheetBday(b){
   <div class="field" id="bdYearF" ${S.bdMode==='year'?'':'hidden'}><label for="bdYear">Birth year</label><input type="number" id="bdYear" inputmode="numeric" value="${b&&b.known?b.year:''}" placeholder="e.g. 1956"></div>
   <div class="field" id="bdAgeF" ${S.bdMode==='age'?'':'hidden'}><label for="bdAge">Age now</label><input type="number" id="bdAge" inputmode="numeric" value="${b&&!b.known?ageNow:''}" placeholder="e.g. 8"></div>
   <div class="hint" id="bdHint"></div>
+  <div class="toggle"><span><div style="font-weight:600">Show on calendar</div><div class="hint" style="font-size:12px">Off keeps it on this list only</div></span><button class="sw-btn ${nb.show!==false?'on':''}" id="bdShow" data-act="swToggle" aria-label="Show on calendar"></button></div>
   <div class="two">${b?`<button class="btn ghost block" data-act="delBday" data-id="${b.id}">Delete</button>`:'<span></span>'}<button class="btn block" data-act="saveBday" data-id="${b?b.id:''}">Save</button></div>`);
   bdHint();
 }
@@ -1003,14 +1113,14 @@ document.addEventListener('pointerdown',e=>{
   const row=g.closest('.row'),rc=row.getBoundingClientRect(),ghost=row.cloneNode(true);
   ghost.classList.add('drag-ghost');Object.assign(ghost.style,{width:rc.width+'px',left:rc.left+'px',top:rc.top+'px'});
   document.body.appendChild(ghost);row.classList.add('dragging');document.body.classList.add('is-dragging');
-  drag={src:g.dataset.drag,d:+g.dataset.d,h:+g.dataset.h,tid:+g.dataset.id,ghost,row,dx:e.clientX-rc.left,dy:e.clientY-rc.top,over:null,x:e.clientX,y:e.clientY};
+  drag={src:g.dataset.drag,k:g.dataset.k,d:+g.dataset.d,h:+g.dataset.h,tid:+g.dataset.id,ghost,row,dx:e.clientX-rc.left,dy:e.clientY-rc.top,over:null,x:e.clientX,y:e.clientY};
   try{g.setPointerCapture(e.pointerId)}catch(_){}
 });
 document.addEventListener('pointermove',e=>{
   if(!drag)return;e.preventDefault();drag.x=e.clientX;drag.y=e.clientY;
   drag.ghost.style.left=(e.clientX-drag.dx)+'px';drag.ghost.style.top=(e.clientY-drag.dy)+'px';
   const t=document.elementFromPoint(e.clientX,e.clientY);const z=t&&t.closest('[data-drop]');
-  const zz=z&&(drag.src==='todo')===(z.dataset.drop==='todo')?z:null;
+  const OK={todo:['todo'],gro:['gcat'],hold:['day'],day:['day','hold']};const zz=z&&(OK[drag.src]||[]).includes(z.dataset.drop)?z:null;
   if(zz!==drag.over){drag.over&&drag.over.classList.remove('over','over-top','over-bot');drag.over=zz;zz&&zz.dataset.drop!=='todo'&&zz.classList.add('over')}
   if(zz&&zz.dataset.drop==='todo'){const r=zz.getBoundingClientRect(),top=e.clientY<r.top+r.height/2;zz.classList.toggle('over-top',top);zz.classList.toggle('over-bot',!top);drag.before=top}
   if(e.clientY<90)window.scrollBy(0,-12);else if(e.clientY>innerHeight-60)window.scrollBy(0,12);
@@ -1025,9 +1135,10 @@ function moveTodo(tid,target,before){
 }
 function endDrag(ok){
   if(!drag)return;const {src,d,h,over}=drag;
-  drag.ghost.remove();drag.row.classList.remove('dragging');over&&over.classList.remove('over','over-top','over-bot');const before=drag.before,tid=drag.tid;document.body.classList.remove('is-dragging');drag=null;
+  drag.ghost.remove();drag.row.classList.remove('dragging');over&&over.classList.remove('over','over-top','over-bot');const before=drag.before,tid=drag.tid,gk=drag.k;document.body.classList.remove('is-dragging');drag=null;
   if(!ok||!over)return;
   const kind=over.dataset.drop,to=+over.dataset.d;
+  if(src==='gro'&&kind==='gcat'){const c=over.dataset.c,lines=groceries.filter(x=>keyOf(x.name)===gk);if(lines.length&&lines[0].cat!==c){lines.forEach(x=>x.cat=c);USER_CAT[gk]=c;render();toast(`${lines[0].name} moved to ${c}. Remembered for next time.`)}return}
   if(src==='todo'&&kind==='todo'){const target=+over.dataset.id;if(target!==tid)moveTodo(tid,target,before);render();return}
   if(src==='hold'&&kind==='day'){const it=holding.find(x=>x.hid===h);holding=holding.filter(x=>x!==it);placeOnDay(it.rid,to,it.hid);toast(`Planned for ${dayName(to)}`)}
   else if(src==='day'&&kind==='day'&&to!==d){const a=meals[d],b=meals[to],pa=mealPid[d],pb=mealPid[to];meals[to]=a;mealPid[to]=pa;if(b){meals[d]=b;mealPid[d]=pb}else{delete meals[d];delete mealPid[d]}toast(b?`Swapped ${dayName(d)} and ${dayName(to)}`:`Moved to ${dayName(to)}`)}
@@ -1038,22 +1149,48 @@ document.addEventListener('pointerup',()=>endDrag(true));
 document.addEventListener('pointercancel',()=>endDrag(false));
 
 // ---------- colour schemes (per viewer; the real app saves it on the People tab) ----------
-const THEMES={ocean:['#2F5BEA','#7C9BFF','Ocean'],eucalyptus:['#2E7D5B','#6CCB9C','Eucalyptus'],lagoon:['#0E7C86','#4FD1C5','Lagoon'],grape:['#6E44C9','#A98BFF','Grape'],
-  berry:['#C2185B','#F06FA0','Berry'],sunset:['#C2561F','#FF9A62','Sunset'],marigold:['#9A6510','#F2C14E','Marigold'],charcoal:['#3A4452','#B8C2CF','Charcoal']};
-const themeKey=()=>{try{return localStorage.getItem('fh-theme')||'ocean'}catch(e){return S.theme||'ocean'}};
+// each theme is a whole look (background, cards, accent, type and corner shape), in a light and a dark version
+const THEMES={
+ classic:{name:'Classic',font:'"Plus Jakarta Sans"',r:14,rb:12,
+   light:{bg:'#F2F5F8',surface:'#FFFFFF',s2:'#E8EDF2',line:'#D9E0E7',fg:'#16202B',muted:'#5E6B78',accent:'#2F5BEA',ink:'#FFFFFF'},
+   dark:{bg:'#0F151C',surface:'#18212B',s2:'#212C38',line:'#2C3946',fg:'#E8EEF4',muted:'#93A1AF',accent:'#7C9BFF',ink:'#0F151C'}},
+ paper:{name:'Paper',font:'"Fraunces"',r:4,rb:3,
+   light:{bg:'#F3EEE3',surface:'#FFFCF5',s2:'#E9E2D3',line:'#D8CFBD',fg:'#1D1A16',muted:'#6E665A',accent:'#1D1A16',ink:'#FFFCF5'},
+   dark:{bg:'#161411',surface:'#201D19',s2:'#2B2722',line:'#3A352E',fg:'#F1EADC',muted:'#A89F90',accent:'#F1EADC',ink:'#161411'}},
+ forest:{name:'Forest',font:'"Outfit"',r:18,rb:14,
+   light:{bg:'#DCE8DD',surface:'#F6FAF4',s2:'#C9DBCB',line:'#B5CDB8',fg:'#14261B',muted:'#4C6653',accent:'#1F6B45',ink:'#F6FAF4'},
+   dark:{bg:'#0B1A12',surface:'#12261B',s2:'#1A3326',line:'#264535',fg:'#E2F0E5',muted:'#8DB39A',accent:'#7BD3A0',ink:'#0B1A12'}},
+ sunset:{name:'Sunset',font:'"Bricolage Grotesque"',r:22,rb:999,
+   light:{bg:'#FFE3D3',surface:'#FFF5EE',s2:'#FFD2BC',line:'#F6C1A6',fg:'#3A1408',muted:'#8A4B33',accent:'#E2552D',ink:'#FFFFFF'},
+   dark:{bg:'#24100B',surface:'#341912',s2:'#46231A',line:'#5A3024',fg:'#FFE8DC',muted:'#D49C83',accent:'#FF8A5C',ink:'#24100B'}},
+ midnight:{name:'Midnight',font:'"Space Grotesk"',r:12,rb:10,
+   light:{bg:'#E9E5FB',surface:'#FFFFFF',s2:'#DCD5F7',line:'#CCC3F0',fg:'#17113A',muted:'#5D5590',accent:'#5B3FD9',ink:'#FFFFFF'},
+   dark:{bg:'#07051A',surface:'#120E33',s2:'#1C1648',line:'#2B2366',fg:'#ECE8FF',muted:'#9C93D6',accent:'#B9A4FF',ink:'#07051A'}},
+ candy:{name:'Candy',font:'"Nunito"',r:24,rb:999,
+   light:{bg:'#FFDDEE',surface:'#FFF7FB',s2:'#FFC9E3',line:'#FAB6D6',fg:'#3B0A22',muted:'#94506F',accent:'#D6247A',ink:'#FFFFFF'},
+   dark:{bg:'#220A17',surface:'#331224',s2:'#461A32',line:'#5E2444',fg:'#FFE6F2',muted:'#D58FB1',accent:'#FF7AB8',ink:'#220A17'}}};
+const OLD_THEME={ocean:'classic',eucalyptus:'forest',lagoon:'forest',grape:'midnight',berry:'candy',sunset:'sunset',marigold:'sunset',charcoal:'paper'};
+const themeKey=()=>{let k;try{k=localStorage.getItem('fh-theme')}catch(e){k=S.theme}k=OLD_THEME[k]||k;return THEMES[k]?k:'classic'};
+const modeKey=()=>{let m;try{m=localStorage.getItem('fh-mode')}catch(e){m=S.mode}return ['light','dark'].includes(m)?m:'auto'};
 const mix=(a,b,t)=>{const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));const A=p(a),B=p(b);return '#'+A.map((v,i)=>Math.round(v*(1-t)+B[i]*t).toString(16).padStart(2,'0')).join('')};
-function isDark(){const t=document.documentElement.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches}
-function applyTheme(){const t=THEMES[themeKey()]||THEMES.ocean,dk=isDark(),st=document.documentElement.style,acc=dk?t[1]:t[0];
-  st.setProperty('--accent',acc);st.setProperty('--accent-ink',dk?'#0F151C':'#FFFFFF');st.setProperty('--accent-soft',dk?mix(acc,'#18212B',.78):mix(acc,'#FFFFFF',.87))}
+function isDark(){const m=modeKey();if(m!=='auto')return m==='dark';const t=document.documentElement.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches}
+const TYPECOL={light:{pickup:'#C77700',meal:'#2E8A57',event:'#7A4FD0',bday:'#C2417A'},dark:{pickup:'#F0A53A',meal:'#5CC48A',event:'#B596FF',bday:'#F58BB8'}};
+function applyTheme(){const T=THEMES[themeKey()],dk=isDark(),p=dk?T.dark:T.light,st=document.documentElement.style,tc=TYPECOL[dk?'dark':'light'];
+  const set=(k,v)=>st.setProperty(k,v);
+  set('--bg',p.bg);set('--surface',p.surface);set('--surface-2',p.s2);set('--line',p.line);set('--fg',p.fg);set('--muted',p.muted);
+  set('--accent',p.accent);set('--accent-ink',p.ink);set('--accent-soft',mix(p.accent,p.surface,dk?.78:.86));
+  for(const k in tc){set('--'+k,tc[k]);set('--'+k+'-soft',mix(tc[k],p.surface,dk?.78:.85))}
+  set('--font-display',T.font+', "Segoe UI", system-ui, sans-serif');set('--r',T.r+'px');set('--rb',T.rb+'px');set('color-scheme',dk?'dark':'light');
+  try{document.querySelector('meta[name=theme-color]')&&document.querySelector('meta[name=theme-color]').setAttribute('content',p.bg)}catch(e){}}
 try{new MutationObserver(applyTheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyTheme)}catch(e){}
 
 // ---------- render ----------
-const TITLES={birthdays:['Family','Birthdays'],settings:['Your','Settings'],today:['Sunday 15 November','Today'],calendar:['Family','Calendar'],plan:['Dinners','Meal plan'],recipes:['Our','Recipes'],groceries:['Food','Groceries'],shopping:['Everything else','Other shopping'],todos:['Shared','To-dos']};
+const TITLES={bins:['Household','Bins'],imports:['Calendar','Review imports'],birthdays:['Family','Birthdays'],settings:['Your','Settings'],today:['Sunday 15 November','Today'],calendar:['Family','Calendar'],plan:['Dinners','Meal plan'],recipes:['Our','Recipes'],groceries:['Food','Groceries'],shopping:['Everything else','Other shopping'],todos:['Shared','To-dos']};
 function render(){
   const td=addDays(TODAY,S.dOff);$('#eyebrow').textContent=S.view==='today'?`${DN[td.getDay()]} ${td.getDate()} ${MONTHS[td.getMonth()]}`:TITLES[S.view][0];
   $('#heading').textContent=S.view==='recipes'&&S.recipe?'Recipe':S.view==='today'?(S.dOff===0?'Today':dayLabel(S.dOff).split(' ')[0]):TITLES[S.view][1];
   document.body.classList.toggle('wide',S.view==='calendar'&&S.calMode==='month');
-  $('#main').innerHTML=({today:V_today,calendar:V_calendar,plan:V_plan,recipes:V_recipes,groceries:V_groceries,shopping:V_shopping,todos:V_todos,birthdays:V_birthdays,settings:V_settings})[S.view]();
+  $('#main').innerHTML=({today:V_today,calendar:V_calendar,plan:V_plan,recipes:V_recipes,groceries:V_groceries,shopping:V_shopping,todos:V_todos,birthdays:V_birthdays,bins:V_bins,imports:V_imports,settings:V_settings})[S.view]();
 }
 function go(v){closeSheet();if(v!=='recipes')S.pickFor=null;S.view=v;S.recipe=null;render();window.scrollTo(0,0);try{history.replaceState(null,'','#'+v)}catch(e){}}
 
@@ -1081,13 +1218,31 @@ document.addEventListener('click',e=>{
    case'syncMine':doSync();break;
    case'refreshNow':refresh().then(()=>render());break;
    case'setTheme':try{localStorage.setItem('fh-theme',el.dataset.v)}catch(e){S.theme=el.dataset.v}applyTheme();render();break;
+   case'setMode':try{localStorage.setItem('fh-mode',el.dataset.v)}catch(e){S.mode=el.dataset.v}applyTheme();render();break;
    case'addBday':sheetBday(null);break;
+   case'bdShow':{const b=birthdays.find(x=>x.id===n('id'));b.show=b.show===false;render();toast(b.show?`${b.name} shows on the calendar`:`${b.name} hidden from the calendar`);break}
+   case'evColour':{const e=events.find(x=>x.id===n('id'));e.colour=el.dataset.c;render();sheetEventDetail(e);break}
+   case'newColour':S.newColour=el.dataset.c;el.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===el));break;
+   case'impTab':S.impTab=el.dataset.v;S.impSel=el.dataset.v==='pending'?null:{};render();break;
+   case'impTick':{const i=n('id');S.impSel[i]?delete S.impSel[i]:S.impSel[i]=1;render();break}
+   case'impAll':{const tab=S.impTab||'pending',list=tab==='pending'?pendingImports():incoming.filter(x=>x.status==='skipped'&&(S.impPast||(x.endD??x.d)>=0));S.impSel={};if(el.dataset.v==='1')list.forEach(x=>S.impSel[x.id]=1);render();break}
+   case'impPast':S.impPast=!S.impPast;render();break;
+   case'impSave':{const pend=pendingImports(),imp=pend.filter(x=>S.impSel[x.id]).map(x=>x.id),skip=pend.filter(x=>!S.impSel[x.id]).map(x=>x.id);
+     el.disabled=true;decideImports(imp,skip).then(()=>{S.impSel=null;render();toast(`Imported ${imp.length}${skip.length?`, skipped ${skip.length}`:''}`)}).catch(e=>{el.disabled=false;toast(e.message)});break}
+   case'impRestore':{const imp=Object.keys(S.impSel).map(Number);el.disabled=true;decideImports(imp,[]).then(()=>{S.impSel={};render();toast(`Imported ${imp.length}`)}).catch(e=>{el.disabled=false;toast(e.message)});break}
+   case'addBin':sheetBin(null);break;
+   case'editBin':sheetBin(bins.find(b=>b.id===n('id')));break;
+   case'binCol':S.binCol=el.dataset.v;el.parentNode.querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b===el);b.setAttribute('aria-pressed',b===el)});break;
+   case'saveBin':{const nx=$('#binNext').value;if(!nx){$('#binNext').focus();toast('Pick the next collection day');return}
+     const rec={colour:S.binCol,label:$('#binLabel').value.trim(),freq:$('#binFreq').value,first:diff(new Date(nx+'T00:00')),show:$('#binShow').classList.contains('on')};
+     const ex=el.dataset.id?bins.find(b=>b.id===n('id')):null;if(ex)Object.assign(ex,rec);else bins.push({id:id(),...rec});closeSheet();render();toast(`${BINC[rec.colour][0]} bin saved`);break}
+   case'delBin':bins=bins.filter(b=>b.id!==n('id'));closeSheet();render();toast('Bin removed');break;
    case'editBday':sheetBday(birthdays.find(b=>b.id===n('id')));break;
    case'bdMode':S.bdMode=el.dataset.v;$('#bdYearF').hidden=S.bdMode!=='year';$('#bdAgeF').hidden=S.bdMode!=='age';el.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===el));bdHint();break;
    case'saveBday':{const name=$('#bdName').value.trim();if(!name){$('#bdName').focus();return}const day=+$('#bdDay').value,month=+$('#bdMonth').value;
      let year,known=S.bdMode==='year',how='';if(known){year=+$('#bdYear').value;if(!year){$('#bdYear').focus();return}}else{const a=$('#bdAge').value;if(a===''){$('#bdAge').focus();return}year=yearFromAge(day,month,+a);how=`Entered as age ${a} on ${isoOf(TODAY)}`}
-     const ex=el.dataset.id?birthdays.find(b=>b.id===n('id')):null,rec={name,rel:$('#bdRel').value.trim(),day,month,year,known,kind:$('#bdKind').value,how,show:true};
-     if(ex)Object.assign(ex,rec);else birthdays.push({id:id(),...rec});closeSheet();render();const nb=nextBday(rec);toast(`${bdTitle(rec,nb.age)} is on ${nb.date.getDate()} ${MN[nb.date.getMonth()]}. Added to the calendar.`);break}
+     const ex=el.dataset.id?birthdays.find(b=>b.id===n('id')):null,rec={name,rel:$('#bdRel').value.trim(),day,month,year,known,kind:$('#bdKind').value,how,show:$('#bdShow').classList.contains('on')};
+     if(ex)Object.assign(ex,rec);else birthdays.push({id:id(),...rec});closeSheet();render();const nb=nextBday(rec);toast(`${bdTitle(rec,nb.age)} is on ${nb.date.getDate()} ${MN[nb.date.getMonth()]}.${rec.show?' Added to the calendar.':''}`);break}
    case'delBday':birthdays=birthdays.filter(b=>b.id!==n('id'));closeSheet();render();toast('Birthday removed');break;
    case'removePlanned':{const d=n('d'),m=mealOf(meals[d]),pid=mealPid[d];const go_=()=>{const c=removeMeal(pid);delete meals[d];delete mealPid[d];closeSheet();render();toast(`${m.name} removed${c?` with ${c} grocery item${c>1?'s':''}`:''}`)};
      if(el.dataset.ok){go_();break}const cnt=groceries.filter(g=>g.pid===pid&&!g.done).length;if(!cnt){go_();break}sheetRemoveMeal(m.name,d===0?'tonight':d===1?'tomorrow':dayLabel(d),cnt,'removePlanned',`data-d="${d}"`);break}
@@ -1140,7 +1295,7 @@ document.addEventListener('click',e=>{
    case'toggleDups':{const on=!showDups();try{localStorage.setItem('fh-dups',on?'1':'0')}catch(e){S.dups=on}render();break}
    case'saveEvent':{const t=$('#evTitle').value.trim();if(!t){$('#evTitle').focus();return}
      const priv=el.dataset.priv==='1';const d=diff(new Date($('#evDate').value+'T00:00'));const g=!priv&&$('#evG').classList.contains('on');
-     const rp=$('#evRep').value,un=$('#evUntil').value,en=$('#evEnd').value;const endD=en?diff(new Date(en+'T00:00')):null;const ne={id:id(),d,endD:endD!=null&&endD>d?endD:null,time:$('#evTime').value||'',title:t,type:$('#evType').value,who:$('#evWho').value,by:S.me,priv,gcal:g,src:'app',rep:rp?{f:rp,until:un?diff(new Date(un+'T00:00')):null}:null};events.push(ne);if(!priv&&ne.who!==S.me)notify(ne.who,'event',ne.id,`${PEOPLE[S.me]} assigned you ${ne.type==='pickup'?'a pick-up':'an event'}`);
+     const rp=$('#evRep').value,un=$('#evUntil').value,en=$('#evEnd').value;const endD=en?diff(new Date(en+'T00:00')):null;const ne={id:id(),colour:S.newColour||'',d,endD:endD!=null&&endD>d?endD:null,time:$('#evTime').value||'',title:t,type:$('#evType').value,who:$('#evWho').value,by:S.me,priv,gcal:g,src:'app',rep:rp?{f:rp,until:un?diff(new Date(un+'T00:00')):null}:null};events.push(ne);if(!priv&&ne.who!==S.me)notify(ne.who,'event',ne.id,`${PEOPLE[S.me]} assigned you ${ne.type==='pickup'?'a pick-up':'an event'}`);
      S.sel=d;closeSheet();render();toast(priv?'Private event saved. Only you can see it.':g?'Saved and added to Google Calendar':'Saved in the app only');break}
    case'snap':$('#photo').value='';$('#photo').click();break;
    case'saveSnap':{const d=S.snap.draft,prep=+$('#snPrep').value||0,cook=+$('#snCook').value||0;
@@ -1165,7 +1320,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
 document.addEventListener('change',e=>{if(['bdDay','bdMonth'].includes(e.target.id))bdHint();if(e.target.id==='evRep')$('#evUntilF').hidden=!e.target.value;
   if(e.target.id==='todoWhen'){const v=e.target.value,f=$('#todoPickF'),d=$('#todoDue');f.hidden=v!=='pick';if(v==='none')d.value='';else if(v!=='pick')d.value=isoOf(addDays(TODAY,+v));else if(!d.value)d.value=isoOf(TODAY)}});
 document.addEventListener('input',e=>{if(['bdYear','bdAge'].includes(e.target.id)){bdHint();return}if(e.target.id==='rSearch'){S.rq=e.target.value;const pos=e.target.selectionStart;render();const i=$('#rSearch');if(i){i.focus();i.setSelectionRange(pos,pos)}return}
-  if(e.target.id!=='groInput')return;const v=e.target.value.trim(),h=$('#groHint');if(h)h.innerHTML=v?`Goes in <b>${esc(catFor(v))}</b>`:'Items sort themselves into categories. Tap one to see what each recipe needs or change its category.'});
+  if(e.target.id!=='groInput')return;const v=e.target.value.trim(),h=$('#groHint');if(h)h.innerHTML=v?`Goes in <b>${esc(catFor(v))}</b>`:'Items sort themselves into categories. Drag one by its handle to another category to fix it (remembered for next time), or tap it to see what each recipe needs.'});
 const h=(location.hash||'').slice(1);if(VIEWS.some(v=>v[0]===h))S.view=h;
 // ---------- first run, saving and refreshing ----------
 function redirectUri(){return location.origin+location.pathname.replace(/index\.html$/,'')}
@@ -1227,10 +1382,11 @@ async function doSync(){
   sheet(`<h3>Syncing ${esc(PEOPLE[S.me])}'s calendars</h3><div class="spin" role="status" aria-label="Syncing"></div><div class="hint" style="text-align:center">Pulling your calendars and pushing changes. This can take up to a minute.</div>`);
   try{const d=diffTabs();if(d.n)await persist();const j=await api('sync');await loadAll();
     sheet(`<h3>Synced ${esc(PEOPLE[S.me])}'s calendars</h3><div class="hint">Only calendars you own were pulled. ${esc(PEOPLE[OTHER()])}'s sync on their own phone; shared ones sync every hour.</div>
-     <div class="card rows"><div class="row"><div class="main"><div class="t">${j.added.length} new event${j.added.length===1?'':'s'}${j.updated?`, ${j.updated} updated`:''}${j.removed?`, ${j.removed} removed`:''}</div><div class="s">${j.pushed} pushed to other calendars</div></div></div>
+     <div class="card rows"><div class="row"><div class="main"><div class="t">${j.pending||0} new event${j.pending===1?'':'s'} to review${j.updated?`, ${j.updated} updated`:''}${j.removed?`, ${j.removed} removed`:''}</div><div class="s">${j.pushed} copied to the family calendar</div></div></div>
      ${(showDups()?j.duplicates:[]).map(x=>`<div class="row"><div class="main"><div class="t">"${esc(x.title)}" looks like "${esc(x.matches)}"</div><div class="s">${esc(x.calendar)} · kept as a duplicate record, hidden</div></div></div>`).join('')}
      ${j.errors.map(x=>`<div class="row"><div class="main"><div class="t" style="color:var(--protein)">Problem</div><div class="s">${esc(x)}</div></div></div>`).join('')}</div>
-     <button class="btn block" data-act="closeSheetBtn">Done</button>`);render()}
+     ${pendingImports().length?`<button class="btn block" data-act="go" data-v="imports">Review ${pendingImports().length} new event${pendingImports().length===1?'':'s'}</button>`:''}
+     <button class="btn ${pendingImports().length?'ghost ':''}block" data-act="closeSheetBtn">Done</button>`);render()}
   catch(e){sheet(`<h3>Sync didn't finish</h3><div class="hint">${esc(e.message)}</div><button class="btn block" data-act="closeSheetBtn">OK</button>`)}
 }
 document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(el&&el.dataset.act==='cfgCancel'){$('#overlay').innerHTML='';return}if(el&&el.dataset.act==='cfgLink'){setCfg({...(cfg()||{}),checked:false});openSetup();return}if(SNAP)queueSave()});
