@@ -610,7 +610,7 @@ function toTabs(){
 }
 const KEYC=k=>k==='GroceryCatalog'?'item':'id';
 const NO_DELETE=['GroceryCatalog','People'];
-let SNAP=null,saving=false,saveTimer=null,lastErr='',SAVESEQ=0,RELOAD_AFTER_SAVE=false;
+let SNAP=null,saving=false,saveTimer=null,lastErr='',SAVESEQ=0,RELOAD_AFTER_SAVE=false,FAILS=0;
 // the last data from the backend, kept on this phone so the app opens with it straight away
 const CACHE_KEY='fh-cache';
 function readCache(){try{const c=JSON.parse(localStorage.getItem(CACHE_KEY)||'null');return c&&c.me===(cfg()||{}).me&&c.url===(cfg()||{}).url?c:null}catch(e){return null}}
@@ -649,8 +649,12 @@ async function persist(){
   saving=true;setStatus('saving');
   try{await api('save',{changes:ch});
     for(const k in ch){SNAP[k]=SNAP[k]||{};ch[k].upsert.forEach(r=>{const key=String(r[KEYC(k)]);SNAP[k][key]=now[k][key]});ch[k].remove.forEach(key=>delete SNAP[k][key])}
-    SAVESEQ++;patchCache(ch);setStatus('saved')}
-  catch(e){setStatus(e.code==='net'?'net':'error',e.message);if(e.code==='auth')openSetup(e.message)}
+    SAVESEQ++;FAILS=0;patchCache(ch);setStatus('saved')}
+  catch(e){
+    if(e.code==='auth'){setStatus('error',e.message);openSetup(e.message)}
+    // a save that fails is tried again quietly a few times (the sheet may just be busy) before the corner says so
+    else if(++FAILS<=4){setStatus('saving',e.message);lastErr='';saving=false;clearTimeout(saveTimer);saveTimer=setTimeout(persist,[1500,4000,8000,15000][FAILS-1]);return}
+    else setStatus(e.code==='net'?'net':'error',e.message)}
   finally{saving=false}
   if(diffTabs().n&&lastErr==='')queueSave();
   else if(RELOAD_AFTER_SAVE&&!saving){RELOAD_AFTER_SAVE=false;loadAll().catch(()=>{})}
@@ -1490,6 +1494,8 @@ document.addEventListener('pointerup',()=>{if(SNAP)setTimeout(queueSave,0)});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible')return;
   const t=new Date();t.setHours(0,0,0,0);if(t.getTime()!==TODAY.getTime()){location.reload();return}refresh()});
 setInterval(()=>{if(document.visibilityState==='visible')refresh()},45000);
+// tap the corner to see what went wrong
+document.addEventListener('click',e=>{const st=e.target.closest&&e.target.closest('#status');if(st&&st.title)toast(st.title)});
 window.addEventListener('online',()=>queueSave());
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 applyTheme();render();
