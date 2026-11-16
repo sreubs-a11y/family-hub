@@ -202,29 +202,32 @@ body.is-dragging{user-select:none;-webkit-user-select:none}
 .calbar-r{display:flex;align-items:center;gap:6px;margin-left:auto}
 .calbar .segsm button{padding:5px 8px;font-size:12.5px}
 .calbar .btn.sm{padding:6px 10px}
-.mgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:minmax(calc((100dvh - 210px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)) / var(--weeks)),auto);border-top:1px solid var(--line);background:var(--surface)}
-.mgrid .mwd{grid-row:auto;min-height:0;font-size:11px;font-weight:700;color:var(--muted);text-align:center;padding:4px 0;border-bottom:1px solid var(--line);background:var(--bg)}
-.mgrid{grid-template-rows:auto}
-.mc{border:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--surface);padding:2px 2px 4px;display:flex;flex-direction:column;align-items:stretch;gap:2px;min-width:0;text-align:left;overflow:hidden;cursor:pointer}
-.mc:nth-child(7n+7){border-right:0}
-.mc.out{background:var(--bg)}
-.mc.out .mcd{color:var(--muted)}
-.mcd{font-size:12px;font-weight:600;align-self:center;width:22px;height:22px;display:grid;place-items:center;border-radius:50%;margin-bottom:1px}
-.mc.today .mcd{background:var(--accent);color:var(--accent-ink)}
+.mgrid{border-top:1px solid var(--line);background:var(--surface)}
+.mwh,.wk{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.mwd{font-size:11px;font-weight:700;color:var(--muted);text-align:center;padding:4px 0;border-bottom:1px solid var(--line);background:var(--bg)}
+.wk{position:relative;min-height:calc((100dvh - 210px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)) / var(--weeks));row-gap:2px;padding-bottom:4px;border-bottom:1px solid var(--line)}
+.wk>.mc{grid-row:1 / -1;border:0;border-right:1px solid var(--line);background:var(--surface);margin:0 0 -4px;padding:0;cursor:pointer;min-width:0}
+.wk>.mc:nth-child(13){border-right:0}
+.wk>.mc.out{background:var(--bg)}
+.wk>*:not(.mc){position:relative;pointer-events:none;min-width:0}
+.mcd{grid-row:1;font-size:12px;font-weight:600;justify-self:center;width:22px;height:22px;display:grid;place-items:center;border-radius:50%;margin:2px 0 1px}
+.mcd.out{color:var(--muted)}
+.mcd.today{background:var(--accent);color:var(--accent-ink)}
+.mcl{display:flex;flex-direction:column;gap:2px;padding:0 1px}
+.evc.bar{margin:0 2px;-webkit-line-clamp:1;white-space:nowrap;text-overflow:ellipsis;display:block}
+.evc.bar.cl{margin-left:0;border-top-left-radius:0;border-bottom-left-radius:0}
+.evc.bar.cr{margin-right:0;border-top-right-radius:0;border-bottom-right-radius:0}
 .evc{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;font-size:10px;line-height:1.25;font-weight:600;border-radius:4px;padding:1px 2px;overflow:hidden;overflow-wrap:anywhere;hyphens:auto;min-width:0;letter-spacing:-.1px}
 .evc .et{display:none}
-@media (min-width:700px){.evc{-webkit-line-clamp:2;padding:1px 4px}.evc .et{display:inline}}
+@media (min-width:700px){.evc{-webkit-line-clamp:2;padding:1px 4px}.evc .et{display:inline}.evc.bar{padding:1px 6px}}
 .evc.event{background:var(--event-soft);color:var(--event)}
 .evc.pickup,.evc.dropoff{background:var(--pickup-soft);color:var(--pickup)}
 .evc.birthday{background:var(--bday-soft);color:var(--bday)}
 .evc.meal{background:var(--meal-soft);color:var(--meal)}
 .evc.todo{background:var(--accent-soft);color:var(--accent)}
 .evc.holiday,.evc.booking{background:var(--surface-2);color:var(--fg)}
-.evc.span{border-radius:4px 0 0 4px;margin-right:-2px}
-.evc.cont{border-radius:0;margin-left:-2px;padding-left:4px}
 .evmore{font-size:10px;font-weight:700;color:var(--muted);padding:0 3px}
 @media (min-width:700px){.evc{font-size:12px}.mcd{font-size:13px}}
-.mc{padding:2px 1px 4px}
 .late{color:var(--protein);font-weight:600}
 .banner{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--r);background:var(--meal-soft);color:var(--fg)}
 .banner .main{flex:1;min-width:0}
@@ -451,7 +454,7 @@ function yearFromAge(day,month,age){const had=new Date(TODAY.getFullYear(),month
 const bdTitle=(b,age)=>b.kind==='anniversary'?`${b.name}'s ${ord(age)} anniversary`:`${b.name}'s ${ord(age)} birthday`;
 const bdayEvents=d=>{const dt=addDays(TODAY,d);return birthdays.filter(b=>b.day===dt.getDate()&&b.month===dt.getMonth()).map(b=>({id:'b'+b.id,bday:b,d,time:'',type:'birthday',who:'B',by:'R',title:bdTitle(b,dt.getFullYear()-b.year)}))};
 const addGro=(name,qty,rid,by,done=false,pid=null)=>groceries.push({id:id(),name:cap(name),qty:rid?'':qty,need:rid?qty:'',cat:catFor(name),rid:rid||null,pid,by,done});
-const RTYPES=["Chicken", "Beef", "Pork", "Fish & seafood", "Vegetarian", "Sauces & extras"];
+const RTYPES=["Chicken", "Beef", "Lamb", "Pork", "Fish & seafood", "Vegetarian", "Sauces & extras"];
 const notify=(to,kind,ref,msg)=>{if(to==='B'){notify('R',kind,ref,msg);notify('T',kind,ref,msg);return}if(to===S.me)return;notes.push({id:id(),to,from:S.me,kind,ref,msg,read:false})};
 
 // ---------- data layer: sheet rows <-> app objects ----------
@@ -658,11 +661,24 @@ function V_calendar(){
   }
   const {y,m}=S.month, first=new Date(y,m,1), lead=(first.getDay()+6)%7, start=new Date(y,m,1-lead);
   const n=new Date(y,m+1,0).getDate(), weeks=Math.ceil((lead+n)/7);
-  const cells=[...Array(weeks*7)].map((_,i)=>{const dt=new Date(start.getFullYear(),start.getMonth(),start.getDate()+i),o=diff(dt),items=monthDayItems(o),out=dt.getMonth()!==m;
-    const shown=items.slice(0,S.mcMax||4),more=items.length-shown.length;
-    return `<button class="mc ${out?'out':''} ${o===0?'today':''}" data-act="dayOpen" data-o="${o}" aria-label="${dt.getDate()} ${MONTHS[dt.getMonth()]}, ${items.length} item${items.length===1?'':'s'}"><span class="mcd num">${dt.getDate()}</span>${shown.map(chipFor).join('')}${more>0?`<span class="evmore">+${more} more</span>`:''}</button>`}).join('');
+  const DW=['M','T','W','T','F','S','S'];
+  const wk=w=>{
+    const days=[...Array(7)].map((_,i)=>{const dt=new Date(start.getFullYear(),start.getMonth(),start.getDate()+w*7+i);return {dt,o:diff(dt),i,items:monthDayItems(diff(dt))}});
+    // multi-day events become one bar per week, laid out in lanes
+    const segs={};
+    days.forEach(d=>d.items.filter(x=>x.mday).forEach(x=>{const k=x.id+'@'+(d.o-x.mday[0]+1);const sg=segs[k]||(segs[k]={x,a:d.i,b:d.i,first:x.mday[0]===1,last:false});sg.b=d.i;if(x.mday[0]===x.mday[1])sg.last=true;}));
+    const list=Object.values(segs).sort((p,q)=>p.a-q.a||(q.b-q.a)-(p.b-p.a));
+    const lanes=[];list.forEach(sg=>{let l=lanes.findIndex(end=>end<sg.a);if(l<0){l=lanes.length;lanes.push(-1)}lanes[l]=sg.b;sg.lane=l});
+    const L=lanes.length,max=Math.max(1,(S.mcMax||4)-L);
+    const bg=days.map(d=>{const out=d.dt.getMonth()!==m,n=d.items.length;return `<button class="mc ${out?'out':''} ${d.o===0?'today':''}" style="grid-column:${d.i+1}" data-act="dayOpen" data-o="${d.o}" aria-label="${d.dt.getDate()} ${MONTHS[d.dt.getMonth()]}, ${n} item${n===1?'':'s'}"></button><span class="mcd num ${out?'out':''} ${d.o===0?'today':''}" style="grid-column:${d.i+1}">${d.dt.getDate()}</span>`}).join('');
+    const bars=list.map(sg=>{const t=sg.x.time&&sg.first?fmtTime(sg.x.time).replace(':00','').replace('am','a').replace('pm','p')+' ':'';
+      return `<span class="evc bar ${sg.x.type==='appointment'?'event':sg.x.type}${sg.first?'':' cl'}${sg.last?'':' cr'}" style="grid-column:${sg.a+1} / ${sg.b+2};grid-row:${sg.lane+2}">${t?`<span class="et">${esc(t)}</span>`:''}${esc(sg.x.title)}</span>`}).join('');
+    const singles=days.map(d=>{const its=d.items.filter(x=>!x.mday),shown=its.slice(0,max),more=its.length-shown.length;
+      return its.length?`<div class="mcl" style="grid-column:${d.i+1};grid-row:${L+2}">${shown.map(chipFor).join('')}${more>0?`<span class="evmore">+${more} more</span>`:''}</div>`:''}).join('');
+    return `<div class="wk" style="grid-template-rows:auto${' auto'.repeat(L)} 1fr">${bg}${bars}${singles}</div>`;
+  };
   return `<div class="mcal" style="--weeks:${weeks}">${calBar(`${MONTHS[m]} ${y}`,'mo',-1,1)}
-    <div class="mgrid">${['M','T','W','T','F','S','S'].map(w=>`<span class="mwd">${w}</span>`).join('')}${cells}</div></div>`;
+    <div class="mgrid"><div class="mwh">${DW.map(w=>`<span class="mwd">${w}</span>`).join('')}</div>${[...Array(weeks)].map((_,w)=>wk(w)).join('')}</div></div>`;
 }
 function calBar(label,act,a,b){
   return `<div class="calbar"><button class="pg" data-act="${act}" data-n="${a}" aria-label="Previous">‹</button><h2>${label}</h2><button class="pg" data-act="${act}" data-n="${b}" aria-label="Next">›</button>
@@ -730,7 +746,7 @@ function V_recipe(r){
   const f=scaleOf(r);
   return `<div class="detail" style="display:flex;flex-direction:column;gap:16px">
   <button class="link" style="align-self:flex-start" data-act="back">‹ ${S.from==='plan'?'Meal plan':S.from==='calendar'?'Calendar':S.from==='today'?'Today':S.from==='groceries'?'Groceries':'Recipes'}</button>
-  <div><h2>${esc(r.name)}</h2>${r.source?`<div class="hint" style="margin-top:4px">From ${esc(r.source)}</div>`:''}</div>
+  <div><h2>${esc(r.name)}</h2>${r.source||r.photo?`<div class="hint" style="margin-top:4px">${r.source?'From '+esc(r.source):''}${r.photo?String(r.photo).split(/\s+/).filter(Boolean).map((u,i,a)=>`${r.source||i?' · ':''}<a href="${esc(u)}" target="_blank" rel="noopener">${a.length>1?'Original page '+(i+1):'Original page'}</a>`).join(''):''}</div>`:''}</div>
   <div class="facts">${r.prep!=null?`<div><b class="num">${r.prep}</b><span>min prep</span></div><div><b class="num">${r.cook}</b><span>min cook</span></div>`:`<div><b class="num">${r.mins}</b><span>min</span></div>`}<div class="scaler"><b class="num">${servesOf(r)}</b><span>serves</span><span class="stepper"><button data-act="scale" data-id="${r.id}" data-n="-1" aria-label="Fewer serves" ${servesOf(r)<=1?'disabled':''}>−</button><button data-act="scale" data-id="${r.id}" data-n="1" aria-label="More serves">+</button></span></div></div>
   ${f!==1?`<div class="scalenote">Ingredients scaled ×${Math.round(f*100)/100} from the original ${r.serves} serves. Amounts in the method are for the original. <button class="link" data-act="scaleReset" data-id="${r.id}">Reset</button></div>`:''}
   <div class="meta"><span class="tag plain">${esc(r.type)}</span>${r.tags.map(t=>`<span class="tag meal">${esc(t)}</span>`).join('')}</div>
