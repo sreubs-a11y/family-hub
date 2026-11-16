@@ -179,6 +179,18 @@ input[type=text],input[type=number],input[type=date],input[type=time],select{fon
 .over{background:var(--meal-soft)!important;box-shadow:inset 0 0 0 2px var(--meal)}
 body.is-dragging{user-select:none;-webkit-user-select:none}
 [hidden]{display:none!important}
+.gwrap{position:relative;display:inline-flex}
+.gbtn{position:relative}
+.gbtn b{position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;background:var(--accent);color:var(--accent-ink);font-size:10px;display:grid;place-items:center;padding:0 3px}
+.gpop{position:absolute;right:0;top:calc(100% + 6px);z-index:30;min-width:220px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:0 12px 32px rgba(0,0,0,.25);padding:6px}
+.gpop-h{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:6px 8px}
+.gopt{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;color:var(--fg);padding:9px 8px;border-radius:10px;font-size:14px;font-weight:600;text-align:left}
+.gopt:hover{background:var(--surface-2)}
+.gopt i{width:10px;height:10px;border-radius:50%;background:var(--c);flex:none}
+.gbox{width:20px;height:20px;border-radius:6px;border:2px solid var(--line);display:grid;place-items:center;flex:none;color:var(--accent-ink)}
+.gopt.on .gbox{background:var(--accent);border-color:var(--accent)}
+.gbox svg{width:14px;height:14px}
+.gpop-f{display:flex;justify-content:space-between;padding:8px 8px 4px;border-top:1px solid var(--line);margin-top:4px}
 .gchips{display:flex;gap:6px;overflow-x:auto;padding:0 max(12px, env(safe-area-inset-left,0px)) 8px;scrollbar-width:none}
 .gchips::-webkit-scrollbar{display:none}
 .gchip{flex:none;display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:4px 10px 4px 7px;font-size:12px;font-weight:600}
@@ -404,6 +416,7 @@ const PEOPLE={R:'Reuben',T:'Tiff',B:'Both'}; // names are replaced by the People
 const whoBadge=w=>`<span class="who ${w}" title="${PEOPLE[w]}">${w==='B'?'R+T':w}</span>`;
 
 const ICON={
+ filter:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg>',
  eye:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
  eyeoff:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3 3.9M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7a9.6 9.6 0 0 0 4.4-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>',
  bin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 3h4M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13M10 11v6M14 11v6"/></svg>',
@@ -744,10 +757,7 @@ function V_today(){
     <div class="card rows">${scheduleHTML(X,false)||'<div class="empty">Nothing on</div>'}</div></section>
   <section><div class="sec-head"><h2>Tasks</h2><button class="link" data-act="go" data-v="todos">All</button></div>
     <div class="card rows">${tds.map(todoRow).join('')+doneT.map(todoRow).join('')||`<div class="empty">Nothing ${X===0?'due today':'for this day'}</div>`}${later.length?`<div class="divrow">No date or due later</div>${later.map(todoRow).join('')}`:''}</div></section>
-  ${X===0?`<div class="tiles">
-    <button class="card tile" data-act="go" data-v="groceries"><span class="big num">${groceries.filter(s=>!s.done).length}</span><span class="s">groceries to buy</span></button>
-    <button class="card tile" data-act="go" data-v="todos"><span class="big num">${todos.filter(t=>!t.done&&visible(t)).length}</span><span class="s">open tasks</span></button>
-  </div>`:''}`;
+`;
 }
 function chipFor(x){
   if(x.bins)return `<span class="evc binc">${binDots(x.bins)}<span class="et">Bins</span></span>`;
@@ -760,8 +770,11 @@ function monthDayItems(o){
   items.sort((a,b)=>(!!b.mday-!!a.mday)||(a.mday&&b.mday?a.d-b.d:0)||(a.time||'').localeCompare(b.time||''));
   return items;
 }
-function groupChips(){const h=hiddenGroups();
-  return `<div class="gchips" role="group" aria-label="Show groups">${groups.map(g=>{const on=!h.includes(String(g.id));return `<button class="gchip ${on?'on':''}" data-act="grpToggle" data-id="${g.id}" aria-pressed="${on}" style="--c:${g.colour}"><i></i>${esc(g.name)}</button>`}).join('')}<button class="gchip edit" data-act="grpManage" aria-label="Edit groups">Edit</button></div>`}
+// picks are made in a draft and applied when you tap outside the menu
+function groupMenu(){if(!S.grpOpen)return'';const d=S.grpDraft;
+  return `<div class="gpop" role="dialog" aria-label="Show groups"><div class="gpop-h">Show on calendar</div>${groups.map(g=>{const on=!d.includes(String(g.id));return `<button class="gopt ${on?'on':''}" data-act="grpPick" data-id="${g.id}" role="checkbox" aria-checked="${on}" style="--c:${g.colour}"><span class="gbox">${on?ICON.tick:''}</span><i></i>${esc(g.name)}</button>`}).join('')}
+  <div class="gpop-f"><button class="link" data-act="grpAll">Show all</button><button class="link" data-act="grpManage">Edit groups</button></div></div>`}
+function groupChips(){return ''}
 function V_calendar(){
   return reviewBanner()+V_calendar0().replace('<!--GROUPS-->',groupChips());
 }
@@ -803,6 +816,7 @@ function V_calendar0(){
 function calBar(label,act,a,b){
   return `<div class="calbar"><button class="pg" data-act="${act}" data-n="${a}" aria-label="Previous">‹</button><h2>${label}</h2><button class="pg" data-act="${act}" data-n="${b}" aria-label="Next">›</button>
    <span class="calbar-r"><button class="btn ghost sm" data-act="calToday">Today</button><span class="segsm"><button class="${S.calMode==='month'?'on':''}" data-act="calMode" data-v="month">Month</button><button class="${S.calMode==='week'?'on':''}" data-act="calMode" data-v="week">Week</button></span>
+   <span class="gwrap"><button class="pg gbtn ${hiddenGroups().length?'some':''}" data-act="grpMenu" aria-haspopup="true" aria-expanded="${!!S.grpOpen}" aria-label="Groups${hiddenGroups().length?', '+hiddenGroups().length+' hidden':''}" title="Groups">${ICON.filter}${hiddenGroups().length?`<b>${hiddenGroups().length}</b>`:''}</button>${groupMenu()}</span>
    <button class="pg" data-act="syncMine" aria-label="Sync my calendars" title="Sync my calendars">↻</button><button class="pg" data-act="addEvent" aria-label="Add event" title="Add event">+</button></span></div>`;
 }
 function sheetDay(o){
@@ -1281,6 +1295,9 @@ function render(){
 }
 function go(v){closeSheet();if(v!=='recipes')S.pickFor=null;S.view=v;S.recipe=null;render();window.scrollTo(0,0);try{history.replaceState(null,'','#'+v)}catch(e){}}
 
+function applyGroupMenu(){if(!S.grpOpen)return;S.grpOpen=false;setHiddenGroups(S.grpDraft||[]);render()}
+// a tap outside the groups menu applies it and closes it (and does nothing else)
+document.addEventListener('click',e=>{if(S.grpOpen&&!e.target.closest('.gpop,[data-act=grpMenu]')){e.stopPropagation();e.preventDefault();applyGroupMenu()}},true);
 document.addEventListener('click',e=>{
   const el=e.target.closest('[data-act]');if(!el)return;
   const a=el.dataset.act;
@@ -1317,8 +1334,11 @@ document.addEventListener('click',e=>{
    case'impSave':{const pend=pendingImports(),imp=pend.filter(x=>S.impSel[x.id]).map(x=>x.id),skip=pend.filter(x=>!S.impSel[x.id]).map(x=>x.id);
      el.disabled=true;decideImports(imp,skip).then(()=>{S.impSel=null;render();toast(`Imported ${imp.length}${skip.length?`, skipped ${skip.length}`:''}`)}).catch(e=>{el.disabled=false;toast(e.message)});break}
    case'impRestore':{const imp=Object.keys(S.impSel).map(Number);el.disabled=true;decideImports(imp,[]).then(()=>{S.impSel={};render();toast(`Imported ${imp.length}`)}).catch(e=>{el.disabled=false;toast(e.message)});break}
+   case'grpMenu':if(S.grpOpen){applyGroupMenu()}else{S.grpOpen=true;S.grpDraft=hiddenGroups().slice();render()}break;
+   case'grpPick':{const k=String(el.dataset.id),d=S.grpDraft,on=d.includes(k);S.grpDraft=on?d.filter(x=>x!==k):d.concat(k);el.classList.toggle('on',on);el.setAttribute('aria-checked',on);el.querySelector('.gbox').innerHTML=on?ICON.tick:'';break}
+   case'grpAll':S.grpDraft=[];applyGroupMenu();break;
    case'grpToggle':{const h=hiddenGroups(),k=String(el.dataset.id);setHiddenGroups(h.includes(k)?h.filter(x=>x!==k):h.concat(k));render();break}
-   case'grpManage':sheetGroups();break;
+   case'grpManage':S.grpOpen=false;sheetGroups();break;
    case'grpEdit':sheetGroup(el.dataset.id?groupById(el.dataset.id):null);break;
    case'grpCol':S.grpCol=el.dataset.c;el.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===el));break;
    case'grpSave':{const name=$('#grpName').value.trim();if(!name){$('#grpName').focus();return}
