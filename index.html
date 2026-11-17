@@ -71,8 +71,10 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:12px 0 10px;display:flex;align-items:center;gap:12px}
 .menu-btn{width:42px;height:42px;border-radius:12px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;flex:none;padding:0}
 header.top .ttl{flex:1;min-width:0}
-header.top .eyebrow{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
-header.top h1{font-size:24px;font-weight:800;letter-spacing:-.01em;line-height:1.15}
+header.top .eyebrow{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header.top h1{font-size:24px;font-weight:800;letter-spacing:-.01em;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header.top:has(.hnav:not(:empty)) h1{font-size:21px}
+.hnav{display:flex;gap:6px;flex:none}.hnav:empty{display:none}.hnav .pg{width:36px;height:36px}
 .proto{font-size:11px;font-weight:600;color:var(--muted);background:var(--surface-2);border-radius:999px;padding:4px 9px;white-space:nowrap}
 
 main{display:flex;flex-direction:column;gap:22px;padding-top:6px}
@@ -261,7 +263,7 @@ body.is-dragging .gcat-empty{display:flex}
 .calbar{display:flex;align-items:center;gap:6px;padding:0 max(12px, env(safe-area-inset-left,0px)) 8px;flex-wrap:wrap}
 .calbar h2{font-size:18px;font-weight:800;min-width:0;margin-right:auto}
 .calbar .pg{width:34px;height:34px;font-size:17px}
-.calbar-r{display:flex;align-items:center;gap:6px;margin-left:auto}
+.calbar-r{display:flex;align-items:center;gap:6px;width:100%}.calbar-r .segsm{margin-right:auto}
 .calbar .segsm button{padding:5px 8px;font-size:12.5px}
 .calbar .btn.sm{padding:6px 10px}
 .mgrid{border-top:1px solid var(--line);background:var(--surface)}
@@ -316,6 +318,7 @@ button.who{border:0;padding:0}
 button.row.evbtn{cursor:pointer}
 .dupchip{display:inline-block;font-size:11px;font-weight:700;color:var(--muted);background:var(--surface-2);border-radius:999px;padding:1px 7px;margin-left:4px;vertical-align:2px}
 .daynav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.backday{margin:-4px 0 -6px}.backday .link{font-size:13px;padding:0}
 .daynav .lbl{text-align:center;flex:1}
 .daynav .lbl b{display:block;font-family:var(--font-display);font-size:17px}
 .daynav .lbl span{font-size:12px;color:var(--muted)}
@@ -387,6 +390,30 @@ button.main{background:none;border:0;padding:0;text-align:left;color:inherit;fon
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;font-size:14px;z-index:30;max-width:calc(100% - 32px)}
 .empty{padding:16px;text-align:center;color:var(--muted);font-size:14px}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+
+/* week layouts */
+.wlay{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.wlay .hint{font-size:12px;margin-right:2px}
+.wlay .segsm button{padding:5px 9px;font-size:12.5px}
+.agday{display:flex;flex-direction:column;gap:6px}
+.agday .sec-head h2{font-size:15px}.agday.today .sec-head h2{color:var(--accent)}
+.agday .none{font-size:13px;color:var(--muted);padding:2px 2px 0}
+.tallw{margin-inline:calc(-1 * max(16px, env(safe-area-inset-left,0px)));background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.tallw .wk{min-height:calc(100dvh - 250px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
+.tallw .evc{font-size:10.5px;-webkit-line-clamp:6;padding:2px 3px;hyphens:auto}
+.tallw .mwd b{display:block;font-size:15px;color:var(--fg)}.tallw .mwd.today b{color:var(--accent)}
+.hrs{margin-inline:calc(-1 * max(16px, env(safe-area-inset-left,0px)));overflow-x:auto;background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line);scroll-snap-type:x proximity}
+.hrs-in{display:grid;grid-template-columns:38px repeat(7,minmax(112px,1fr));position:relative;width:max-content;min-width:100%}
+.hrs-h{position:sticky;top:0;background:var(--surface);z-index:2;text-align:center;padding:6px 2px 4px;border-bottom:1px solid var(--line);border-left:1px solid var(--line);font-size:11px;font-weight:700;color:var(--muted);scroll-snap-align:start}
+.hrs-h b{display:block;font-size:16px;color:var(--fg)}.hrs-h.today b{color:var(--accent)}
+.hrs-ad{border-left:1px solid var(--line);border-bottom:1px solid var(--line);padding:2px;display:flex;flex-direction:column;gap:2px;min-height:22px}
+.hrs-ad .evc{font-size:11px;-webkit-line-clamp:2}
+.hrs-t{position:relative;border-left:1px solid var(--line);background:repeating-linear-gradient(to bottom,transparent 0 43px,var(--line) 43px 44px)}
+.hrs-lab{position:relative}.hrs-lab span{position:absolute;right:4px;font-size:10px;color:var(--muted);transform:translateY(-6px)}
+.blk{position:absolute;border-radius:5px;padding:2px 4px;font-size:11px;line-height:1.2;font-weight:600;overflow:hidden;border:1px solid var(--surface);text-align:left;display:block;-webkit-line-clamp:unset}
+.blk .bt{display:block;font-weight:500;opacity:.85;font-size:10px}
+.nowl{position:absolute;left:0;right:0;height:2px;background:var(--danger,#d93025);z-index:1}
+.week .day .cnt{font-size:10px;font-weight:700;color:var(--muted)}.week .day.sel .cnt{color:var(--accent-ink)}
+.wbars{display:flex;flex-direction:column;gap:2px;width:78%;margin-top:3px}.wbars i{height:4px;border-radius:2px;background:var(--c,var(--event))}
 </style>
 </head>
 <body>
@@ -394,7 +421,7 @@ button.main{background:none;border:0;padding:0;text-align:left;color:inherit;fon
 <div class="app">
   <header class="top">
     <button class="menu-btn" data-act="menu" aria-label="Open menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
-    <div class="ttl"><div class="eyebrow" id="eyebrow"></div><h1 id="heading">Today</h1></div>
+    <div class="ttl"><div class="eyebrow" id="eyebrow"></div><h1 id="heading">Today</h1></div><span class="hnav" id="hnav"></span>
     <span class="proto" id="status" role="status">Loading…</span>
   </header>
   <main id="main"></main>
@@ -531,7 +558,8 @@ const groupById=g=>groups.find(x=>String(x.id)===String(g));
 // an item's group: the one picked for it, or the first group whose words appear in its title
 function groupOf(e){if(!e||e.bday||e.bins||e.todo||e.meal)return null;if(e.group==='none')return null;if(e.group)return groupById(e.group)||null;
   const t=(e.title||'').toLowerCase();return groups.find(g=>String(g.words||'').split(',').map(w=>w.trim().toLowerCase()).some(w=>w&&t.includes(w)))||null}
-const itemColour=x=>x&&(x.colour||(groupOf(x)||{}).colour)||'';
+const safeCol=c=>/^#[0-9a-f]{3,8}$/i.test(String(c||'').trim())?String(c).trim():'';
+const itemColour=x=>x&&(safeCol(x.colour)||safeCol((groupOf(x)||{}).colour))||'';
 const cc=x=>itemColour(x)?` cc" style="--c:${itemColour(x)}`:'';
 const groupShown=e=>{const g=groupOf(e);return !g||!hiddenGroups().includes(String(g.id))};
 // repeats can skip days covered by an event in a group that pauses repeats (holidays, school holidays)
@@ -631,7 +659,7 @@ function writeCache(tabs){try{localStorage.setItem(CACHE_KEY,JSON.stringify({me:
 function patchCache(ch){const c=readCache();if(!c)return;for(const k in ch){const rows=c.tabs[k]=c.tabs[k]||[],key=KEYC(k),ix={};rows.forEach((r,i)=>ix[String(r[key])]=i);
   ch[k].upsert.forEach(r=>{const i=ix[String(r[key])];if(i!=null)Object.assign(rows[i],r);else rows.push({...r})});
   ch[k].remove.forEach(id=>{const i=ix[String(id)];if(i!=null)rows[i].deleted=true})}
-  c.tabs[k]=c.tabs[k];try{localStorage.setItem(CACHE_KEY,JSON.stringify(c))}catch(e){}}
+  try{localStorage.setItem(CACHE_KEY,JSON.stringify(c))}catch(e){}}
 function snapOf(T){const o={};for(const k in T){o[k]={};T[k].forEach(r=>o[k][String(r[KEYC(k)])]=JSON.stringify(r))}return o}
 function diffTabs(){const T=toTabs(),now=snapOf(T),ch={};let n=0;
   for(const k in T){const up=[],rm=[];
@@ -646,23 +674,28 @@ async function rawApi(url,body){
   let j;try{j=await r.json()}catch(e){throw new Error("The backend link doesn't look right. It should be the Web app URL ending in /exec.")}
   if(!j.ok)throw Object.assign(new Error(j.error||'Something went wrong'),{code:j.code});return j;
 }
+const NETLOG=[];
+function netLog(x){NETLOG.unshift(x);NETLOG.length=Math.min(NETLOG.length,25)}
 async function api(action,data={}){
   const c=cfg();if(!c||!c.url)throw Object.assign(new Error('Not connected yet'),{code:'auth'});
   const auth=c.session?{session:c.session}:{key:c.key,me:c.me};
-  let r;try{r=await fetch(c.url,{method:'POST',body:JSON.stringify({action,...auth,...data})})}catch(e){throw Object.assign(new Error("Can't reach the backend. Check your connection."),{code:'net'})}
-  if(!r.ok)throw new Error('The backend replied with error '+r.status);
-  let j;try{j=await r.json()}catch(e){throw new Error("The backend link doesn't look right. It should end in /exec.")}
-  if(!j.ok)throw Object.assign(new Error(j.error||'Something went wrong'),{code:j.code});
+  const body=JSON.stringify({action,...auth,...data}),t0=Date.now(),L={at:new Date(),action,kb:Math.round(body.length/1024),ms:0,ok:false,msg:''};netLog(L);
+  const done=(ok,msg)=>{L.ms=Date.now()-t0;L.ok=ok;L.msg=msg||''};
+  let r;try{r=await fetch(c.url,{method:'POST',body,keepalive:action==='save'&&body.length<60000})}catch(e){done(false,'No response ('+(e&&e.message||e)+')');throw Object.assign(new Error("Can't reach the backend. Check your connection."),{code:'net'})}
+  if(!r.ok){done(false,'HTTP '+r.status);throw new Error('The backend replied with error '+r.status)}
+  let j;try{j=await r.json()}catch(e){done(false,'Reply was not JSON');throw new Error("The backend link doesn't look right. It should end in /exec.")}
+  if(!j.ok){done(false,j.error);throw Object.assign(new Error(j.error||'Something went wrong'),{code:j.code})}
+  done(true,j.v?'backend '+j.v:'');S.backendV=j.v||S.backendV||'';
   return j;
 }
 function setStatus(k,msg){const el=$('#status');if(!el)return;lastErr=msg||'';el.textContent={loading:'Loading…',saving:'Saving…',saved:'Saved',net:'Offline · will retry',error:"Couldn't save"}[k]||k;el.className='proto st-'+k;el.title=msg||''}
 function queueSave(){clearTimeout(saveTimer);saveTimer=setTimeout(persist,400)}
 async function persist(){
-  if(!SNAP||saving)return;const {ch,n,now}=diffTabs();if(!n){setStatus('saved');return}
+  if(!SNAP||saving)return;const {ch,n,now}=diffTabs();if(!n){setStatus('saved');if(RELOAD_AFTER_SAVE){RELOAD_AFTER_SAVE=false;loadAll().catch(()=>{})}return}
   saving=true;setStatus('saving');
   try{await api('save',{changes:ch});
     for(const k in ch){SNAP[k]=SNAP[k]||{};ch[k].upsert.forEach(r=>{const key=String(r[KEYC(k)]);SNAP[k][key]=now[k][key]});ch[k].remove.forEach(key=>delete SNAP[k][key])}
-    SAVESEQ++;FAILS=0;patchCache(ch);setStatus('saved')}
+    SAVESEQ++;FAILS=0;try{patchCache(ch)}catch(e){console.warn('cache',e)}setStatus('saved')}
   catch(e){
     if(e.code==='auth'){setStatus('error',e.message);openSetup(e.message)}
     // a save that fails is tried again quietly a few times (the sheet may just be busy) before the corner says so
@@ -743,9 +776,8 @@ function V_today(){
   const doneT=todos.filter(t=>visible(t)&&t.done&&t.date&&diff(t.date)===X&&!t.time);
   const later=X!==0?[]:todos.filter(t=>visible(t)&&!t.done&&!t.time&&(!t.date||(t.dt==='by'&&diff(t.date)>0))).sort(todoCmp);
   const nw=X===0?myNew():[];
-  return `<div class="daynav"><button class="pg" data-act="dayNav" data-n="-1" aria-label="Previous day">‹</button>
-    <div class="lbl"><b>${dayLabel(X)}</b><span>${X===0?DN[dt.getDay()]+' '+dt.getDate()+' '+MN[dt.getMonth()]:`<button class="link" style="font-size:12px;padding:0" data-act="dayNav" data-n="0">Back to today</button>`}</span></div>
-    <button class="pg" data-act="dayNav" data-n="1" aria-label="Next day">›</button></div>
+  S.calHead={label:X===0?'Today':dayLabel(X).split(' ')[0],eyebrow:`${DN[dt.getDay()]} ${dt.getDate()} ${MONTHS[dt.getMonth()]}`,act:'dayNav',a:-1,b:1};
+  return `${X!==0?`<div class="backday"><button class="link" data-act="dayNav" data-n="0">‹ Back to today</button></div>`:''}
   ${nw.length?`<section><div class="sec-head"><h2>New for you</h2><button class="link" data-act="seenAll">Mark as seen</button></div>
     <div class="card rows newbox">${nw.map(x=>{const o=x.kind==='todo'?todos.find(t=>t.id===x.ref):events.find(e=>e.id===x.ref);if(!o)return'';
       return `<button class="row" data-act="openNote" data-n="${x.id}">${whoBadge(x.from)}<div class="main"><div class="t">${esc(o.title)}</div><div class="s">${esc(x.msg)}${x.kind==='event'?' · '+rel(addDays(TODAY,o.d))+' '+fmtTime(o.time):o.date?' · '+todoDateText(o):''}</div></div>${NEWPILL}</button>`}).join('')}</div></section>`:''}
@@ -778,14 +810,57 @@ function groupChips(){return ''}
 function V_calendar(){
   return reviewBanner()+V_calendar0().replace('<!--GROUPS-->',groupChips());
 }
+const WEEK_LAYOUTS=[['agenda','Agenda'],['tall','Columns'],['hours','Hours'],['strip','Strip']];
+const weekStyle=()=>'hours';
+const wlayHTML=()=>`<div class="wlay"><span class="hint">Layout</span><span class="segsm">${WEEK_LAYOUTS.map(([k,l])=>`<button class="${weekStyle()===k?'on':''}" data-act="weekStyle" data-v="${k}">${l}</button>`).join('')}</span></div>`;
+function itemColourVar(x){if(x.bins)return (BINC[x.bins[0].colour]||[0,'#888'])[1];const c=itemColour(x);if(c)return c;return x.bday?'var(--bday)':x.todo?'var(--accent)':x.type==='pickup'||x.type==='dropoff'?'var(--pickup)':'var(--event)'}
+function weekAgenda(){
+  return [...Array(7)].map((_,i)=>{const o=S.weekStart+i,dd=addDays(TODAY,o),h=scheduleHTML(o,true);
+    return `<section class="agday ${o===0?'today':''}"><div class="sec-head"><h2>${o===0?'Today · ':o===1?'Tomorrow · ':''}${DNL[dd.getDay()]} ${dd.getDate()} ${MN[dd.getMonth()]}</h2><button class="link" data-act="addEventOn" data-o="${o}" aria-label="Add event">+ Add</button></div>
+      ${h?`<div class="card rows">${h}</div>`:'<div class="none">Nothing on</div>'}</section>`}).join('');
+}
+function weekTall(){
+  const days=[...Array(7)].map((_,i)=>{const o=S.weekStart+i;return {o,i,dt:addDays(TODAY,o),items:monthDayItems(o)}});
+  const segs={};days.forEach(d=>d.items.filter(x=>x.mday).forEach(x=>{const k=x.id+'@'+(d.o-x.mday[0]+1);const sg=segs[k]||(segs[k]={x,a:d.i,b:d.i,first:x.mday[0]===1||d.i===0&&false,last:false});sg.b=d.i;if(x.mday[0]===x.mday[1])sg.last=true}));
+  const list=Object.values(segs).sort((p,q)=>p.a-q.a||(q.b-q.a)-(p.b-p.a));const lanes=[];list.forEach(sg=>{let l=lanes.findIndex(e=>e<sg.a);if(l<0){l=lanes.length;lanes.push(-1)}lanes[l]=sg.b;sg.lane=l});const L=lanes.length;
+  const bg=days.map(d=>`<button class="mc ${d.o===0?'today':''}" style="grid-column:${d.i+1}" data-act="dayOpen" data-o="${d.o}" aria-label="${DNL[d.dt.getDay()]} ${d.dt.getDate()}"></button>`).join('');
+  const bars=list.map(sg=>`<span class="evc bar ${sg.x.type==='appointment'?'event':sg.x.type}${sg.first?'':' cl'}${sg.last?'':' cr'}${itemColour(sg.x)?' cc':''}" style="${itemColour(sg.x)?'--c:'+itemColour(sg.x)+';':''}grid-column:${sg.a+1} / ${sg.b+2};grid-row:${sg.lane+1}">${esc(sg.x.title)}</span>`).join('');
+  const singles=days.map(d=>{const its=d.items.filter(x=>!x.mday);return its.length?`<div class="mcl" style="grid-column:${d.i+1};grid-row:${L+1}">${its.map(chipFor).join('')}</div>`:''}).join('');
+  return `<div class="tallw"><div class="mwh">${days.map(d=>`<span class="mwd ${d.o===0?'today':''}">${DN[d.dt.getDay()].slice(0,3)}<b>${d.dt.getDate()}</b></span>`).join('')}</div>
+    <div class="wk" style="grid-template-rows:${'auto '.repeat(L)}1fr">${bg}${bars}${singles}</div></div>`;
+}
+function weekHours(){
+  const H0=6,H1=23,PX=44,hm=t=>{const[a,b]=(t||'0:0').split(':').map(Number);return a+b/60};
+  const days=[...Array(7)].map((_,i)=>{const o=S.weekStart+i;const ev=dayEvents(o,true).map(e=>({...e})).concat(timedTodos(o).filter(passFilter).map(t=>({title:t.title,time:t.time,todo:1})));return {o,i,dt:addDays(TODAY,o),ev}});
+  const head=`<div class="hrs-h" style="border-left:0"></div>`+days.map(d=>`<div class="hrs-h ${d.o===0?'today':''}" data-o="${d.o}">${DN[d.dt.getDay()]}<b>${d.dt.getDate()}</b></div>`).join('');
+  const ad=`<div class="hrs-ad" style="border-left:0;font-size:10px;color:var(--muted);align-items:end;justify-content:center">all day</div>`+days.map(d=>`<div class="hrs-ad">${d.ev.filter(x=>!x.time||x.mday&&x.mday[1]>1&&!(x.mday[0]===1&&x.time)).map(chipFor).join('')}</div>`).join('');
+  const labels=`<div class="hrs-lab" style="height:${(H1-H0)*PX}px">${[...Array(H1-H0)].map((_,k)=>k?`<span style="top:${k*PX}px">${fmtTime(String(H0+k).padStart(2,'0')+':00')}</span>`:'').join('')}</div>`;
+  const now=new Date(),nowY=(now.getHours()+now.getMinutes()/60-H0)*PX;
+  const cols=days.map(d=>{const its=d.ev.filter(x=>x.time&&!(x.mday&&x.mday[1]>1&&!(x.mday[0]===1))).map(x=>{let a=Math.max(H0,hm(x.time)),e=x.end&&!x.mday?hm(x.end):x.mday&&x.lastEnd&&x.mday[0]===x.mday[1]?hm(x.lastEnd):a+1;if(e<=a)e=a+.5;return {x,a,e:Math.min(e,H1)}}).sort((p,q)=>p.a-q.a);
+    const lanes=[];its.forEach(it=>{let l=lanes.findIndex(end=>end<=it.a);if(l<0){l=lanes.length;lanes.push(0)}lanes[l]=it.e;it.l=l});
+    its.forEach(it=>{it.n=Math.max(1,...its.filter(o=>o.a<it.e&&o.e>it.a).map(o=>o.l+1))});
+    const blocks=its.map(it=>{const x=it.x,cls=x.bday?'birthday':x.todo?'todo':x.type==='appointment'?'event':x.type,clk=x.id&&!x.bday&&!x.bins&&!x.todo&&typeof x.id==='number';
+      return `<${clk?'button':'span'} class="blk evc ${cls}${itemColour(x)?' cc':''}" ${clk?`data-act="evDetail" data-id="${x.id}"`:''} style="${itemColour(x)?'--c:'+itemColour(x)+';':''}top:${(it.a-H0)*PX}px;height:${Math.max(18,(it.e-it.a)*PX-2)}px;left:calc(${it.l}/${it.n}*100% + 1px);width:calc(100%/${it.n} - 3px)">${esc(x.title)}<span class="bt">${fmtTime(x.time)}${x.end&&!x.mday?' – '+fmtTime(x.end):''}</span></${clk?'button':'span'}>`}).join('');
+    return `<div class="hrs-t" style="height:${(H1-H0)*PX}px">${d.o===0&&nowY>0&&nowY<(H1-H0)*PX?`<i class="nowl" style="top:${nowY}px"></i>`:''}${blocks}</div>`}).join('');
+  return `<div class="hrs" id="hrs"><div class="hrs-in">${head}${ad}${labels}${cols}</div></div>`;
+}
+function weekStrip(){
+  return `<div class="week">${[...Array(7)].map((_,i)=>{const o=S.weekStart+i,dd=addDays(TODAY,o),its=monthDayItems(o);
+      return `<button class="day ${S.sel===o?'sel':''}" data-act="pick" data-o="${o}"><span class="dn">${DN[dd.getDay()]}</span><span class="dd num">${dd.getDate()}</span><span class="wbars">${its.slice(0,4).map(x=>`<i style="--c:${itemColourVar(x)}"></i>`).join('')}</span><span class="cnt">${its.length?its.length+(its.length===1?' item':' items'):''}</span></button>`}).join('')}</div>`;
+}
 function V_calendar0(){
+  if(S.calMode==='week'&&weekStyle()!=='strip'){
+    const a=addDays(TODAY,S.weekStart),b=addDays(TODAY,S.weekStart+6);
+    const label=a.getMonth()===b.getMonth()?`${a.getDate()}–${b.getDate()} ${MN[a.getMonth()]}`:`${a.getDate()} ${MN[a.getMonth()]} – ${b.getDate()} ${MN[b.getMonth()]}`;
+    const st=weekStyle();
+    return `${calBar(label,'wk',-7,7)}<!--GROUPS-->${st==='agenda'?filterChips():''}${st==='agenda'?weekAgenda():st==='tall'?weekTall():weekHours()}`;
+  }
   if(S.calMode==='week'){
     const a=addDays(TODAY,S.weekStart),b=addDays(TODAY,S.weekStart+6);
-    const label=S.weekStart===0?'Next 7 days':`${a.getDate()} ${MN[a.getMonth()]} – ${b.getDate()} ${MN[b.getMonth()]}`;
+    const label=a.getMonth()===b.getMonth()?`${a.getDate()}–${b.getDate()} ${MN[a.getMonth()]}`:`${a.getDate()} ${MN[a.getMonth()]} – ${b.getDate()} ${MN[b.getMonth()]}`;
     const d=addDays(TODAY,S.sel), r=null, inPlan=false; // dinners live on Today and Meal plan, not the calendar
-    return `${calBar(label,'wk',-7,7)}<!--GROUPS-->
-    <div class="week">${[...Array(7)].map((_,i)=>{const o=S.weekStart+i,dd=addDays(TODAY,o);
-      return `<button class="day ${S.sel===o?'sel':''}" data-act="pick" data-o="${o}"><span class="dn">${DN[dd.getDay()]}</span><span class="dd num">${dd.getDate()}</span>${dotsFor(o)}</button>`}).join('')}</div>
+    return `${calBar(label,'wk',-7,7)}<!--GROUPS-->${wlayHTML()}
+    ${weekStrip()}
     ${filterChips()}
     <section><div class="sec-head"><h2>${S.sel===0?'Today':DN[d.getDay()]+' '+d.getDate()+' '+MN[d.getMonth()]}</h2><button class="link" data-act="addEvent">+ Add event</button></div>
       <div class="card rows">${scheduleHTML(S.sel,true)||'<div class="empty">Nothing scheduled</div>'}
@@ -810,12 +885,12 @@ function V_calendar0(){
       return its.length?`<div class="mcl" style="grid-column:${d.i+1};grid-row:${L+2}">${shown.map(chipFor).join('')}${more>0?`<span class="evmore">+${more} more</span>`:''}</div>`:''}).join('');
     return `<div class="wk" style="grid-template-rows:auto${' auto'.repeat(L)} 1fr">${bg}${bars}${singles}</div>`;
   };
-  return `<div class="mcal" style="--weeks:${weeks}">${calBar(`${MONTHS[m]} ${y}`,'mo',-1,1)}<!--GROUPS-->
+  return `<div class="mcal" style="--weeks:${weeks}">${calBar(MONTHS[m]+(y!==TODAY.getFullYear()?' '+y:''),'mo',-1,1)}<!--GROUPS-->
     <div class="mgrid"><div class="mwh">${DW.map(w=>`<span class="mwd">${w}</span>`).join('')}</div>${[...Array(weeks)].map((_,w)=>wk(w)).join('')}</div></div>`;
 }
 function calBar(label,act,a,b){
-  return `<div class="calbar"><button class="pg" data-act="${act}" data-n="${a}" aria-label="Previous">‹</button><h2>${label}</h2><button class="pg" data-act="${act}" data-n="${b}" aria-label="Next">›</button>
-   <span class="calbar-r"><button class="btn ghost sm" data-act="calToday">Today</button><span class="segsm"><button class="${S.calMode==='month'?'on':''}" data-act="calMode" data-v="month">Month</button><button class="${S.calMode==='week'?'on':''}" data-act="calMode" data-v="week">Week</button></span>
+  S.calHead={label,act,a,b};
+  return `<div class="calbar"><span class="calbar-r"><button class="btn ghost sm" data-act="calToday">Today</button><span class="segsm"><button class="${S.calMode==='month'?'on':''}" data-act="calMode" data-v="month">Month</button><button class="${S.calMode==='week'?'on':''}" data-act="calMode" data-v="week">Week</button></span>
    <span class="gwrap"><button class="pg gbtn ${hiddenGroups().length?'some':''}" data-act="grpMenu" aria-haspopup="true" aria-expanded="${!!S.grpOpen}" aria-label="Groups${hiddenGroups().length?', '+hiddenGroups().length+' hidden':''}" title="Groups">${ICON.filter}${hiddenGroups().length?`<b>${hiddenGroups().length}</b>`:''}</button>${groupMenu()}</span>
    <button class="pg" data-act="syncMine" aria-label="Sync my calendars" title="Sync my calendars">↻</button><button class="pg" data-act="addEvent" aria-label="Add event" title="Add event">+</button></span></div>`;
 }
@@ -991,7 +1066,7 @@ function V_birthdays(){
     <div class="hint">These show on the calendar every year with the age they're turning, e.g. "Frankie's 7th birthday". Tap the eye to hide one from the calendar.</div></section>`;
 }
 // ---------- calendar imports: new events found by a sync wait here until the calendar's owner decides ----------
-const pendingImports=()=>incoming.filter(x=>x.status==='pending');
+const pendingImports=()=>incoming.filter(x=>x.status==='pending'&&!(S.deciding&&S.deciding[x.id]));
 function impRow(x,checked){const end=x.endD!=null&&x.endD>x.d?' → '+dayLabel(x.endD):'';
   return `<div class="row imp"><button class="check ${checked?'on':''}" data-act="impTick" data-id="${x.id}" aria-pressed="${checked}" aria-label="Import ${esc(x.title)}">${checked?ICON.tick:''}</button>
   <div class="main"><div class="t">${esc(x.title)}</div><div class="s">${dayLabel(x.d)}${end}, ${fmtTime(x.time)} · ${esc(SRC[x.cal]||x.cal)}</div>${x.dupTitle?`<div class="s dupnote">Looks like "${esc(x.dupTitle)}", already in Family Hub</div>`:''}</div></div>`}
@@ -1057,9 +1132,13 @@ function V_settings(){
   <section><div class="sec-head"><h2>Calendars</h2><button class="link" data-act="syncMine">↻ Sync mine</button></div>
     <div class="card rows">${CALS.map(k=>`<div class="row"><div class="main"><div class="t">${esc(k.name)}</div><div class="s">${k.kind==='ics_feed'?'Push only':k.pull&&k.push?'Pull + push':k.pull?'Pull':'Push'}${k.owner!=='B'?' · syncs when '+PEOPLE[k.owner]+' taps Sync':' · shared, syncs every hour'}</div></div><span class="kind">${KIND[k.kind]||k.kind}</span>${whoBadge(k.owner||'B')}</div>`).join('')||'<div class="empty">No calendars yet. Add them on the Calendars tab of the sheet.</div>'}</div>
     <div class="hint">Sync only pulls the calendars you own. Events pulled from more than one calendar are shown once; the extra copies are kept as a record.</div></section>
+  ${pushSection()}
   <section><div class="sec-head"><h2>This phone</h2></div>
     <div class="card rows"><div class="row">${whoBadge(S.me)}<div class="main"><div class="t">Signed in as ${esc(PEOPLE[S.me])}</div><div class="s">${c.session?esc(c.email||'with Google'):'with the family passcode'}</div></div>${c.session?'<button class="btn ghost sm" data-act="signOut">Sign out</button>':'<button class="btn ghost sm" data-act="switchMe">Change</button>'}</div>
-    <div class="row"><div class="main"><div class="t">Last save</div><div class="s">${esc(lastErr||'All changes saved')}</div></div><button class="btn ghost sm" data-act="refreshNow">Refresh</button></div></div></section>`;
+    <div class="row"><div class="main"><div class="t">Last save</div><div class="s">${esc(lastErr||'All changes saved')}</div></div><button class="btn ghost sm" data-act="refreshNow">Refresh</button></div></div></section>
+  <section><div class="sec-head"><h2>Connection</h2><span class="hint">Backend ${esc(S.backendV||'version unknown (needs the latest Code.gs)')}</span></div>
+    <div class="card rows netlog">${NETLOG.map(x=>`<div class="row"><div class="main"><div class="t">${x.ok?'✓':'✕'} ${esc(x.action)} · ${x.ms?(x.ms/1000).toFixed(1)+'s':'waiting…'} · ${x.kb} KB</div><div class="s">${String(x.at.getHours()).padStart(2,'0')}:${String(x.at.getMinutes()).padStart(2,'0')}:${String(x.at.getSeconds()).padStart(2,'0')}${x.msg?' · '+esc(x.msg):''}</div></div></div>`).join('')||'<div class="empty">No requests yet</div>'}</div>
+    <div class="hint">Every request this phone has made since the app opened. Screenshot this if saving misbehaves.</div></section>`;
 }
 
 // ---------- overlays ----------
@@ -1291,9 +1370,21 @@ function render(){
   const td=addDays(TODAY,S.dOff);$('#eyebrow').textContent=S.view==='today'?`${DN[td.getDay()]} ${td.getDate()} ${MONTHS[td.getMonth()]}`:TITLES[S.view][0];
   $('#heading').textContent=S.view==='recipes'&&S.recipe?'Recipe':S.view==='today'?(S.dOff===0?'Today':dayLabel(S.dOff).split(' ')[0]):TITLES[S.view][1];
   document.body.classList.toggle('wide',S.view==='calendar'&&S.calMode==='month');
+  S.calHead=null;
   $('#main').innerHTML=({today:V_today,calendar:V_calendar,plan:V_plan,recipes:V_recipes,groceries:V_groceries,shopping:V_shopping,todos:V_todos,birthdays:V_birthdays,bins:V_bins,imports:V_imports,settings:V_settings})[S.view]();
+  {const h=(S.view==='calendar'||S.view==='today')&&S.calHead;$('#hnav').innerHTML=h?`<button class="pg" data-act="${h.act}" data-n="${h.a}" aria-label="Previous">‹</button><button class="pg" data-act="${h.act}" data-n="${h.b}" aria-label="Next">›</button>`:'';
+   if(h){$('#heading').textContent=h.label;$('#eyebrow').textContent=h.eyebrow||(S.calMode==='week'?'Week':'Calendar · '+S.month.y)}}
 }
-function go(v){closeSheet();if(v!=='recipes')S.pickFor=null;S.view=v;S.recipe=null;render();window.scrollTo(0,0);try{history.replaceState(null,'','#'+v)}catch(e){}}
+(()=>{let x0=null,y0=0,t0=0;
+  addEventListener('touchstart',e=>{const t=e.touches[0];x0=null;if(e.touches.length!==1||document.querySelector('#overlay .sheet')||e.target.closest('.hrs,input,textarea,select,.mlist'))return;
+    if(!(S.view==='calendar'&&S.calMode==='month')&&S.view!=='today')return;x0=t.clientX;y0=t.clientY;t0=Date.now()},{passive:true});
+  addEventListener('touchend',e=>{if(x0===null)return;const t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;x0=null;
+    if(Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.6||Date.now()-t0>700)return;
+    const b=document.querySelector(`#hnav [data-n="${dx<0?(S.view==='today'?1:1):-1}"]`);if(!b)return;
+    const m=$('#main');m.style.transition='none';m.style.transform=`translateX(${dx<0?24:-24}px)`;m.style.opacity='.4';b.click();
+    requestAnimationFrame(()=>{m.style.transition='transform .18s ease,opacity .18s ease';m.style.transform='';m.style.opacity=''})},{passive:true});
+})();
+function go(v,keepDay){closeSheet();if(v==='today'&&!keepDay)S.dOff=0;if(v==='calendar'&&!keepDay){S.calMode='month';S.sel=0;S.weekStart=0;S.month={y:TODAY.getFullYear(),m:TODAY.getMonth()}}if(v!=='recipes')S.pickFor=null;S.view=v;S.recipe=null;render();window.scrollTo(0,0);try{history.replaceState(null,'','#'+v)}catch(e){}}
 
 function applyGroupMenu(){if(!S.grpOpen)return;S.grpOpen=false;setHiddenGroups(S.grpDraft||[]);render()}
 // a tap outside the groups menu applies it and closes it (and does nothing else)
@@ -1310,8 +1401,10 @@ document.addEventListener('click',e=>{
    case'wk':S.weekStart+=n('n');S.sel=S.weekStart;render();break;
    case'mo':{let{y,m}=S.month;m+=n('n');if(m<0){m=11;y--}if(m>11){m=0;y++}S.month={y,m};render();break}
    case'pick':S.sel=n('o');render();break;
+   case'weekStyle':{try{localStorage.setItem('fh-week',el.dataset.v)}catch(e){S.wkStyle=el.dataset.v}render();break}
+   case'addEventOn':S.sel=n('o');sheetEvent();break;
    case'dayOpen':sheetDay(n('o'));break;
-   case'dayToToday':closeSheet();S.dOff=n('o');go('today');break;
+   case'dayToToday':closeSheet();S.dOff=n('o');go('today',true);break;
    case'calToday':S.sel=0;S.month={y:TODAY.getFullYear(),m:TODAY.getMonth()};S.weekStart=0;render();break;
    case'addEvent':sheetEvent();break;
    case'addEventOn':closeSheet();S.sel=n('d');sheetEvent();break;
@@ -1332,7 +1425,10 @@ document.addEventListener('click',e=>{
    case'impAll':{const tab=S.impTab||'pending',list=tab==='pending'?pendingImports():incoming.filter(x=>x.status==='skipped'&&(S.impPast||(x.endD??x.d)>=0));S.impSel={};if(el.dataset.v==='1')list.forEach(x=>S.impSel[x.id]=1);render();break}
    case'impPast':S.impPast=!S.impPast;render();break;
    case'impSave':{const pend=pendingImports(),imp=pend.filter(x=>S.impSel[x.id]).map(x=>x.id),skip=pend.filter(x=>!S.impSel[x.id]).map(x=>x.id);
-     el.disabled=true;decideImports(imp,skip).then(()=>{S.impSel=null;render();toast(`Imported ${imp.length}${skip.length?`, skipped ${skip.length}`:''}`)}).catch(e=>{el.disabled=false;toast(e.message)});break}
+     S.deciding=S.deciding||{};pend.forEach(x=>S.deciding[x.id]=1);S.impSel=null;go('calendar');
+     toast(imp.length?`Importing ${imp.length} event${imp.length===1?'':'s'}…`:`Skipped ${skip.length}`);
+     decideImports(imp,skip).then(()=>{pend.forEach(x=>delete S.deciding[x.id]);render();if(imp.length)toast(`Imported ${imp.length}${skip.length?`, skipped ${skip.length}`:''}`)})
+       .catch(e=>{pend.forEach(x=>delete S.deciding[x.id]);render();toast(`Import didn't finish (${e.message}). Open the review to try again.`)});break}
    case'impRestore':{const imp=Object.keys(S.impSel).map(Number);el.disabled=true;decideImports(imp,[]).then(()=>{S.impSel={};render();toast(`Imported ${imp.length}`)}).catch(e=>{el.disabled=false;toast(e.message)});break}
    case'grpMenu':if(S.grpOpen){applyGroupMenu()}else{S.grpOpen=true;S.grpDraft=hiddenGroups().slice();render()}break;
    case'grpPick':{const k=String(el.dataset.id),d=S.grpDraft,on=d.includes(k);S.grpDraft=on?d.filter(x=>x!==k):d.concat(k);el.classList.toggle('on',on);el.setAttribute('aria-checked',on);el.querySelector('.gbox').innerHTML=on?ICON.tick:'';break}
@@ -1511,12 +1607,66 @@ async function doSync(){
 document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(el&&el.dataset.act==='cfgCancel'){$('#overlay').innerHTML='';return}if(el&&el.dataset.act==='cfgLink'){setCfg({...(cfg()||{}),checked:false});openSetup();return}if(SNAP)queueSave()});
 document.addEventListener('submit',e=>{if(e.target.dataset.form==='cfg'){e.preventDefault();const st=e.target.dataset.stage;if(st==='link')setupNext();else if(st==='pass')connect();return}if(SNAP)queueSave()});
 document.addEventListener('pointerup',()=>{if(SNAP)setTimeout(queueSave,0)});
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible')return;
-  const t=new Date();t.setHours(0,0,0,0);if(t.getTime()!==TODAY.getTime()){location.reload();return}refresh()});
 setInterval(()=>{if(document.visibilityState==='visible')refresh()},45000);
+// leaving the app: save straight away. Coming back on a new day: start again so "today" is today (cached data shows at once)
+const BOOT_DAY=new Date().toDateString();
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='hidden'){if(SNAP&&diffTabs().n){clearTimeout(saveTimer);persist()}return}
+  if(new Date().toDateString()!==BOOT_DAY&&!(SNAP&&diffTabs().n)&&!saving){location.reload();return}
+  if(S.view==='today'&&S.dOff&&!document.querySelector('#overlay .sheet')){S.dOff=0;render()}
+  if(S.view==='calendar'&&!document.querySelector('#overlay .sheet')&&(S.calMode!=='month'||S.month.y!==TODAY.getFullYear()||S.month.m!==TODAY.getMonth())){go('calendar')}
+  refresh()});
 // tap the corner to see what went wrong
 document.addEventListener('click',e=>{const st=e.target.closest&&e.target.closest('#status');if(st&&st.title)toast(st.title)});
 window.addEventListener('online',()=>queueSave());
+// ---------- phone notifications
+const PUSH_KEY='fh-push',isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent);
+const pushState=()=>{try{return JSON.parse(localStorage.getItem(PUSH_KEY)||'null')}catch(e){return S.push||null}};
+const setPush=v=>{S.push=v;try{v?localStorage.setItem(PUSH_KEY,JSON.stringify(v)):localStorage.removeItem(PUSH_KEY)}catch(e){}};
+const pushSupported=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
+const standalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+const PUSH_TYPES=()=>[['assigned',`When ${PEOPLE[OTHER()]} adds something for you`,'Tasks and events assigned to you, straight away'],['daily','Morning summary',"Today's events, tasks and bins, at 7am"],['bins','Bin night','The evening before collection, at 6pm'],['remind','Before events','About 30 minutes before timed events for you']];
+function pushSection(){
+  const st=pushState();let body;
+  if(isIOS&&!standalone())body=`<div class="card" style="padding:14px"><div style="font-weight:600;margin-bottom:4px">Add Family Hub to your Home Screen first</div><div class="hint" style="font-size:13px">iPhones only allow notifications for web apps opened from the Home Screen. In Safari tap <b>Share</b> → <b>Add to Home Screen</b>, open Family Hub from the new icon, then come back here.</div></div>`;
+  else if(!pushSupported())body=`<div class="card" style="padding:14px"><div class="hint">This browser can't show notifications. Open Family Hub in Chrome (Android) or from the Home Screen (iPhone).</div></div>`;
+  else if(Notification.permission==='denied')body=`<div class="card" style="padding:14px"><div style="font-weight:600;margin-bottom:4px">Notifications are blocked</div><div class="hint" style="font-size:13px">${isIOS?'Open the iPhone Settings app → Notifications → Family Hub → Allow Notifications.':'Long-press the Family Hub icon → App info → Notifications → turn on. (In a Chrome tab: tap the icon left of the address → Permissions → Notifications.)'} Then come back and tap Turn on.</div><button class="btn ghost sm" style="margin-top:10px" data-act="pushOn">Try again</button></div>`;
+  else if(!st)body=`<div class="card" style="padding:14px"><div class="hint" style="font-size:13px;margin-bottom:10px">Get a notification on this phone when ${esc(PEOPLE[OTHER()])} adds something for you, a morning summary, bin night and reminders before events. You choose which.</div><button class="btn block" data-act="pushOn" ${S.pushBusy?'disabled':''}>${S.pushBusy?'Turning on…':'Turn on notifications'}</button></div>`;
+  else body=`<div class="card">${PUSH_TYPES().map(([k,l,h])=>`<div class="toggle" style="padding:12px 14px;background:none;border-radius:0;border-bottom:1px solid var(--line)"><span><div style="font-weight:600">${esc(l)}</div><div class="hint" style="font-size:12px">${esc(h)}</div></span><button class="sw-btn ${st.prefs[k]?'on':''}" data-act="pushPref" data-k="${k}" aria-pressed="${!!st.prefs[k]}" aria-label="${esc(l)}"></button></div>`).join('')}
+    <div style="display:flex;gap:8px;padding:12px 14px"><button class="btn ghost sm" data-act="pushTest">Send a test</button><button class="btn ghost sm" data-act="pushOff">Turn off on this phone</button></div></div>`;
+  return `<section><div class="sec-head"><h2>Notifications</h2><span class="hint">${st?'On for this phone':'This phone'}</span></div>${body}</section>`;
+}
+const b64ToBytes=s=>{s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return Uint8Array.from(atob(s),c=>c.charCodeAt(0))};
+async function pushOn(){
+  let perm;try{perm=await Notification.requestPermission()}catch(e){perm='default'}   // must be the first thing after the tap (iPhone)
+  if(perm!=='granted'){toast(perm==='denied'?'Notifications are blocked for Family Hub. See Settings for how to allow them.':'Notifications not allowed');render();return}
+  S.pushBusy=true;render();
+  try{const reg=await navigator.serviceWorker.ready,{key}=await api('pushkey'),want=b64ToBytes(key);
+    let sub=await reg.pushManager.getSubscription();
+    if(sub){const have=sub.options&&sub.options.applicationServerKey?new Uint8Array(sub.options.applicationServerKey):null;if(!have||have.join()!==want.join()){await sub.unsubscribe();sub=null}}
+    sub=sub||await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:want});
+    const prefs={assigned:true,daily:true,bins:true,remind:true};
+    await api('subscribe',{sub:sub.toJSON(),label:isIOS?'iPhone':/Android/.test(navigator.userAgent)?'Android phone':'Browser',prefs});
+    setPush({endpoint:sub.endpoint,prefs});toast('Notifications on. Sending a test…');
+    api('testpush',{endpoint:sub.endpoint}).catch(e=>toast("Test didn't send: "+e.message));
+  }catch(e){toast("Couldn't turn on notifications: "+e.message)}
+  S.pushBusy=false;render();
+}
+async function pushOff(){const st=pushState();setPush(null);render();
+  try{const reg=await navigator.serviceWorker.ready,sub=await reg.pushManager.getSubscription();if(sub)await sub.unsubscribe()}catch(e){}
+  if(st)api('unsubscribe',{endpoint:st.endpoint}).catch(()=>{});toast('Notifications off for this phone')}
+document.addEventListener('click',e=>{const el=e.target.closest&&e.target.closest('[data-act^=push]');if(!el)return;const a=el.dataset.act;
+  if(a==='pushOn')pushOn();
+  else if(a==='pushOff')pushOff();
+  else if(a==='pushTest'){const st=pushState();api('testpush',{endpoint:st&&st.endpoint}).then(()=>toast('Test sent. It should arrive in a few seconds.')).catch(e=>{if(e.code==='nodevice'){setPush(null);render()}toast("Test didn't send: "+e.message)})}
+  else if(a==='pushPref'){const st=pushState();if(!st)return;st.prefs[el.dataset.k]=!st.prefs[el.dataset.k];setPush(st);render();
+    api('pushprefs',{endpoint:st.endpoint,prefs:st.prefs}).catch(e=>{if(e.code==='nodevice'){setPush(null);render()}toast("Couldn't change that: "+e.message)})}});
+// if the phone dropped the subscription (or swapped it), keep the backend in step
+if(pushSupported()&&pushState())navigator.serviceWorker.ready.then(r=>r.pushManager.getSubscription()).then(sub=>{const st=pushState();if(!st)return;
+  if(!sub){setPush(null);api('unsubscribe',{endpoint:st.endpoint}).catch(()=>{});if(S.view==='settings')render();return}
+  if(sub.endpoint!==st.endpoint){api('subscribe',{sub:sub.toJSON(),label:isIOS?'iPhone':'Android phone',prefs:st.prefs}).then(()=>{api('unsubscribe',{endpoint:st.endpoint}).catch(()=>{});setPush({...st,endpoint:sub.endpoint})}).catch(()=>{})}}).catch(()=>{});
+// home-screen shortcuts (long-press the icon) open straight to a screen
+window.addEventListener('hashchange',()=>{const v=location.hash.slice(1);if(VIEWS.some(x=>x[0]===v)&&v!==S.view)go(v)});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 applyTheme();render();
 if(/[#&]id_token=|[#&]error=/.test(location.hash))finishGoogleSignIn();
