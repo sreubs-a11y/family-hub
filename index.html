@@ -387,6 +387,7 @@ button.main{background:none;border:0;padding:0;text-align:left;color:inherit;fon
 .preview{border-radius:12px;max-height:180px;object-fit:cover;width:100%}
 .spin{width:28px;height:28px;border-radius:50%;border:3px solid var(--surface-2);border-top-color:var(--accent);animation:sp 0.8s linear infinite;margin:10px auto}
 @keyframes sp{to{transform:rotate(360deg)}}
+.toast.undo{display:flex;align-items:center;gap:14px;padding:6px 6px 6px 16px}.toast.undo button{background:none;border:0;color:var(--accent-soft,#9cf);font:inherit;font-weight:800;padding:8px 12px;border-radius:9px;cursor:pointer;text-transform:uppercase;letter-spacing:.04em;font-size:13px}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;font-size:14px;z-index:30;max-width:calc(100% - 32px)}
 .empty{padding:16px;text-align:center;color:var(--muted);font-size:14px}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
@@ -579,7 +580,7 @@ const binDots=bs=>bs.map(b=>`<i class="bdot" style="background:${(BINC[b.colour]
 const binEvents=d=>{const bs=binsOn(d);return bs.length?[{id:'bin'+d,bins:bs,d,time:'',type:'bins',who:'B',by:'R',title:binNames(bs)+' bins'}]:[]};
 const nextBin=b=>{for(let d=0;d<60;d++)if(binOn(b,d))return d;return null};
 const addGro=(name,qty,rid,by,done=false,pid=null)=>groceries.push({id:id(),name:cap(name),qty:rid?'':qty,need:rid?qty:'',cat:catFor(name),rid:rid||null,pid,by,done});
-const RTYPES=["Chicken", "Beef", "Lamb", "Pork", "Fish & seafood", "Vegetarian", "Sauces & extras"];
+const RTYPES=["Chicken", "Beef", "Lamb", "Pork", "Fish & seafood", "Vegetarian", "Sides & salads", "Baking & desserts", "Sauces & extras"];
 const notify=(to,kind,ref,msg)=>{if(to==='B'){notify('R',kind,ref,msg);notify('T',kind,ref,msg);return}if(to===S.me)return;notes.push({id:id(),to,from:S.me,kind,ref,msg,read:false})};
 
 // ---------- data layer: sheet rows <-> app objects ----------
@@ -745,6 +746,16 @@ const isoOf=d=>d?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-$
 const fmtRange=(a,b)=>{if(!a)return'All day';if(!b||b<=a)return fmtTime(a);const A=fmtTime(a),B=fmtTime(b),am=x=>x.slice(-2);return (am(A)===am(B)?A.slice(0,-2):A)+'–'+B};
 const nowHM=()=>{const n=new Date();return String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')};
 const fmtTime=t=>{if(!t)return'All day';let[h,m]=t.split(':').map(Number);const ap=h>=12?'pm':'am';h=h%12||12;return h+(m?':'+String(m).padStart(2,'0'):'')+ap};
+// Undo: a copy of everything that a delete can touch, taken just before it; the toast's Undo puts it back
+const UNDO_VARS={events:()=>events,todos:()=>todos,groceries:()=>groceries,shopping:()=>shopping,birthdays:()=>birthdays,bins:()=>bins,groups:()=>groups,
+  holding:()=>holding,cookedRows:()=>typeof cookedRows!=='undefined'?cookedRows:null,meals:()=>meals,mealPid:()=>mealPid,notes:()=>notes};
+function undoSnap(){const o={};for(const k in UNDO_VARS){const v=UNDO_VARS[k]();if(v)o[k]=structuredClone(v)}return o}
+function undoRestore(snap){for(const k in snap){const cur=UNDO_VARS[k]();if(!cur)continue;
+  if(Array.isArray(cur))cur.splice(0,cur.length,...snap[k]);else{Object.keys(cur).forEach(x=>delete cur[x]);Object.assign(cur,snap[k])}}}
+function undoToast(msg,snap){S.undo=snap;document.querySelectorAll('.toast').forEach(t=>t.remove());clearTimeout(S.undoT);
+  const t=document.createElement('div');t.className='toast undo';t.setAttribute('role','status');
+  const m=document.createElement('span');m.textContent=msg;const b=document.createElement('button');b.textContent='Undo';b.dataset.act='undo';t.append(m,b);document.body.appendChild(t);
+  S.undoT=setTimeout(()=>{t.remove();S.undo=null},7000)}
 function toast(msg){document.querySelectorAll('.toast').forEach(t=>t.remove());const t=document.createElement('div');t.className='toast';t.setAttribute('role','status');t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),1800)}
 const dotsFor=d=>{const t=[...new Set(dayEvents(d,true).map(e=>itemColour(e)||(e.type==='appointment'?'event':e.type)))];return `<span class="dots">${t.map(x=>x[0]==='#'?`<i style="background:${x}"></i>`:`<i class="${x}"></i>`).join('')}</span>`};
 
@@ -837,7 +848,7 @@ function weekTall(){
 function weekHours(){
   const H0=6,H1=23,PX=44,hm=t=>{const[a,b]=(t||'0:0').split(':').map(Number);return a+b/60};
   const days=[...Array(7)].map((_,i)=>{const o=S.weekStart+i;const ev=dayEvents(o,true).map(e=>({...e})).concat(timedTodos(o).filter(passFilter).map(t=>({title:t.title,time:t.time,todo:1})));return {o,i,dt:addDays(TODAY,o),ev}});
-  const head=`<div class="hrs-h" style="border-left:0"></div>`+days.map(d=>`<div class="hrs-h ${d.o===0?'today':''}" data-o="${d.o}">${DN[d.dt.getDay()].slice(0,2)}<b>${d.dt.getDate()}</b></div>`).join('');
+  const head=`<div class="hrs-h" style="border-left:0"></div>`+days.map(d=>`<div class="hrs-h ${d.o===0?'today':''}" data-act="dayOpen" data-o="${d.o}" role="button" style="cursor:pointer">${DN[d.dt.getDay()].slice(0,2)}<b>${d.dt.getDate()}</b></div>`).join('');
   const ad=`<div class="hrs-ad" style="border-left:0;font-size:10px;color:var(--muted);align-items:end;justify-content:center">all day</div>`+days.map(d=>`<div class="hrs-ad">${d.ev.filter(x=>!x.time||x.mday&&x.mday[1]>1&&!(x.mday[0]===1&&x.time)).map(chipFor).join('')}</div>`).join('');
   const labels=`<div class="hrs-lab" style="height:${(H1-H0)*PX}px">${[...Array(H1-H0)].map((_,k)=>k?`<span style="top:${k*PX}px">${(H0+k)%12||12}${H0+k<12?'a':'p'}</span>`:'').join('')}</div>`;
   const now=new Date(),nowY=(now.getHours()+now.getMinutes()/60-H0)*PX;
@@ -846,7 +857,7 @@ function weekHours(){
     its.forEach(it=>{it.n=Math.max(1,...its.filter(o=>o.a<it.e&&o.e>it.a).map(o=>o.l+1))});
     const blocks=its.map(it=>{const x=it.x,cls=x.bday?'birthday':x.todo?'todo':x.type==='appointment'?'event':x.type,clk=x.id&&!x.bday&&!x.bins&&!x.todo&&typeof x.id==='number';
       return `<${clk?'button':'span'} class="blk evc ${cls}${itemColour(x)?' cc':''}" ${clk?`data-act="evDetail" data-id="${x.id}"`:''} style="${itemColour(x)?'--c:'+itemColour(x)+';':''}top:${(it.a-H0)*PX}px;height:${Math.max(18,(it.e-it.a)*PX-2)}px;left:calc(${it.l}/${it.n}*100% + 1px);width:calc(100%/${it.n} - 3px)">${esc(x.title)}<span class="bt">${fmtTime(x.time)}${x.end&&!x.mday?' – '+fmtTime(x.end):''}</span></${clk?'button':'span'}>`}).join('');
-    return `<div class="hrs-t" style="height:${(H1-H0)*PX}px">${d.o===0&&nowY>0&&nowY<(H1-H0)*PX?`<i class="nowl" style="top:${nowY}px"></i>`:''}${blocks}</div>`}).join('');
+    return `<div class="hrs-t" data-act="dayOpen" data-o="${d.o}" style="height:${(H1-H0)*PX}px;cursor:pointer">${d.o===0&&nowY>0&&nowY<(H1-H0)*PX?`<i class="nowl" style="top:${nowY}px"></i>`:''}${blocks}</div>`}).join('');
   return `<div class="hrs" id="hrs"><div class="hrs-in">${head}${ad}${labels}${cols}</div></div>`;
 }
 function weekStrip(){
@@ -904,7 +915,7 @@ function sheetDay(o){
   sheet(`<h3>${dayLabel(o)}${o===0||o===1?' · '+DN[d.getDay()]+' '+d.getDate()+' '+MN[d.getMonth()]:''}</h3>
   <div class="card rows">${scheduleHTML(o,true)||'<div class="empty">Nothing scheduled</div>'}
   ${r?`<button class="row" ${r.custom?'data-act="go" data-v="plan"':`data-act="openRecipe" data-id="${r.id}"`}><span class="stripe meal"></span><span class="time">Dinner</span><div class="main"><div class="t">${esc(r.name)}</div><div class="s">Meal plan</div></div></button>`:''}</div>
-  <div class="two"><button class="btn ghost block" data-act="dayToToday" data-o="${o}">Open day</button><button class="btn block" data-act="addEventOn" data-d="${o}">+ Add event</button></div>`);
+  <div class="two"><button class="btn ghost block" data-act="dayToToday" data-o="${o}">Open day</button><button class="btn block" data-act="addEventOn" data-o="${o}">+ Add event</button></div>`);
 }
 function V_plan(){
   const days=[...Array(7)].map((_,i)=>{const d=addDays(TODAY,i);const m=mealOf(meals[i]);
@@ -1085,7 +1096,7 @@ function V_imports(){
   const body=list.length?`<div class="sec-head"><span class="hint">${tab==='pending'?'Ticked events are imported. Unticked ones are skipped and won\'t be asked about again.':'Skipped events stay out of Family Hub. Tick any you want after all.'}</span><button class="link" data-act="impAll" data-v="${nT===list.length?0:1}">${nT===list.length?'Untick all':'Tick all'}</button></div>
     <div class="card rows">${list.map(x=>impRow(x,!!S.impSel[x.id])).join('')}</div>`
     :`<div class="empty card">${tab==='pending'?'Nothing to review. New events from your calendars show up here after a sync.':'Nothing skipped'+(S.impPast?'':' from today on')+'.'}</div>`;
-  const btn=tab==='pending'?(pend.length?`<button class="btn block" data-act="impSave">Import ${nT}${pend.length-nT?`, skip ${pend.length-nT}`:''}</button>`:'')
+  const btn=tab==='pending'?(pend.length?`<div class="two"><button class="btn ghost block" data-act="impLater">Not now</button><button class="btn block" data-act="impSave">Import ${nT}${pend.length-nT?`, skip ${pend.length-nT}`:''}</button></div><div class="hint" style="font-size:12px;text-align:center;margin-top:8px">Not now keeps them waiting. Nothing is imported or skipped.</div>`:'')
     :(skip.length?`<button class="btn block" data-act="impRestore" ${nT?'':'disabled style="opacity:.5"'}>Import ${nT} ticked</button>`:'');
   return `${seg}${tab==='skipped'?`<div class="toggle" style="margin-top:12px"><span>Include past events</span><button class="sw-btn ${S.impPast?'on':''}" data-act="impPast" aria-label="Include past events"></button></div>`:''}
   <section>${body}</section>${btn}`;
@@ -1411,6 +1422,8 @@ document.addEventListener('click',e=>{
    case'wk':S.weekStart+=n('n');S.sel=S.weekStart;render();break;
    case'mo':{let{y,m}=S.month;m+=n('n');if(m<0){m=11;y--}if(m>11){m=0;y++}S.month={y,m};render();break}
    case'pick':S.sel=n('o');render();break;
+   case'impLater':S.impSel=null;go('calendar');break;
+   case'undo':{const u=S.undo;document.querySelectorAll('.toast').forEach(t=>t.remove());clearTimeout(S.undoT);S.undo=null;if(!u)break;undoRestore(u);closeSheet();render();toast('Restored');break}
    case'weekStyle':{try{localStorage.setItem('fh-week',el.dataset.v)}catch(e){S.wkStyle=el.dataset.v}render();break}
    case'addEventOn':S.sel=n('o');sheetEvent();break;
    case'dayOpen':sheetDay(n('o'));break;
@@ -1421,7 +1434,7 @@ document.addEventListener('click',e=>{
    case'dayNav':S.dOff=el.dataset.n==='0'?0:S.dOff+n('n');render();break;
    case'evDetail':sheetEventDetail(events.find(x=>x.id===n('id')));break;
    case'notDup':{const x=events.find(y=>y.id===n('id')),p=events.find(y=>y.id===x.dupOf);x.dupOf=null;closeSheet();render();toast(`"${x.title}" now shows as its own event`);break}
-   case'delEvent':{const x=events.find(y=>y.id===n('id'));events.splice(events.indexOf(x),1);events.filter(y=>y.dupOf===x.id).forEach(y=>y.dupOf=null);closeSheet();render();toast('Event deleted');break}
+   case'delEvent':{const u=undoSnap(),x=events.find(y=>y.id===n('id'));events.splice(events.indexOf(x),1);events.filter(y=>y.dupOf===x.id).forEach(y=>y.dupOf=null);closeSheet();render();undoToast('Event deleted',u);break}
    case'syncMine':doSync();break;
    case'refreshNow':refresh().then(()=>render());break;
    case'setTheme':try{localStorage.setItem('fh-theme',el.dataset.v)}catch(e){S.theme=el.dataset.v}applyTheme();render();break;
@@ -1450,7 +1463,7 @@ document.addEventListener('click',e=>{
    case'grpSave':{const name=$('#grpName').value.trim();if(!name){$('#grpName').focus();return}
      const rec={name,colour:S.grpCol,words:$('#grpWords').value.trim(),blocks:$('#grpBlocks').classList.contains('on')};
      const g=el.dataset.id?groupById(el.dataset.id):null;if(g)Object.assign(g,rec);else groups.push({id:id(),...rec});render();sheetGroups();toast(`${name} saved`);break}
-   case'grpDel':{const g=groupById(el.dataset.id);groups=groups.filter(x=>x!==g);events.forEach(e=>{if(String(e.group)===String(g.id))e.group=''});render();sheetGroups();toast(`${g.name} deleted`);break}
+   case'grpDel':{const u=undoSnap(),g=groupById(el.dataset.id);groups=groups.filter(x=>x!==g);events.forEach(e=>{if(String(e.group)===String(g.id))e.group=''});render();sheetGroups();undoToast(`${g.name} deleted`,u);break}
    case'evSkip':{const e=events.find(x=>x.id===n('id'));e.skip=!e.skip;render();sheetEventDetail(e);break}
    case'addBin':sheetBin(null);break;
    case'editBin':sheetBin(bins.find(b=>b.id===n('id')));break;
@@ -1458,15 +1471,15 @@ document.addEventListener('click',e=>{
    case'saveBin':{const nx=$('#binNext').value;if(!nx){$('#binNext').focus();toast('Pick the next collection day');return}
      const rec={colour:S.binCol,label:$('#binLabel').value.trim(),freq:$('#binFreq').value,first:diff(new Date(nx+'T00:00')),show:$('#binShow').classList.contains('on')};
      const ex=el.dataset.id?bins.find(b=>b.id===n('id')):null;if(ex)Object.assign(ex,rec);else bins.push({id:id(),...rec});closeSheet();render();toast(`${BINC[rec.colour][0]} bin saved`);break}
-   case'delBin':bins=bins.filter(b=>b.id!==n('id'));closeSheet();render();toast('Bin removed');break;
+   case'delBin':{const u=undoSnap();bins=bins.filter(b=>b.id!==n('id'));closeSheet();render();undoToast('Bin removed',u);break}
    case'editBday':sheetBday(birthdays.find(b=>b.id===n('id')));break;
    case'bdMode':S.bdMode=el.dataset.v;$('#bdYearF').hidden=S.bdMode!=='year';$('#bdAgeF').hidden=S.bdMode!=='age';el.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===el));bdHint();break;
    case'saveBday':{const name=$('#bdName').value.trim();if(!name){$('#bdName').focus();return}const day=+$('#bdDay').value,month=+$('#bdMonth').value;
      let year,known=S.bdMode==='year',how='';if(known){year=+$('#bdYear').value;if(!year){$('#bdYear').focus();return}}else{const a=$('#bdAge').value;if(a===''){$('#bdAge').focus();return}year=yearFromAge(day,month,+a);how=`Entered as age ${a} on ${isoOf(TODAY)}`}
      const ex=el.dataset.id?birthdays.find(b=>b.id===n('id')):null,rec={name,rel:$('#bdRel').value.trim(),day,month,year,known,kind:$('#bdKind').value,how,show:$('#bdShow').classList.contains('on')};
      if(ex)Object.assign(ex,rec);else birthdays.push({id:id(),...rec});closeSheet();render();const nb=nextBday(rec);toast(`${bdTitle(rec,nb.age)} is on ${nb.date.getDate()} ${MN[nb.date.getMonth()]}.${rec.show?' Added to the calendar.':''}`);break}
-   case'delBday':birthdays=birthdays.filter(b=>b.id!==n('id'));closeSheet();render();toast('Birthday removed');break;
-   case'removePlanned':{const d=n('d'),m=mealOf(meals[d]),pid=mealPid[d];const go_=()=>{const c=removeMeal(pid);delete meals[d];delete mealPid[d];closeSheet();render();toast(`${m.name} removed${c?` with ${c} grocery item${c>1?'s':''}`:''}`)};
+   case'delBday':{const u=undoSnap(),b0=birthdays.find(b=>b.id===n('id'));birthdays=birthdays.filter(b=>b.id!==n('id'));closeSheet();render();undoToast(`${b0?b0.name+"'s ":''}${b0&&b0.kind==='anniversary'?'anniversary':'birthday'} removed`,u);break}
+   case'removePlanned':{const d=n('d'),m=mealOf(meals[d]),pid=mealPid[d];const go_=()=>{const u=undoSnap(),c=removeMeal(pid);delete meals[d];delete mealPid[d];closeSheet();render();undoToast(`${m.name} removed${c?` with ${c} grocery item${c>1?'s':''}`:''}`,u)};
      if(el.dataset.ok){go_();break}const cnt=groceries.filter(g=>g.pid===pid&&!g.done).length;if(!cnt){go_();break}sheetRemoveMeal(m.name,d===0?'tonight':d===1?'tomorrow':dayLabel(d),cnt,'removePlanned',`data-d="${d}"`);break}
    case'openRecipe':S.from=S.view;S.recipe=n('id');S.view='recipes';render();window.scrollTo(0,0);break;
    case'back':{const f=S.from&&S.from!=='recipes'?S.from:'recipes';S.recipe=null;S.view=f;S.from=null;render();break}
@@ -1490,8 +1503,8 @@ document.addEventListener('click',e=>{
    case'saveTodo':{const t=todos.find(x=>x.id===n('id'));const v=$('#etTitle').value.trim();if(!v){$('#etTitle').focus();return}
      const was=t.who;t.title=v;t.priv=$('#etPriv').classList.contains('on');t.who=t.priv?S.me:$('#etWho').value;const dv=$('#etDue').value;t.date=dv?new Date(dv+'T00:00'):null;t.dt=$('#etDT').value;t.time=$('#etTime').value||'';const rp=$('#etRep').value;t.rep=rp?{f:rp}:null;closeSheet();render();
      if(!t.priv&&t.who!==was&&t.who!==S.me){notify(t.who,'todo',t.id,`${PEOPLE[S.me]} assigned you a task`);toast(`Updated. ${t.who==='B'?PEOPLE[OTHER()]:PEOPLE[t.who]} will get a notification.`)}else toast('Task updated');break}
-   case'delTodo':todos=todos.filter(x=>x.id!==n('id'));closeSheet();render();toast('Task deleted');break;
-   case'dropHold':{const h=holding.find(x=>x.hid===n('h')),m=mealOf(h.rid);const go_=()=>{const c=removeMeal(h.hid);holding=holding.filter(x=>x!==h);closeSheet();render();toast(`${m.name} removed${c?` with ${c} grocery item${c>1?'s':''}`:''}`)};
+   case'delTodo':{const u=undoSnap();todos=todos.filter(x=>x.id!==n('id'));closeSheet();render();undoToast('Task deleted',u);break}
+   case'dropHold':{const h=holding.find(x=>x.hid===n('h')),m=mealOf(h.rid);const go_=()=>{const u=undoSnap(),c=removeMeal(h.hid);holding=holding.filter(x=>x!==h);closeSheet();render();undoToast(`${m.name} removed${c?` with ${c} grocery item${c>1?'s':''}`:''}`,u)};
      if(el.dataset.ok){go_();break}const cnt=groceries.filter(g=>g.pid===h.hid&&!g.done).length;if(!cnt){go_();break}sheetRemoveMeal(m.name,'the meal plan',cnt,'dropHold',`data-h="${h.hid}"`);break}
    case'filter':S.filter=el.dataset.v;render();break;
    case'switchMe':openSetup();break;
@@ -1502,7 +1515,7 @@ document.addEventListener('click',e=>{
    case'usePass':openSetup('',true);break;
    case'signOut':signOut();break;
    case'shopToggle':{const s=shopping.find(x=>x.id===n('id'));s.done=!s.done;render();break}
-   case'clearDone':if(el.dataset.l==='groceries')groceries=groceries.filter(s=>!s.done);else shopping=shopping.filter(s=>!s.done);render();break;
+   case'clearDone':{const u=undoSnap(),l=el.dataset.l==='groceries'?groceries:shopping,k=l.filter(s=>s.done).length;if(el.dataset.l==='groceries')groceries=groceries.filter(s=>!s.done);else shopping=shopping.filter(s=>!s.done);render();if(k)undoToast(`Cleared ${k} ticked item${k===1?'':'s'}`,u);break}
    case'scale':{const r=recipeById(n('id'));S.serves=S.serves||{};S.serves[r.id]=Math.max(1,servesOf(r)+n('n'));render();break}
    case'scaleReset':delete S.serves[n('id')];render();break;
    case'rSort':S.rSort=el.dataset.v;render();break;
@@ -1511,7 +1524,7 @@ document.addEventListener('click',e=>{
    case'groToggle':{const ls=el.dataset.id?groceries.filter(g=>g.id===n('id')):groceries.filter(g=>keyOf(g.name)===el.dataset.k&&(S.view!=='groceries'||!g.done||true));const to=!ls.every(g=>g.done);ls.forEach(g=>g.done=to);render();break}
    case'groEdit':sheetGroCat(el.dataset.k);break;
    case'setGroCat':{const k=el.dataset.k,c=el.dataset.c,rem=$('#groRemember').classList.contains('on');groceries.filter(g=>keyOf(g.name)===k).forEach(g=>g.cat=c);if(rem)USER_CAT[k]=c;closeSheet();render();toast(rem?`Moved to ${c}. Remembered for next time.`:`Moved to ${c}`);break}
-   case'groDelete':groceries=groceries.filter(g=>!(keyOf(g.name)===el.dataset.k&&!g.rid));closeSheet();render();break;
+   case'groDelete':{const u=undoSnap();groceries=groceries.filter(g=>!(keyOf(g.name)===el.dataset.k&&!g.rid));closeSheet();render();undoToast('Item removed',u);break}
    case'seenAll':notes.forEach(x=>{if(x.to===S.me)x.read=true});render();break;
    case'openNote':{const x=notes.find(y=>y.id===n('n'));x.read=true;if(x.kind==='todo')go('todos');else{S.sel=events.find(e=>e.id===x.ref).d;S.calMode='week';S.weekStart=monOf(S.sel);go('calendar',true)}break}
    case'todoToggle':{const t=todos.find(x=>x.id===n('id'));t.done=!t.done;if(t.done&&t.rep&&t.date&&!todos.some(x=>x!==t&&x.title===t.title&&x.date&&isoOf(x.date)===isoOf(nextFree(t)))){const nx={...t,id:id(),done:false,date:nextFree(t)};t.spawned=true;todos.push(nx);render();toast(`Done. Next one: ${DN[nx.date.getDay()]} ${nx.date.getDate()} ${MN[nx.date.getMonth()]}`)}else render();break}
