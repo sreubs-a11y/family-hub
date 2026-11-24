@@ -185,6 +185,9 @@ button.divrow.donehead{display:block;width:100%;text-align:left;border-left:0;bo
 .wxd{display:flex;flex-direction:column;align-items:center;gap:0;padding:6px 0 5px;border:1px solid var(--line);background:var(--surface);border-radius:12px;font-size:11px;color:var(--muted);min-width:0;font-variant-numeric:tabular-nums}
 .wxd .ic{font-size:19px;line-height:1.3}.wxd b{color:var(--fg);font-size:13px}.wxd .rn{color:var(--accent);font-weight:600}
 .wxd.on{border-color:var(--accent);background:var(--accent-soft)}
+.wxh{display:none;align-items:center;gap:5px;flex:none;font-variant-numeric:tabular-nums;line-height:1.15;cursor:pointer;border:0;background:none;padding:0;color:var(--fg)}
+.wxh.on{display:flex}.wxh .ic{font-size:18px;line-height:1}.wxh .t{display:flex;flex-direction:column;font-size:11px}.wxh .t b{font-size:12px}.wxh .rn{color:var(--accent);font-size:10.5px;font-weight:600;white-space:nowrap}
+header.top:has(.wxh.on){gap:8px}header.top:has(.wxh.on) .hnav{gap:4px}header.top:has(.wxh.on) .eyebrow{letter-spacing:0;font-size:11px;text-overflow:clip}
 .wx1{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface);border:1px solid var(--line);border-radius:16px}
 .wx1 .ic{font-size:30px;line-height:1}.wx1 .wxt{display:flex;flex-direction:column;flex:1;min-width:0}.wx1 .wxt .hint{font-size:12px}
 .wx1 .wxn{display:flex;flex-direction:column;align-items:flex-end;font-variant-numeric:tabular-nums}.wx1 .wxn b{font-size:18px}.wx1 .rn{font-size:12px;color:var(--accent);font-weight:600}
@@ -460,7 +463,7 @@ html,body{overflow-x:clip}
 <div class="app">
   <header class="top">
     <button class="menu-btn" data-act="menu" aria-label="Open menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
-    <div class="ttl"><div class="eyebrow" id="eyebrow"></div><h1 id="heading">Today</h1></div><span class="hnav" id="hnav"></span>
+    <div class="ttl"><div class="eyebrow" id="eyebrow"></div><h1 id="heading">Today</h1></div><span class="wxh" id="wxh"></span><span class="hnav" id="hnav"></span>
     <span class="proto" id="status" role="status">Loading…</span>
   </header>
   <main id="main"></main>
@@ -833,31 +836,33 @@ const dotsFor=d=>{const t=[...new Set(dayEvents(d,true).map(e=>itemColour(e)||(e
 const mailOn=()=>{const v=typeof SETTINGS!=='undefined'&&SETTINGS&&SETTINGS.mail_people!=null&&String(SETTINGS.mail_people).trim()!==''?String(SETTINGS.mail_people):'R';return v.toUpperCase().includes(S.me)};
 const mailCal=()=>{try{return localStorage.getItem('fh-mail-cal')==='1'}catch(e){return !!S.mailCal}};   // off until turned on in the calendar's groups menu
 const myMail=()=>mailOn()?mail.filter(m=>m.by===S.me):[];
-const mailEvents=d=>mailCal()?myMail().filter(m=>m.status!=='arrived'&&m.exp===d).map(m=>({id:'mail'+m.id,mail:m,d,time:'',type:'mail',who:S.me,by:S.me,title:m.item})):[];
+const mailEvents=d=>mailCal()||S.view==='today'?myMail().filter(m=>m.status!=='arrived'&&m.exp===d).map(m=>({id:'mail'+m.id,mail:m,d,time:'',type:'mail',who:S.me,by:S.me,title:m.item})):[];
 const mailWhen=m=>m.status==='arrived'?'Arrived'+(m.arrived!=null?' '+dayLabel(m.arrived).replace(/^(Today|Tomorrow|Yesterday)$/,x=>x.toLowerCase()):''):m.exp==null?'No date yet':m.exp<0?'Late · was due '+dayLabel(m.exp).replace(/^(Today|Tomorrow|Yesterday)$/,x=>x.toLowerCase()):'Due '+dayLabel(m.exp).replace(/^(Today|Tomorrow|Yesterday)$/,x=>x.toLowerCase());
 // ---------- weather: Open-Meteo (free, no key). Each phone keeps its own place ----------
 const wxGet=()=>{try{return JSON.parse(localStorage.getItem('fh-wx')||'null')||{}}catch(e){return S.wx||{}}};
 const wxSet=o=>{S.wx=o;try{localStorage.setItem('fh-wx',JSON.stringify(o))}catch(e){}};
 const WMO=c=>c===0?['☀️','Sunny']:c<=2?['🌤️','Partly cloudy']:c===3?['☁️','Cloudy']:c<=48?['🌫️','Fog']:c<=57?['🌦️','Drizzle']:c<=67?['🌧️','Rain']:c<=77?['❄️','Snow']:c<=82?['🌦️','Showers']:c<=86?['🌨️','Snow showers']:['⛈️','Storms'];
 const here=()=>new Promise((ok,no)=>{if(!navigator.geolocation)return no(new Error('no location'));navigator.geolocation.getCurrentPosition(p=>ok({lat:+p.coords.latitude.toFixed(2),lon:+p.coords.longitude.toFixed(2)}),no,{timeout:15000,maximumAge:3600e3})});
-async function wxFetch(force){let w=wxGet();if(w.lat==null||w.off||S.wxBusy)return;if(!force&&w.at&&Date.now()-w.at<3*3600e3&&w.day===isoOf(TODAY))return;
+async function wxFetch(force){let w=wxGet();if(w.lat==null||w.off||S.wxBusy)return;if(!force&&w.at&&Date.now()-w.at<3*3600e3&&w.day===isoOf(TODAY)&&w.days&&w.days[0]&&'mm' in w.days[0])return;
   S.wxBusy=true;try{
     if(w.mode==='gps'&&!force)try{const p=await here();w={...w,...p}}catch(e){}
-    const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${w.lat}&longitude=${w.lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=7`);
+    const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${w.lat}&longitude=${w.lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum&timezone=auto&forecast_days=7`);
     if(!r.ok)throw new Error('weather '+r.status);const dl=(await r.json()).daily;S.wxErr='';
-    wxSet({...w,at:Date.now(),day:isoOf(TODAY),days:dl.time.map((t,i)=>({date:t,code:dl.weather_code[i],hi:Math.round(dl.temperature_2m_max[i]),lo:Math.round(dl.temperature_2m_min[i]),rain:dl.precipitation_probability_max[i]}))});
+    wxSet({...w,at:Date.now(),day:isoOf(TODAY),days:dl.time.map((t,i)=>({date:t,code:dl.weather_code[i],hi:Math.round(dl.temperature_2m_max[i]),lo:Math.round(dl.temperature_2m_min[i]),rain:dl.precipitation_probability_max[i],mm:dl.precipitation_sum?dl.precipitation_sum[i]:null}))});
     if(S.view==='today'&&!$('#overlay .sheet'))render()}
   catch(e){S.wxErr=e.message||String(e)}finally{S.wxBusy=false}}
 function weatherHTML(){const w=wxGet();if(w.off)return'';
   if(w.lat==null)return `<button class="binbar" data-act="wxSetup"><span style="font-size:20px">⛅</span><span><b>Add the week's weather</b><span class="hint"> · from this phone's location or a town you pick</span></span></button>`;
   setTimeout(()=>wxFetch(),0);const days=(w.days||[]).map(d=>({...d,o:diff(new Date(d.date+'T00:00'))})).filter(d=>d.o>=0&&d.o<7);
-  if(!days.length)return `<div class="hint">${S.wxErr?"Couldn't load the weather. It'll try again later.":'Loading the weather…'}</div>`;
-  const d=days.find(x=>x.o===S.dOff);if(!d)return '';   // forecasts reach a week ahead
-  const [ic,lab]=WMO(d.code);
-  return `<div class="wx1" role="group" aria-label="Weather${w.place?' in '+esc(w.place):''}"><span class="ic" aria-hidden="true">${ic}</span>
-    <span class="wxt"><b>${lab}</b><span class="hint">${esc(w.place||'')}</span></span>
-    <span class="wxn"><b>${d.hi}°</b> <span class="hint">/ ${d.lo}°</span><span class="rn">${d.rain!=null?'💧 '+d.rain+'%':''}</span></span>
-    <button class="link" data-act="wxSetup" aria-label="Change weather place">Change</button></div>`}
+  if(!days.length)return '';
+  return '';   // the forecast shows in the header (wxHeader)
+}
+// the day in view's weather, small, in the header: symbol, high/low, chance and amount of rain. Tap to change the place.
+function wxHeader(){const w=wxGet();if(w.off||w.lat==null||S.view!=='today')return '';
+  const d=(w.days||[]).find(x=>diff(new Date(x.date+'T00:00'))===S.dOff);if(!d)return '';
+  const [ic,lab]=WMO(d.code),mm=d.mm!=null&&d.mm>=0.5?Math.max(1,Math.round(d.mm))+'mm':'',pc=d.rain>0?d.rain+'%':'';
+  return `<span class="ic" aria-hidden="true">${ic}</span><span class="t"><b>${d.hi}°/${d.lo}°</b>${pc||mm?`<span class="rn">${[pc,mm].filter(Boolean).join('·')}</span>`:''}</span>`+
+    `<span class="sr">${lab}, high ${d.hi}, low ${d.lo}${pc?', '+pc+' chance of rain':''}${mm?', '+mm:''}</span>`}
 function sheetWx(){const w=wxGet();
   sheet(`<h3>Weather</h3><div class="hint">Free forecast from Open-Meteo. Each phone keeps its own place${w.place&&!w.off?` (now: ${esc(w.place)})`:''}.</div>
   <button class="btn block" data-act="wxGps">📍 Use my location</button>
@@ -905,7 +910,7 @@ function V_today(){
   const doneT=todos.filter(t=>visible(t)&&t.done&&t.date&&diff(t.date)===X&&!t.time);
   const later=X!==0?[]:todos.filter(t=>visible(t)&&!t.done&&!t.time&&(!t.date||(t.dt==='by'&&diff(t.date)>0))).sort(todoCmp);
   const nw=X===0?myNew():[];
-  S.calHead={label:X===0?'Today':dayLabel(X).split(' ')[0],eyebrow:`${DN[dt.getDay()]} ${dt.getDate()} ${MONTHS[dt.getMonth()]}`,act:'dayNav',a:-1,b:1};
+  S.calHead={label:X===0?'Today':dayLabel(X).split(' ')[0],eyebrow:`${DN[dt.getDay()]} ${dt.getDate()} ${MN[dt.getMonth()]}`,act:'dayNav',a:-1,b:1};
   return `${X!==0?`<div class="backday"><button class="link" data-act="dayNav" data-n="0">‹ Back to today</button></div>`:''}
   ${nw.length?`<section><div class="sec-head"><h2>New for you</h2><button class="link" data-act="seenAll">Mark as seen</button></div>
     <div class="card rows newbox">${nw.map(x=>{const o=x.kind==='todo'?todos.find(t=>t.id===x.ref):events.find(e=>e.id===x.ref);if(!o)return'';
@@ -1607,6 +1612,7 @@ function render(){
   $('#heading').textContent=S.view==='recipes'&&S.recipe?'Recipe':S.view==='today'?(S.dOff===0?'Today':dayLabel(S.dOff).split(' ')[0]):TITLES[S.view][1];
   document.body.classList.toggle('wide',S.view==='calendar'&&S.calMode==='month');
   S.calHead=null;document.documentElement.lang='en';{const h=document.querySelector('header.top');if(h)document.documentElement.style.setProperty('--toph',h.offsetHeight+'px')}
+  {const x=$('#wxh');if(x){const h=wxHeader();x.innerHTML=h;x.classList.toggle('on',!!h);x.dataset.act='wxSetup';x.setAttribute('role','button');x.setAttribute('aria-label','Weather. Tap to change the place')}}
   $('#main').innerHTML=({today:V_today,calendar:V_calendar,plan:V_plan,recipes:V_recipes,groceries:V_groceries,shopping:V_shopping,todos:V_todos,mail:V_mail,birthdays:V_birthdays,bins:V_bins,imports:V_imports,settings:V_settings})[S.view]();
   {const h=(S.view==='calendar'||S.view==='today')&&S.calHead;$('#hnav').innerHTML=h?`<button class="pg" data-act="${h.act}" data-n="${h.a}" aria-label="Previous">‹</button><button class="pg" data-act="${h.act}" data-n="${h.b}" aria-label="Next">›</button>`:'';
    if(h){$('#heading').textContent=h.label;$('#eyebrow').textContent=h.eyebrow||(S.calMode==='week'?'Week':'Calendar · '+S.month.y)}}
