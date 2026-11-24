@@ -173,6 +173,8 @@ textarea{resize:vertical;min-height:72px;line-height:1.4}
 .qres .row .s{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 .toggle.defer{flex-direction:column;align-items:stretch;gap:8px}.defer .segsm{display:flex;background:var(--surface);border:1px solid var(--line)}.defer .segsm button{flex:1;white-space:nowrap;padding:8px 6px;color:var(--accent)}
+.btn.danger{background:#C62828;color:#fff;border-color:#C62828}
+button.divrow.donehead{display:block;width:100%;text-align:left;border-left:0;border-right:0;border-bottom:0;cursor:pointer}
 .evnotes{display:flex;flex-direction:column;gap:8px}.evnotes .link{align-self:flex-start}
 /* mail and weather */
 :root{--mail:#8A5A2B;--mail-soft:#F6EBDD}
@@ -183,6 +185,10 @@ textarea{resize:vertical;min-height:72px;line-height:1.4}
 .wxd{display:flex;flex-direction:column;align-items:center;gap:0;padding:6px 0 5px;border:1px solid var(--line);background:var(--surface);border-radius:12px;font-size:11px;color:var(--muted);min-width:0;font-variant-numeric:tabular-nums}
 .wxd .ic{font-size:19px;line-height:1.3}.wxd b{color:var(--fg);font-size:13px}.wxd .rn{color:var(--accent);font-weight:600}
 .wxd.on{border-color:var(--accent);background:var(--accent-soft)}
+.wx1{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface);border:1px solid var(--line);border-radius:16px}
+.wx1 .ic{font-size:30px;line-height:1}.wx1 .wxt{display:flex;flex-direction:column;flex:1;min-width:0}.wx1 .wxt .hint{font-size:12px}
+.wx1 .wxn{display:flex;flex-direction:column;align-items:flex-end;font-variant-numeric:tabular-nums}.wx1 .wxn b{font-size:18px}.wx1 .rn{font-size:12px;color:var(--accent);font-weight:600}
+.wx1 .link{font-size:12px;align-self:flex-start}
 .wxfoot{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);margin-top:-10px}.wxfoot .link{font-size:12px}
 mark{background:var(--accent-soft);color:inherit;border-radius:3px;padding:0 1px}
 .btn{border:0;border-radius:var(--rb);padding:11px 16px;font-weight:600;background:var(--accent);color:var(--accent-ink);white-space:nowrap}
@@ -825,7 +831,7 @@ const dotsFor=d=>{const t=[...new Set(dayEvents(d,true).map(e=>itemColour(e)||(e
 // ---------- mail: parcels on the way (private to whoever adds them) ----------
 // who gets the Mail page: the Settings tab's mail_people (e.g. "R" or "RT"); Reuben only unless set
 const mailOn=()=>{const v=typeof SETTINGS!=='undefined'&&SETTINGS&&SETTINGS.mail_people!=null&&String(SETTINGS.mail_people).trim()!==''?String(SETTINGS.mail_people):'R';return v.toUpperCase().includes(S.me)};
-const mailCal=()=>{try{const v=localStorage.getItem('fh-mail-cal');return v==null?true:v==='1'}catch(e){return S.mailCal!==false}};
+const mailCal=()=>{try{return localStorage.getItem('fh-mail-cal')==='1'}catch(e){return !!S.mailCal}};   // off until turned on in the calendar's groups menu
 const myMail=()=>mailOn()?mail.filter(m=>m.by===S.me):[];
 const mailEvents=d=>mailCal()?myMail().filter(m=>m.status!=='arrived'&&m.exp===d).map(m=>({id:'mail'+m.id,mail:m,d,time:'',type:'mail',who:S.me,by:S.me,title:m.item})):[];
 const mailWhen=m=>m.status==='arrived'?'Arrived'+(m.arrived!=null?' '+dayLabel(m.arrived).replace(/^(Today|Tomorrow|Yesterday)$/,x=>x.toLowerCase()):''):m.exp==null?'No date yet':m.exp<0?'Late · was due '+dayLabel(m.exp).replace(/^(Today|Tomorrow|Yesterday)$/,x=>x.toLowerCase()):'Due '+dayLabel(m.exp).replace(/^(Today|Tomorrow|Yesterday)$/,x=>x.toLowerCase());
@@ -846,9 +852,12 @@ function weatherHTML(){const w=wxGet();if(w.off)return'';
   if(w.lat==null)return `<button class="binbar" data-act="wxSetup"><span style="font-size:20px">⛅</span><span><b>Add the week's weather</b><span class="hint"> · from this phone's location or a town you pick</span></span></button>`;
   setTimeout(()=>wxFetch(),0);const days=(w.days||[]).map(d=>({...d,o:diff(new Date(d.date+'T00:00'))})).filter(d=>d.o>=0&&d.o<7);
   if(!days.length)return `<div class="hint">${S.wxErr?"Couldn't load the weather. It'll try again later.":'Loading the weather…'}</div>`;
-  return `<div class="wx" aria-label="Weather for ${esc(w.place||'your area')}">${days.map(d=>{const [ic,lab]=WMO(d.code),dt=addDays(TODAY,d.o);
-    return `<button class="wxd ${d.o===S.dOff?'on':''}" data-act="dayGo" data-o="${d.o}" aria-label="${d.o===0?'Today':DNL[dt.getDay()]}: ${lab}, ${d.hi}° to ${d.lo}°, ${d.rain??0}% chance of rain"><span>${d.o===0?'Today':DN[dt.getDay()]}</span><span class="ic" aria-hidden="true">${ic}</span><b>${d.hi}°</b><span>${d.lo}°</span><span class="rn">${d.rain>=20?d.rain+'%':'&nbsp;'}</span></button>`}).join('')}</div>
-  <div class="wxfoot"><span>${esc(w.place||'')}${w.place?' · ':''}% = chance of rain</span><button class="link" data-act="wxSetup">Change</button></div>`}
+  const d=days.find(x=>x.o===S.dOff);if(!d)return '';   // forecasts reach a week ahead
+  const [ic,lab]=WMO(d.code);
+  return `<div class="wx1" role="group" aria-label="Weather${w.place?' in '+esc(w.place):''}"><span class="ic" aria-hidden="true">${ic}</span>
+    <span class="wxt"><b>${lab}</b><span class="hint">${esc(w.place||'')}</span></span>
+    <span class="wxn"><b>${d.hi}°</b> <span class="hint">/ ${d.lo}°</span><span class="rn">${d.rain!=null?'💧 '+d.rain+'%':''}</span></span>
+    <button class="link" data-act="wxSetup" aria-label="Change weather place">Change</button></div>`}
 function sheetWx(){const w=wxGet();
   sheet(`<h3>Weather</h3><div class="hint">Free forecast from Open-Meteo. Each phone keeps its own place${w.place&&!w.off?` (now: ${esc(w.place)})`:''}.</div>
   <button class="btn block" data-act="wxGps">📍 Use my location</button>
@@ -858,7 +867,7 @@ function sheetWx(){const w=wxGet();
 // extra rows for Settings → Display (used by the prototype and the real app)
 function displayExtras(){const w=wxGet();
   return `<div class="toggle" style="padding:12px 14px;border-top:1px solid var(--line);border-radius:0"><span><div style="font-weight:600">Weather on Today</div><div class="hint" style="font-size:12px">${w.lat!=null&&!w.off?esc(w.place||'On'):'Off'}</div></span><button class="btn ghost sm" data-act="wxSetup">Change</button></div>
-  ${mailOn()?`<div class="toggle" style="padding:12px 14px;border-top:1px solid var(--line);border-radius:0"><span><div style="font-weight:600">Deliveries on my calendar</div><div class="hint" style="font-size:12px">Expected parcels from Mail, for you only</div></span><button class="sw-btn ${mailCal()?'on':''}" data-act="mailCalT" aria-label="Show deliveries on my calendar"></button></div>`:''}`}
+`}
 
 // ---------- views ----------
 function eventRow(e,d){
@@ -926,7 +935,7 @@ function monthDayItems(o){
 }
 // picks are made in a draft and applied when you tap outside the menu
 function groupMenu(){if(!S.grpOpen)return'';const d=S.grpDraft;
-  return `<div class="gpop" role="dialog" aria-label="Show groups"><div class="gpop-h">Show on calendar</div>${groups.map(g=>{const on=!d.includes(String(g.id));return `<button class="gopt ${on?'on':''}" data-act="grpPick" data-id="${g.id}" role="checkbox" aria-checked="${on}" style="--c:${g.colour}"><span class="gbox">${on?ICON.tick:''}</span><i></i>${esc(g.name)}</button>`}).join('')}
+  return `<div class="gpop" role="dialog" aria-label="Show groups"><div class="gpop-h">Show on calendar</div>${mailOn()?(()=>{const on=!!S.grpMail;return `<button class="gopt ${on?'on':''}" data-act="grpMailPick" role="checkbox" aria-checked="${on}" style="--c:var(--mail)"><span class="gbox">${on?ICON.tick:''}</span><i></i>${LOCK} Deliveries (just you)</button>`})():''}${groups.map(g=>{const on=!d.includes(String(g.id));return `<button class="gopt ${on?'on':''}" data-act="grpPick" data-id="${g.id}" role="checkbox" aria-checked="${on}" style="--c:${g.colour}"><span class="gbox">${on?ICON.tick:''}</span><i></i>${esc(g.name)}</button>`}).join('')}
   <div class="gpop-f"><button class="link" data-act="grpAll">Show all</button><button class="link" data-act="grpManage">Edit groups</button></div></div>`}
 function groupChips(){return ''}
 function V_calendar(){
@@ -1016,7 +1025,7 @@ function calBar(label,act,a,b){
   S.calHead={label,act,a,b};
   return `<div class="calbar"><span class="calbar-r"><button class="btn ghost sm" data-act="calToday">Today</button><span class="segsm"><button class="${S.calMode==='month'?'on':''}" data-act="calMode" data-v="month">Month</button><button class="${S.calMode==='week'?'on':''}" data-act="calMode" data-v="week">Week</button></span>
    <span class="gwrap"><button class="pg gbtn ${hiddenGroups().length?'some':''}" data-act="grpMenu" aria-haspopup="true" aria-expanded="${!!S.grpOpen}" aria-label="Groups${hiddenGroups().length?', '+hiddenGroups().length+' hidden':''}" title="Groups">${ICON.filter}${hiddenGroups().length?`<b>${hiddenGroups().length}</b>`:''}</button>${groupMenu()}</span>
-   <button class="pg" data-act="calSearch" aria-label="Search the calendar" title="Search">${ICON.search}</button><button class="pg" data-act="syncMine" aria-label="Sync my calendars" title="Sync my calendars">↻</button><button class="pg" data-act="addEvent" aria-label="Add event" title="Add event">+</button></span></div>`;
+   <button class="pg" data-act="calSearch" aria-label="Search the calendar" title="Search">${ICON.search}</button><button class="pg" data-act="syncMine" aria-label="Sync my calendars" title="Sync my calendars">↻</button></span></div>`;
 }
 // tasks with this date and no time (timed ones are already in the day's schedule); done ones show ticked
 const dayTasks=o=>todos.filter(t=>visible(t)&&passFilter(t)&&t.date&&!t.time&&diff(t.date)===o).sort(todoCmp);
@@ -1235,14 +1244,15 @@ function tasksByDate(list){
   const nod=list.filter(t=>!t.done&&!t.date).sort(todoCmp);
   const dn=list.filter(t=>t.done).sort((a,b)=>String(b.doneAt||'').localeCompare(String(a.doneAt||''))||((b.date||0)-(a.date||0)));
   const sec=(label,rows)=>rows?`<div class="divrow">${label}</div>${rows}`:'';
-  return dated.map(t=>todoRow(t,{noGrip:1})).join('')+(dated.length?sec('No date',nod.map(todoRow).join('')):nod.map(todoRow).join(''))+sec('Done',dn.map(t=>todoRow(t)).join(''))}
+  const doneHead=dn.length?`<button class="divrow donehead" data-act="doneOpen" aria-expanded="${!!S.showDone}">${S.showDone?'▾':'▸'} Done (${dn.length})</button>`:'';
+  return dated.map(t=>todoRow(t,{noGrip:1})).join('')+(dated.length?sec('No date',nod.map(todoRow).join('')):nod.map(todoRow).join(''))+doneHead+(S.showDone?dn.map(t=>todoRow(t)).join(''):'')}
 function V_todos(){
   const all=todos.filter(t=>visible(t)&&passFilter(t)).sort(todoCmp),old=all.filter(doneLongAgo),list=S.showOldDone?all:all.filter(t=>!doneLongAgo(t));
   return `${todoFormHTML(null)}
   <div class="hint" style="margin-top:-12px">New tasks are for today unless you pick another day. With a time, it moves into that day's schedule. Tasks are in date order; drag the dots to reorder ones with no date.</div>
   ${filterChips()}
   <div class="card rows">${tasksByDate(list)||'<div class="empty">Nothing to do</div>'}</div>
-  ${old.length?`<button class="link" data-act="oldDone">${S.showOldDone?'Hide':'Show'} ${old.length} older ticked task${old.length===1?'':'s'}</button>`:''}`;
+  ${old.length&&S.showDone?`<button class="link" data-act="oldDone">${S.showOldDone?'Hide':'Show'} ${old.length} older ticked task${old.length===1?'':'s'}</button>`:''}`;
 }
 function mailRow(m){const got=m.status==='arrived',late=!got&&m.exp!=null&&m.exp<0;
   return `<div class="row ${got?'done':''}"><button class="check ${got?'on':''}" data-act="mailToggle" data-id="${m.id}" aria-label="${got?'Not arrived yet':'Arrived'}: ${esc(m.item)}">${got?ICON.tick:''}</button>
@@ -1252,8 +1262,7 @@ function V_mail(){
   const mine=myMail(),open=mine.filter(m=>m.status!=='arrived').sort((a,b)=>(a.exp??9e9)-(b.exp??9e9)),got=mine.filter(m=>m.status==='arrived').sort((a,b)=>(b.arrived??-9e9)-(a.arrived??-9e9)).slice(0,15);
   return `<form data-form="mail" class="todo-form"><div class="addbar"><input type="text" id="mailInput" placeholder="What's coming, e.g. school shoes" autocomplete="off" aria-label="New delivery"><button class="btn">Add</button></div>
   <div class="minis"><label class="mini"><span class="mini-l">due</span><input type="date" id="mailDue" aria-label="Expected delivery date"></label><label class="mini"><span class="mini-l">from</span><input type="text" id="mailFrom" placeholder="optional" aria-label="From" style="max-width:9em"></label></div></form>
-  <div class="hint" style="margin-top:-12px">${LOCK} Only you can see this list. Tick a parcel when it arrives.</div>
-  <div class="toggle"><span><div style="font-weight:600">Show on my calendar</div><div class="hint" style="font-size:12px">Expected deliveries appear on their day, for you only</div></span><button class="sw-btn ${mailCal()?'on':''}" data-act="mailCalT" aria-label="Show deliveries on my calendar"></button></div>
+  <div class="hint" style="margin-top:-12px">${LOCK} Only you can see this list. Tick a parcel when it arrives. To see deliveries on the calendar, turn on "Deliveries" in the calendar's groups filter.</div>
   <section><div class="sec-head"><h2>On the way</h2></div><div class="card rows">${open.map(mailRow).join('')||'<div class="empty">Nothing on the way</div>'}</div></section>
   ${got.length?`<section><div class="sec-head"><h2 style="color:var(--muted)">Arrived</h2></div><div class="card rows">${got.map(mailRow).join('')}</div></section>`:''}`;
 }
@@ -1618,7 +1627,7 @@ function render(){
 })();
 function go(v,keepDay){closeSheet();if(v==='today'&&!keepDay)S.dOff=0;if(v==='calendar'&&!keepDay){S.calMode='month';S.sel=0;S.weekStart=monOf(0);S.month={y:TODAY.getFullYear(),m:TODAY.getMonth()}}if(v!=='recipes')S.pickFor=null;S.view=v;S.recipe=null;render();window.scrollTo(0,0);try{history.replaceState(history.state,'','#'+v)}catch(e){}}
 
-function applyGroupMenu(){if(!S.grpOpen)return;S.grpOpen=false;setHiddenGroups(S.grpDraft||[]);render()}
+function applyGroupMenu(){if(!S.grpOpen)return;S.grpOpen=false;setHiddenGroups(S.grpDraft||[]);if(mailOn()&&S.grpMail!=null&&S.grpMail!==mailCal()){try{localStorage.setItem('fh-mail-cal',S.grpMail?'1':'0')}catch(e){S.mailCal=S.grpMail}}render()}
 // a tap outside the groups menu applies it and closes it (and does nothing else)
 document.addEventListener('click',e=>{if(S.grpOpen&&!e.target.closest('.gpop,[data-act=grpMenu]')){e.stopPropagation();e.preventDefault();applyGroupMenu()}},true);
 document.addEventListener('click',e=>{
@@ -1671,7 +1680,10 @@ document.addEventListener('click',e=>{
      if(k&&el.dataset.i!=null){const o=(k==='todo'?todos:events).find(x=>x.id===Number(box.dataset.id)),i=n('i'),p=o&&parseNotes(o.notes);
        if(p&&p.items[i]&&p.items[i].on!==on){p.items[i].on=on;o.notes=joinNotes(p.text,p.items);render()}}break}
    case'notDup':{const x=events.find(y=>y.id===n('id')),p=events.find(y=>y.id===x.dupOf);x.dupOf=null;closeSheet();render();toast(`"${x.title}" now shows as its own event`);break}
-   case'delEvent':{const u=undoSnap(),x=events.find(y=>y.id===n('id'));events.splice(events.indexOf(x),1);events.filter(y=>y.dupOf===x.id).forEach(y=>y.dupOf=null);closeSheet();render();undoToast('Event deleted',u);break}
+   case'delEvent':{const x0=events.find(y=>y.id===n('id'));if(!x0)break;
+     if(!el.dataset.ok){sheet(`<h3>Delete "${esc(x0.title)}"?</h3><div class="hint">${x0.rep?'This deletes every repeat of it':'It comes off the calendar'}${x0.src==='app'&&x0.gcal&&!x0.priv?', and off Google Calendar at the next sync':''}.</div>
+       <div class="two"><button class="btn ghost block" data-act="evDetail" data-id="${x0.id}">Cancel</button><button class="btn block danger" data-act="delEvent" data-id="${x0.id}" data-ok="1">Delete</button></div>`);break}
+     const u=undoSnap(),x=x0;events.splice(events.indexOf(x),1);events.filter(y=>y.dupOf===x.id).forEach(y=>y.dupOf=null);closeSheet();render();undoToast('Event deleted',u);break}
    case'syncMine':doSync();break;
    case'refreshNow':refresh().then(()=>render());break;
    case'setTheme':try{localStorage.setItem('fh-theme',el.dataset.v)}catch(e){S.theme=el.dataset.v}applyTheme();render();break;
@@ -1690,9 +1702,10 @@ document.addEventListener('click',e=>{
      decideImports(imp,skip).then(()=>{pend.forEach(x=>delete S.deciding[x.id]);render();if(imp.length)toast(`Imported ${imp.length}${skip.length?`, skipped ${skip.length}`:''}`)})
        .catch(e=>{pend.forEach(x=>delete S.deciding[x.id]);render();toast(`Import didn't finish (${e.message}). Open the review to try again.`)});break}
    case'impRestore':{const imp=Object.keys(S.impSel).map(Number);el.disabled=true;decideImports(imp,[]).then(()=>{S.impSel={};render();toast(`Imported ${imp.length}`)}).catch(e=>{el.disabled=false;toast(e.message)});break}
-   case'grpMenu':if(S.grpOpen){applyGroupMenu()}else{S.grpOpen=true;S.grpDraft=hiddenGroups().slice();render()}break;
+   case'grpMenu':if(S.grpOpen){applyGroupMenu()}else{S.grpOpen=true;S.grpDraft=hiddenGroups().slice();S.grpMail=mailCal();render()}break;
+   case'grpMailPick':{S.grpMail=!S.grpMail;el.classList.toggle('on',S.grpMail);el.setAttribute('aria-checked',S.grpMail);el.querySelector('.gbox').innerHTML=S.grpMail?ICON.tick:'';break}
    case'grpPick':{const k=String(el.dataset.id),d=S.grpDraft,on=d.includes(k);S.grpDraft=on?d.filter(x=>x!==k):d.concat(k);el.classList.toggle('on',on);el.setAttribute('aria-checked',on);el.querySelector('.gbox').innerHTML=on?ICON.tick:'';break}
-   case'grpAll':S.grpDraft=[];applyGroupMenu();break;
+   case'grpAll':S.grpDraft=[];S.grpMail=mailOn()?true:S.grpMail;applyGroupMenu();break;
    case'grpToggle':{const h=hiddenGroups(),k=String(el.dataset.id);setHiddenGroups(h.includes(k)?h.filter(x=>x!==k):h.concat(k));render();break}
    case'grpManage':S.grpOpen=false;sheetGroups();break;
    case'grpEdit':sheetGroup(el.dataset.id?groupById(el.dataset.id):null);break;
@@ -1740,6 +1753,7 @@ document.addEventListener('click',e=>{
    case'saveTodo':{const t=todos.find(x=>x.id===n('id'));const v=$('#etTitle').value.trim();if(!v){$('#etTitle').focus();return}
      const was=t.who;t.title=v;t.priv=$('#etPriv').classList.contains('on');t.who=t.priv?S.me:$('#etWho').value;const dv=$('#etDue').value,nd=dv?new Date(dv+'T00:00'):null;if(isoOf(nd)!==isoOf(t.date))t.base=null;t.date=nd;t.dt=$('#etDT').value;t.time=$('#etTime').value||'';const rp=$('#etRep').value;t.rep=rp?{f:rp}:null;if(!t.rep)t.base=null;const nt=readNotes('et');if(nt!=null)t.notes=nt;closeSheet();render();
      if(!t.priv&&t.who!==was&&t.who!==S.me){notify(t.who,'todo',t.id,`${PEOPLE[S.me]} assigned you a task`);toast(`Updated. ${t.who==='B'?PEOPLE[OTHER()]:PEOPLE[t.who]} will get a notification.`)}else toast('Task updated');break}
+   case'doneOpen':S.showDone=!S.showDone;render();break;
    case'oldDone':S.showOldDone=!S.showOldDone;render();break;
    case'todoDefer':{const t=todos.find(x=>x.id===n('id')),k=n('n');if(!t||!t.date)break;t.base=t.base||t.date;t.date=new Date(t.date.getFullYear(),t.date.getMonth(),t.date.getDate()+k);
      closeSheet();render();toast(`Moved to ${DN[t.date.getDay()]} ${t.date.getDate()} ${MN[t.date.getMonth()]}. Later repeats stay on their usual days.`);break}
