@@ -836,7 +836,7 @@ const dotsFor=d=>{const t=[...new Set(dayEvents(d,true).map(e=>itemColour(e)||(e
 const mailOn=()=>{const v=typeof SETTINGS!=='undefined'&&SETTINGS&&SETTINGS.mail_people!=null&&String(SETTINGS.mail_people).trim()!==''?String(SETTINGS.mail_people):'R';return v.toUpperCase().includes(S.me)};
 const mailCal=()=>{try{return localStorage.getItem('fh-mail-cal')==='1'}catch(e){return !!S.mailCal}};   // off until turned on in the calendar's groups menu
 const myMail=()=>mailOn()?mail.filter(m=>m.by===S.me):[];
-const mailEvents=d=>mailCal()||S.view==='today'?myMail().filter(m=>m.status!=='arrived'&&m.exp===d).map(m=>({id:'mail'+m.id,mail:m,d,time:'',type:'mail',who:S.me,by:S.me,title:m.item})):[];
+const mailEvents=d=>mailCal()?myMail().filter(m=>m.status!=='arrived'&&m.exp===d).map(m=>({id:'mail'+m.id,mail:m,d,time:'',type:'mail',who:S.me,by:S.me,title:m.item})):[];
 const mailWhen=m=>m.status==='arrived'?'Arrived'+(m.arrived!=null?' '+dayLabel(m.arrived).replace(/^(Today|Tomorrow|Yesterday)$/,x=>x.toLowerCase()):''):m.exp==null?'No date yet':m.exp<0?'Late · was due '+dayLabel(m.exp).replace(/^(Today|Tomorrow|Yesterday)$/,x=>x.toLowerCase()):'Due '+dayLabel(m.exp).replace(/^(Today|Tomorrow|Yesterday)$/,x=>x.toLowerCase());
 // ---------- weather: Open-Meteo (free, no key). Each phone keeps its own place ----------
 const wxGet=()=>{try{return JSON.parse(localStorage.getItem('fh-wx')||'null')||{}}catch(e){return S.wx||{}}};
@@ -900,7 +900,7 @@ function schedTodoRow(t){
 }
 const timedTodos=X=>todos.filter(t=>visible(t)&&t.date&&t.time&&diff(t.date)===X);
 function scheduleHTML(X,filtered,noBins){
-  const items=dayEvents(X,filtered).filter(e=>!(noBins&&e.bins)).map(e=>({k:e.time||'',h:eventRow(e,X)})).concat(timedTodos(X).filter(t=>!filtered||passFilter(t)).map(t=>({k:t.time,h:schedTodoRow(t)})));
+  const items=dayEvents(X,filtered).filter(e=>!(noBins&&(e.bins||e.mail))).map(e=>({k:e.time||'',h:eventRow(e,X)})).concat(timedTodos(X).filter(t=>!filtered||passFilter(t)).map(t=>({k:t.time,h:schedTodoRow(t)})));
   return items.sort((a,b)=>a.k.localeCompare(b.k)).map(x=>x.h).join('');
 }
 function dayLabel(o){const d=addDays(TODAY,o);return o===0?'Today':o===1?'Tomorrow':o===-1?'Yesterday':DN[d.getDay()]+' '+d.getDate()+' '+MN[d.getMonth()]}
@@ -910,6 +910,7 @@ function V_today(){
   const doneT=todos.filter(t=>visible(t)&&t.done&&t.date&&diff(t.date)===X&&!t.time);
   const later=X!==0?[]:todos.filter(t=>visible(t)&&!t.done&&!t.time&&(!t.date||(t.dt==='by'&&diff(t.date)>0))).sort(todoCmp);
   const nw=X===0?myNew():[];
+  const dlv=myMail().filter(m=>m.exp===X);   // deliveries due this day (only for Mail people), in their own section
   S.calHead={label:X===0?'Today':dayLabel(X).split(' ')[0],eyebrow:`${DN[dt.getDay()]} ${dt.getDate()} ${MN[dt.getMonth()]}`,act:'dayNav',a:-1,b:1};
   return `${X!==0?`<div class="backday"><button class="link" data-act="dayNav" data-n="0">‹ Back to today</button></div>`:''}
   ${nw.length?`<section><div class="sec-head"><h2>New for you</h2><button class="link" data-act="seenAll">Mark as seen</button></div>
@@ -924,6 +925,8 @@ function V_today(){
     <div class="card rows">${scheduleHTML(X,false,true)||'<div class="empty">Nothing on</div>'}</div></section>
   <section><div class="sec-head"><h2>Tasks</h2><span style="display:flex;gap:14px"><button class="link" data-act="addTaskOn" data-o="${X}">+ Add</button><button class="link" data-act="go" data-v="todos">All</button></span></div>
     <div class="card rows">${tds.map(todoRow).join('')+doneT.map(todoRow).join('')||`<div class="empty">Nothing ${X===0?'due today':'for this day'}</div>`}${later.length?`<div class="divrow">No date or due later</div>${later.map(todoRow).join('')}`:''}</div></section>
+  ${dlv.length?`<section><div class="sec-head"><h2>Deliveries</h2><button class="link" data-act="go" data-v="mail">All</button></div>
+    <div class="card rows">${dlv.map(mailRow).join('')}</div></section>`:''}
 `;
 }
 function chipFor(x){
