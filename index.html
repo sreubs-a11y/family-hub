@@ -180,7 +180,7 @@ button.divrow.donehead{display:block;width:100%;text-align:left;border-left:0;bo
 :root{--mail:#8A5A2B;--mail-soft:#F6EBDD}
 :root[data-theme="dark"]{--mail:#D9A46B;--mail-soft:#3A2C1E}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--mail:#D9A46B;--mail-soft:#3A2C1E}}
-.stripe.mail{background:var(--mail)}.evc.mail{background:var(--mail-soft);color:var(--mail)}.dots i.mail{background:var(--mail)}
+.stripe.mail{background:var(--mail)}.s .ready{color:var(--mail);font-weight:600}.evc.mail{background:var(--mail-soft);color:var(--mail)}.dots i.mail{background:var(--mail)}
 .wx{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
 .wxd{display:flex;flex-direction:column;align-items:center;gap:0;padding:6px 0 5px;border:1px solid var(--line);background:var(--surface);border-radius:12px;font-size:11px;color:var(--muted);min-width:0;font-variant-numeric:tabular-nums}
 .wxd .ic{font-size:19px;line-height:1.3}.wxd b{color:var(--fg);font-size:13px}.wxd .rn{color:var(--accent);font-weight:600}
@@ -672,7 +672,7 @@ function fromTabs(t){
   groceries=(t.Groceries||[]).filter(g=>g.item).map(g=>({id:N_(g.id),name:g.item,qty:g.note||'',need:g.recipe_qty||'',cat:g.category||catFor(g.item),rid:N_(g.recipe_id),rname:g.recipe_name||'',pid:N_(g.plan_id),by:g.created_by||'R',done:B_(g.done),doneAt:g.done_at||''}));
   shopping=(t.Shopping||[]).filter(x=>x.item).map(x=>({id:N_(x.id),name:x.item,qty:x.qty||'',cat:x.category||'Other',store:x.store||'',by:x.created_by||'R',done:B_(x.done),doneAt:x.done_at||''}));
   todos=(t.Todos||[]).filter(x=>x.title).map(x=>({id:N_(x.id),title:x.title,who:x.who||'B',by:x.created_by||'R',priv:B_(x.private),date:parseYmd(x.date),time:x.time||'',dt:x.date_type==='on'?'on':'by',skip:B_(x.skip_holidays),skipS:x.skip_school===''||x.skip_school==null?B_(x.skip_holidays):B_(x.skip_school),rep:x.repeat?{f:x.repeat}:null,base:parseYmd(x.repeat_base),done:B_(x.done),doneAt:x.done_at||'',notes:x.notes||'',sort:x.sort===''||x.sort==null?null:+x.sort}));
-  mail=(t.Mail||[]).filter(x=>x.item).map(x=>({id:N_(x.id),item:x.item,sender:x.sender||'',carrier:x.carrier||'',tracking:x.tracking||'',exp:offOf(x.expected_date),status:x.status==='arrived'?'arrived':'coming',arrived:offOf(x.arrived_date),notes:x.notes||'',by:x.created_by||'R',src:x.source||'manual',emailId:x.email_id||''}));
+  mail=(t.Mail||[]).filter(x=>x.item).map(x=>({id:N_(x.id),item:x.item,sender:x.sender||'',carrier:x.carrier||'',tracking:x.tracking||'',exp:offOf(x.expected_date),status:x.status==='arrived'||x.status==='ready'?x.status:'coming',place:x.pickup_place||'',arrived:offOf(x.arrived_date),notes:x.notes||'',by:x.created_by||'R',src:x.source||'manual',emailId:x.email_id||''}));
   birthdays=(t.Birthdays||[]).filter(b=>b.name).map(b=>({id:N_(b.id),name:b.name,rel:b.relation||'',day:+b.day,month:(+b.month||1)-1,year:+b.birth_year,known:B_(b.year_known),how:b.how_added||'',show:b.show_on_calendar===''||b.show_on_calendar==null?true:B_(b.show_on_calendar),cal:b.calendar_id||'',kind:b.kind==='anniversary'?'anniversary':'birthday'}));
   notes=(t.Notifications||[]).map(x=>({id:N_(x.id),to:x.to,from:x.created_by,kind:x.item_type,type:x.type||'assigned',ref:N_(x.item_id),msg:x.message,read:!!x.read_at,readAt:x.read_at||'',pushedAt:x.pushed_at||''}));
   const meRow=PEOPLE_ROWS.find(p=>p.id===S.me);if(meRow&&meRow.theme){const [tk,md]=String(meRow.theme).split('|');try{if(tk)localStorage.setItem('fh-theme',tk);if(md)localStorage.setItem('fh-mode',md)}catch(e){S.theme=tk;S.mode=md}}
@@ -696,7 +696,7 @@ function toTabs(){
   T.Shopping=shopping.map(x=>({id:x.id,item:x.name,qty:x.qty||'',category:x.cat,store:x.store||'',done:!!x.done,done_at:stampDone(x),created_by:x.by}));
   T.Todos=todos.map(x=>({id:x.id,title:x.title,who:x.who,private:!!x.priv,date:x.date?isoOf(x.date):'',time:x.time||'',date_type:x.dt||'by',repeat:x.rep?x.rep.f:'',repeat_base:x.rep&&x.base?isoOf(x.base):'',skip_holidays:!!x.skip,skip_school:!!x.skipS,done:!!x.done,done_at:stampDone(x),notes:x.notes||'',sort:x.sort??'',created_by:x.by}));
   // parcels are always private to whoever added them
-  T.Mail=mail.filter(x=>x.by===S.me).map(x=>({id:x.id,item:x.item,sender:x.sender||'',carrier:x.carrier||'',tracking:x.tracking||'',expected_date:x.exp!=null?ymdOff(x.exp):'',status:x.status||'coming',arrived_date:x.arrived!=null?ymdOff(x.arrived):'',notes:x.notes||'',source:x.src||'manual',email_id:x.emailId||'',private:true,created_by:x.by}));
+  T.Mail=mail.filter(x=>x.by===S.me).map(x=>({id:x.id,item:x.item,sender:x.sender||'',carrier:x.carrier||'',tracking:x.tracking||'',expected_date:x.exp!=null?ymdOff(x.exp):'',status:x.status||'coming',arrived_date:x.arrived!=null?ymdOff(x.arrived):'',pickup_place:x.place||'',notes:x.notes||'',source:x.src||'manual',email_id:x.emailId||'',private:true,created_by:x.by}));
   T.Birthdays=birthdays.map(b=>({id:b.id,name:b.name,relation:b.rel||'',day:b.day,month:b.month+1,birth_year:b.year,year_known:!!b.known,how_added:b.how||'',show_on_calendar:b.show!==false,calendar_id:b.cal||'',kind:b.kind||'birthday'}));
   T.Notifications=notes.map(x=>({id:x.id,to:x.to,type:x.type||'assigned',item_type:x.kind,item_id:x.ref,message:x.msg,pushed_at:x.pushedAt||'',read_at:x.read?(x.readAt||(x.readAt=nowStamp())):'',created_by:x.from}));
   T.GroceryCatalog=Object.entries(USER_CAT).map(([k,c])=>({item:k,category:c,source:'user'}));
@@ -837,7 +837,7 @@ const mailOn=()=>{const v=typeof SETTINGS!=='undefined'&&SETTINGS&&SETTINGS.mail
 const mailCal=()=>{try{return localStorage.getItem('fh-mail-cal')==='1'}catch(e){return !!S.mailCal}};   // off until turned on in the calendar's groups menu
 const myMail=()=>mailOn()?mail.filter(m=>m.by===S.me):[];
 const mailEvents=d=>mailCal()?myMail().filter(m=>m.status!=='arrived'&&m.exp===d).map(m=>({id:'mail'+m.id,mail:m,d,time:'',type:'mail',who:S.me,by:S.me,title:m.item})):[];
-const mailWhen=m=>m.status==='arrived'?'Arrived'+(m.arrived!=null?' '+dayLabel(m.arrived).replace(/^(Today|Tomorrow|Yesterday)$/,x=>x.toLowerCase()):''):m.exp==null?'No date yet':m.exp<0?'Late · was due '+dayLabel(m.exp).replace(/^(Today|Tomorrow|Yesterday)$/,x=>x.toLowerCase()):'Due '+dayLabel(m.exp).replace(/^(Today|Tomorrow|Yesterday)$/,x=>x.toLowerCase());
+const mailWhen=m=>m.status==='ready'?'Ready to collect'+(m.place?' from '+m.place:''):m.status==='arrived'?'Arrived'+(m.arrived!=null?' '+dayLabel(m.arrived).replace(/^(Today|Tomorrow|Yesterday)$/,x=>x.toLowerCase()):''):m.exp==null?'No date yet':m.exp<0?'Late · was due '+dayLabel(m.exp).replace(/^(Today|Tomorrow|Yesterday)$/,x=>x.toLowerCase()):'Due '+dayLabel(m.exp).replace(/^(Today|Tomorrow|Yesterday)$/,x=>x.toLowerCase());
 // ---------- weather: Open-Meteo (free, no key). Each phone keeps its own place ----------
 const wxGet=()=>{try{return JSON.parse(localStorage.getItem('fh-wx')||'null')||{}}catch(e){return S.wx||{}}};
 const wxSet=o=>{S.wx=o;try{localStorage.setItem('fh-wx',JSON.stringify(o))}catch(e){}};
@@ -910,7 +910,7 @@ function V_today(){
   const doneT=todos.filter(t=>visible(t)&&t.done&&t.date&&diff(t.date)===X&&!t.time);
   const later=X!==0?[]:todos.filter(t=>visible(t)&&!t.done&&!t.time&&(!t.date||(t.dt==='by'&&diff(t.date)>0))).sort(todoCmp);
   const nw=X===0?myNew():[];
-  const dlv=myMail().filter(m=>m.exp===X);   // deliveries due this day (only for Mail people), in their own section
+  const dlv=myMail().filter(m=>m.status==='ready'?X===0:m.exp===X);   // and, on today, anything waiting to be collected   // deliveries due this day (only for Mail people), in their own section
   S.calHead={label:X===0?'Today':dayLabel(X).split(' ')[0],eyebrow:`${DN[dt.getDay()]} ${dt.getDate()} ${MN[dt.getMonth()]}`,act:'dayNav',a:-1,b:1};
   return `${X!==0?`<div class="backday"><button class="link" data-act="dayNav" data-n="0">‹ Back to today</button></div>`:''}
   ${nw.length?`<section><div class="sec-head"><h2>New for you</h2><button class="link" data-act="seenAll">Mark as seen</button></div>
@@ -1262,15 +1262,16 @@ function V_todos(){
   <div class="card rows">${tasksByDate(list)||'<div class="empty">Nothing to do</div>'}</div>
   ${old.length&&S.showDone?`<button class="link" data-act="oldDone">${S.showOldDone?'Hide':'Show'} ${old.length} older ticked task${old.length===1?'':'s'}</button>`:''}`;
 }
-function mailRow(m){const got=m.status==='arrived',late=!got&&m.exp!=null&&m.exp<0;
-  return `<div class="row ${got?'done':''}"><button class="check ${got?'on':''}" data-act="mailToggle" data-id="${m.id}" aria-label="${got?'Not arrived yet':'Arrived'}: ${esc(m.item)}">${got?ICON.tick:''}</button>
-  <button class="main" data-act="mailEdit" data-id="${m.id}" aria-label="Edit ${esc(m.item)}"><div class="t">${esc(m.item)}</div><div class="s"><span class="${late?'late':''}">${esc(mailWhen(m))}</span>${m.sender?' · '+esc(m.sender):''}${m.carrier?' · '+esc(m.carrier):''}${m.src==='email'?' · from email':''}</div></button></div>`}
+function mailRow(m){const got=m.status==='arrived',late=!got&&m.status!=='ready'&&m.exp!=null&&m.exp<0;
+  return `<div class="row ${got?'done':''}"><button class="check ${got?'on':''}" data-act="mailToggle" data-id="${m.id}" aria-label="${got?'Not arrived yet':m.status==='ready'?'Collected':'Arrived'}: ${esc(m.item)}">${got?ICON.tick:''}</button>
+  <button class="main" data-act="mailEdit" data-id="${m.id}" aria-label="Edit ${esc(m.item)}"><div class="t">${esc(m.item)}</div><div class="s"><span class="${late?'late':m.status==='ready'?'ready':''}">${esc(mailWhen(m))}</span>${m.sender?' · '+esc(m.sender):''}${m.carrier?' · '+esc(m.carrier):''}${m.src==='email'?' · from email':''}</div></button></div>`}
 function V_mail(){
   if(!mailOn())return '<div class="empty">Mail is private to whoever adds it.</div>';
-  const mine=myMail(),open=mine.filter(m=>m.status!=='arrived').sort((a,b)=>(a.exp??9e9)-(b.exp??9e9)),got=mine.filter(m=>m.status==='arrived').sort((a,b)=>(b.arrived??-9e9)-(a.arrived??-9e9)).slice(0,15);
+  const mine=myMail(),ready=mine.filter(m=>m.status==='ready'),open=mine.filter(m=>m.status==='coming').sort((a,b)=>(a.exp??9e9)-(b.exp??9e9)),got=mine.filter(m=>m.status==='arrived').sort((a,b)=>(b.arrived??-9e9)-(a.arrived??-9e9)).slice(0,15);
   return `<form data-form="mail" class="todo-form"><div class="addbar"><input type="text" id="mailInput" placeholder="What's coming, e.g. school shoes" autocomplete="off" aria-label="New delivery"><button class="btn">Add</button></div>
   <div class="minis"><label class="mini"><span class="mini-l">due</span><input type="date" id="mailDue" aria-label="Expected delivery date"></label><label class="mini"><span class="mini-l">from</span><input type="text" id="mailFrom" placeholder="optional" aria-label="From" style="max-width:9em"></label></div></form>
-  <div class="hint" style="margin-top:-12px">${LOCK} Only you can see this list. Tick a parcel when it arrives. To see deliveries on the calendar, turn on "Deliveries" in the calendar's groups filter.</div>
+  <div class="hint" style="margin-top:-12px">${LOCK} Only you can see this list. Tick a parcel when it arrives or you've collected it. To see deliveries on the calendar, turn on "Deliveries" in the calendar's groups filter.</div>
+  ${ready.length?`<section><div class="sec-head"><h2>Ready to collect</h2></div><div class="card rows">${ready.map(mailRow).join('')}</div></section>`:''}
   <section><div class="sec-head"><h2>On the way</h2></div><div class="card rows">${open.map(mailRow).join('')||'<div class="empty">Nothing on the way</div>'}</div></section>
   ${got.length?`<section><div class="sec-head"><h2 style="color:var(--muted)">Arrived</h2></div><div class="card rows">${got.map(mailRow).join('')}</div></section>`:''}`;
 }
@@ -1280,7 +1281,9 @@ function sheetMail(m){
   <div class="two"><div class="field"><label for="mlDue">Expected</label><input type="date" id="mlDue" value="${m.exp!=null?isoOf(addDays(TODAY,m.exp)):''}"></div><div class="field"><label for="mlFrom">From</label><input type="text" id="mlFrom" value="${esc(m.sender||'')}" placeholder="Shop or person"></div></div>
   <div class="two"><div class="field"><label for="mlCarrier">Carrier</label><input type="text" id="mlCarrier" value="${esc(m.carrier||'')}" placeholder="e.g. Australia Post"></div><div class="field"><label for="mlTrack">Tracking number</label><input type="text" id="mlTrack" value="${esc(m.tracking||'')}" autocomplete="off"></div></div>
   <div class="field"><label for="mlNotes">Notes</label><textarea id="mlNotes" rows="2">${esc(m.notes||'')}</textarea></div>
-  <div class="toggle"><span><div style="font-weight:600">Arrived</div></span><button class="sw-btn ${m.status==='arrived'?'on':''}" id="mlGot" data-act="swToggle" aria-label="Arrived"></button></div>
+  <div class="toggle"><span><div style="font-weight:600">Ready to collect</div></span><button class="sw-btn ${m.status==='ready'?'on':''}" id="mlReady" data-act="swToggle" aria-label="Ready to collect"></button></div>
+  <div class="field"><label for="mlPlace">Collect from</label><input type="text" id="mlPlace" value="${esc(m.place||'')}" placeholder="e.g. Lygon Street North Post Office"></div>
+  <div class="toggle"><span><div style="font-weight:600">Arrived or collected</div></span><button class="sw-btn ${m.status==='arrived'?'on':''}" id="mlGot" data-act="swToggle" aria-label="Arrived"></button></div>
   <div class="hint" style="font-size:12px">${LOCK} Only you can see this.${m.src==='email'?' Added from an email.':''}</div>
   <div class="two"><button class="btn ghost block" data-act="mailDel" data-id="${m.id}">Delete</button><button class="btn block" data-act="mailSave" data-id="${m.id}">Save</button></div>`)}
 function V_birthdays(){
@@ -1669,11 +1672,12 @@ document.addEventListener('click',e=>{
      .catch(e=>{el.disabled=false;el.textContent='📍 Use my location';toast(e&&e.code===1?'Location is off for this app. Type a town instead.':"Couldn't find your location. Type a town instead.")});break}
    case'wxPick':wxSet({lat:+el.dataset.lat,lon:+el.dataset.lon,mode:'place',place:el.dataset.name});closeSheet();render();wxFetch(true);toast('Weather for '+el.dataset.name);break;
    case'mailCalT':{const on=!mailCal();try{localStorage.setItem('fh-mail-cal',on?'1':'0')}catch(e){S.mailCal=on}render();toast(on?'Deliveries show on your calendar':'Deliveries hidden from your calendar');break}
-   case'mailToggle':{const m=mail.find(x=>x.id===n('id'));m.status=m.status==='arrived'?'coming':'arrived';m.arrived=m.status==='arrived'?0:null;render();break}
+   case'mailToggle':{const m=mail.find(x=>x.id===n('id'));m.status=m.status==='arrived'?(m.place?'ready':'coming'):'arrived';m.arrived=m.status==='arrived'?0:null;render();break}
    case'mailEdit':sheetMail(mail.find(x=>x.id===n('id')));break;
    case'mailSave':{const m=mail.find(x=>x.id===n('id')),it=$('#mlItem').value.trim();if(!it){$('#mlItem').focus();return}const dv=$('#mlDue').value,got=$('#mlGot').classList.contains('on');
      Object.assign(m,{item:it,exp:dv?diff(new Date(dv+'T00:00')):null,sender:$('#mlFrom').value.trim(),carrier:$('#mlCarrier').value.trim(),tracking:$('#mlTrack').value.trim(),notes:$('#mlNotes').value});
-     if(got!==(m.status==='arrived')){m.status=got?'arrived':'coming';m.arrived=got?0:null}closeSheet();render();toast('Saved');break}
+     m.place=$('#mlPlace').value.trim();const rdy=$('#mlReady').classList.contains('on');
+     if(got!==(m.status==='arrived'))m.arrived=got?0:null;m.status=got?'arrived':rdy?'ready':'coming';closeSheet();render();toast('Saved');break}
    case'mailDel':{const u=undoSnap(),m=mail.find(x=>x.id===n('id'));mail=mail.filter(x=>x!==m);closeSheet();render();undoToast(`${m.item} deleted`,u);break}
    case'dayNav':S.dOff=el.dataset.n==='0'?0:S.dOff+n('n');render();break;
    case'evDetail':{if(el.dataset.o!=null&&el.closest('.qres'))S.sel=n('o');sheetEventDetail(events.find(x=>x.id===n('id')));break}
